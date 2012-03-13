@@ -738,6 +738,7 @@ namespace VncSharp
 				int bytesNeeded = compressedBufferSize;
 				int maxBufferSize = 64 * 1024; // 64k buffer
 				byte[] receiveBuffer = new byte[maxBufferSize];
+				NetworkStream netStream = (NetworkStream)this.BaseStream;
 				do
 				{
 					if (netStream.DataAvailable)
