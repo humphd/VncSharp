@@ -30,8 +30,8 @@ namespace VncSharp.Encodings
 		private const int TILE_WIDTH = 64;
 		private const int TILE_HEIGHT = 64;
 
-		static int[] palette = new int[128];
-		static int[] tileBuffer = new int[TILE_WIDTH * TILE_HEIGHT];
+		private int[] palette = new int[128];
+		private int[] tileBuffer = new int[TILE_WIDTH * TILE_HEIGHT];
 
 		public ZrleRectangle(RfbProtocol rfb, Framebuffer framebuffer, Rectangle rectangle)
 			: base(rfb, framebuffer, rectangle, RfbProtocol.ZRLE_ENCODING)
