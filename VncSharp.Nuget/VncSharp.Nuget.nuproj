@@ -24,7 +24,13 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="VncSharp.Nuget.build.number">
+    <Folder Include="Bin\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Bin\VncSharp.Nuget.build.number">
+      <SubType>Content</SubType>
+    </Content>
+    <Content Include="ReadMe.txt">
       <SubType>Content</SubType>
     </Content>
   </ItemGroup>
