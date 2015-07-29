@@ -118,6 +118,16 @@ namespace VncSharp
 			try {
 				rfb.Connect(host, port);
 				rfb.ReadProtocolVersion();
+
+				// Handle possible repeater connection
+				if (rfb.ServerVersion == 0.0) {
+					rfb.WriteProxyAddress();
+					// Now we are connected to the real server; read the protocol version of the 
+					// server
+					rfb.ReadProtocolVersion();
+					// Resume normal handshake and protocol
+				}
+					
 				rfb.WriteProtocolVersion();
 
 				// Figure out which type of authentication the server uses
