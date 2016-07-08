@@ -1,6 +1,11 @@
 Change Log
 ----------
 
+* Version 1.1
+
+- Rewrite of keyboard handling code (Will now support keyboard combinations such as Ctrl + C)
+- Minor code clean-up
+
 * Version 1.0
 
 - Added ZRLE (Grégoire Pailler) using the BSD licensed zlib.NET version 1.04 (http://www.componentace.com/zlib_NET.htm)
