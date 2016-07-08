@@ -17,12 +17,10 @@
 
 using System;
 using System.IO;
-using System.Net;
 using System.Drawing;
 using System.Threading;
 using System.Diagnostics;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 
 namespace VncSharp
 {
@@ -31,8 +29,10 @@ namespace VncSharp
 	/// </summary>
 	public class RfbProtocol
 	{
-		// Version Constants
-		public const string RFB_VERSION_ZERO			= "RFB 000.000\n";
+        #region Constants
+        // ReSharper disable InconsistentNaming
+        // Version Constants
+        public const string RFB_VERSION_ZERO			= "RFB 000.000\n";
 
 		// Encoding Constants
 		public const int RAW_ENCODING 					= 0;
@@ -56,8 +56,61 @@ namespace VncSharp
 		protected const byte POINTER_EVENT 				= 5;
 		protected const byte CLIENT_CUT_TEXT 			= 6;
 
-		protected int verMajor = -1;	// Major version of Protocol--probably 3
-		protected int verMinor = -1;	// Minor version of Protocol--probably 3, 7, or 8
+        // Keyboard constants
+        public const int XK_BackSpace = 0xFF08;
+        public const int XK_Tab = 0xFF09;
+        public const int XK_Clear = 0xFF0B;
+        public const int XK_Return = 0xFF0D;
+        public const int XK_Pause = 0xFF13;
+        public const int XK_Sys_Req = 0xFF15;
+        public const int XK_Escape = 0xFF1B;
+        public const int XK_Home = 0xFF50;
+        public const int XK_Left = 0xFF51;
+        public const int XK_Up = 0xFF52;
+        public const int XK_Right = 0xFF53;
+        public const int XK_Down = 0xFF54;
+        public const int XK_Prior = 0xFF55;
+        public const int XK_Next = 0xFF56;
+        public const int XK_End = 0xFF57;
+        public const int XK_Select = 0xFF60;
+        public const int XK_Print = 0xFF61;
+        public const int XK_Execute = 0xFF62;
+        public const int XK_Insert = 0xFF63;
+        public const int XK_Menu = 0xFF67;
+        public const int XK_Cancel = 0xFF69;
+        public const int XK_Help = 0xFF6A;
+        public const int XK_Break = 0xFF6B;
+        public const int XK_F1 = 0xFFBE;
+        public const int XK_F2 = 0xFFBF;
+        public const int XK_F3 = 0xFFC0;
+        public const int XK_F4 = 0xFFC1;
+        public const int XK_F5 = 0xFFC2;
+        public const int XK_F6 = 0xFFC3;
+        public const int XK_F7 = 0xFFC4;
+        public const int XK_F8 = 0xFFC5;
+        public const int XK_F9 = 0xFFC6;
+        public const int XK_F10 = 0xFFC7;
+        public const int XK_F11 = 0xFFC8;
+        public const int XK_F12 = 0xFFC9;
+        public const int XK_Shift_L = 0xFFE1;
+        public const int XK_Shift_R = 0xFFE2;
+        public const int XK_Control_L = 0xFFE3;
+        public const int XK_Control_R = 0xFFE4;
+        public const int XK_Meta_L = 0xFFE7;
+        public const int XK_Meta_R = 0xFFE8;
+        public const int XK_Alt_L = 0xFFE9;
+        public const int XK_Alt_R = 0xFFEA;
+        public const int XK_Super_L = 0xFFEB;
+        public const int XK_Super_R = 0xFFEC;
+        public const int XK_Hyper_L = 0xFFED;
+        public const int XK_Hyper_R = 0xFFEE;
+        public const int XK_Delete = 0xFFFF;
+
+        // ReSharper restore InconsistentNaming
+        #endregion
+
+        protected int verMajor;	// Major version of Protocol--probably 3
+		protected int verMinor; // Minor version of Protocol--probably 3, 7, or 8
 
 		protected TcpClient tcp;		// Network object used to communicate with host
 		protected NetworkStream stream;	// Stream object used to send/receive data
@@ -65,16 +118,12 @@ namespace VncSharp
 		protected BinaryWriter writer;	// sent and received, so these handle this.
 		protected ZRLECompressedReader zrleReader;
 
-		public RfbProtocol()
-		{
-		}
-		
-		/// <summary>
+	    /// <summary>
 		/// Gets the Protocol Version of the remote VNC Host--probably 3.3, 3.7, or 3.8.
 		/// </summary>
 		public float ServerVersion {
 			get {
-				return (float) verMajor + (verMinor * 0.1f);
+				return verMajor + (verMinor * 0.1f);
 			}
 		}
 
@@ -109,7 +158,7 @@ namespace VncSharp
 		/// <param name="port">The Port number on which to connect.  Usually this will be 5900, except in the case that the VNC Host is running on a different Display, in which case the Display number should be added to 5900 to determine the correct port.</param>
 		public void Connect(string host, int port)
 		{
-			if (host == null) throw new ArgumentNullException("host");
+			if (host == null) throw new ArgumentNullException(nameof(host));
 
 			// Try to connect, passing any exceptions up to the caller, and if successful, 
 			// wrap a big endian Binary Reader and Binary Writer around the resulting stream.
@@ -325,8 +374,8 @@ namespace VncSharp
 		/// <returns>Returns a Framebuffer object representing the geometry and properties of the remote host.</returns>
 		public Framebuffer ReadServerInit()
 		{
-			int w = (int) reader.ReadUInt16();
-			int h = (int) reader.ReadUInt16();
+			int w = reader.ReadUInt16();
+			int h = reader.ReadUInt16();
 			Framebuffer buffer = Framebuffer.FromPixelFormat(reader.ReadBytes(16), w, h);
 			int length = (int) reader.ReadUInt32();
 
@@ -414,7 +463,7 @@ namespace VncSharp
 		/// <summary>
 		/// Sends text in the client's Cut Buffer to the server. See RFB Doc v. 3.8 section 6.3.7.
 		/// </summary>
-		/// <param name="text">The text to be sent to the server.</param></param>
+		/// <param name="text">The text to be sent to the server.</param>
 		public void WriteClientCutText(string text)
 		{
 			writer.Write(CLIENT_CUT_TEXT);
@@ -430,7 +479,7 @@ namespace VncSharp
 		/// <returns>Returns the message type as an integer.</returns>
 		public int ReadServerMessageType()
 		{
-			return (int) reader.ReadByte();
+			return reader.ReadByte();
 		}
 
 		/// <summary>
@@ -440,7 +489,7 @@ namespace VncSharp
 		public int ReadFramebufferUpdate()
 		{
 			ReadPadding(1);
-			return (int) reader.ReadUInt16();
+			return reader.ReadUInt16();
 		}
 
 		/// <summary>
@@ -451,10 +500,10 @@ namespace VncSharp
 		public void ReadFramebufferUpdateRectHeader(out Rectangle rectangle, out int encoding)
 		{
 			rectangle = new Rectangle();
-			rectangle.X = (int) reader.ReadUInt16();
-			rectangle.Y = (int) reader.ReadUInt16();
-			rectangle.Width = (int) reader.ReadUInt16();
-			rectangle.Height = (int) reader.ReadUInt16();
+			rectangle.X = reader.ReadUInt16();
+			rectangle.Y = reader.ReadUInt16();
+			rectangle.Width = reader.ReadUInt16();
+			rectangle.Height = reader.ReadUInt16();
 			encoding = (int) reader.ReadUInt32();
 		}
 		
@@ -598,7 +647,7 @@ namespace VncSharp
 		/// <returns>Returns a String representation of bytes.</returns>
 		protected static string GetString(byte[] bytes)
 		{
-			return System.Text.ASCIIEncoding.UTF8.GetString(bytes, 0, bytes.Length);
+			return System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 		}
 
 		/// <summary>
@@ -608,11 +657,11 @@ namespace VncSharp
 		{
 			private byte[] buff = new byte[4];
 
-			public BigEndianBinaryReader(System.IO.Stream input) : base(input)
+			public BigEndianBinaryReader(Stream input) : base(input)
 			{
 			}
 			
-			public BigEndianBinaryReader(System.IO.Stream input, System.Text.Encoding encoding) : base(input, encoding)
+			public BigEndianBinaryReader(Stream input, System.Text.Encoding encoding) : base(input, encoding)
 			{
 			}
 
@@ -621,7 +670,7 @@ namespace VncSharp
 			public override ushort ReadUInt16()
 			{
 				FillBuff(2);
-				return (ushort)(((uint)buff[1]) | ((uint)buff[0]) << 8);
+				return (ushort)(buff[1] | ((uint)buff[0]) << 8);
 				
 			}
 			
@@ -634,13 +683,13 @@ namespace VncSharp
 			public override uint ReadUInt32()
 			{
 				FillBuff(4);
-				return (uint)(((uint)buff[3]) & 0xFF | ((uint)buff[2]) << 8 | ((uint)buff[1]) << 16 | ((uint)buff[0]) << 24);
+				return ((uint)buff[3]) & 0xFF | ((uint)buff[2]) << 8 | ((uint)buff[1]) << 16 | ((uint)buff[0]) << 24;
 			}
 			
 			public override int ReadInt32()
 			{
 				FillBuff(4);
-				return (int)(buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24);
+				return buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24;
 			}
 
 			private void FillBuff(int totalBytes)
@@ -665,11 +714,11 @@ namespace VncSharp
 		/// </summary>
 		protected sealed class BigEndianBinaryWriter : BinaryWriter
 		{
-			public BigEndianBinaryWriter(System.IO.Stream input) : base(input)
+			public BigEndianBinaryWriter(Stream input) : base(input)
 			{
 			}
 
-			public BigEndianBinaryWriter(System.IO.Stream input, System.Text.Encoding encoding) : base(input, encoding)
+			public BigEndianBinaryWriter(Stream input, System.Text.Encoding encoding) : base(input, encoding)
 			{
 			}
 			
@@ -745,11 +794,11 @@ namespace VncSharp
 
 				// Get compressed stream length to read
 				byte[] buff = new byte[4];
-				if (this.BaseStream.Read(buff, 0, 4) != 4)
+				if (BaseStream.Read(buff, 0, 4) != 4)
 					throw new Exception("ZRLE decoder: Invalid compressed stream size");
 
 				// BigEndian to LittleEndian conversion
-				int compressedBufferSize = (int)(buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24);
+				int compressedBufferSize = buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24;
 				if (compressedBufferSize > 64 * 1024 * 1024)
 					throw new Exception("ZRLE decoder: Invalid compressed data size");
 
@@ -766,7 +815,7 @@ namespace VncSharp
 				int bytesNeeded = compressedBufferSize;
 				int maxBufferSize = 64 * 1024; // 64k buffer
 				byte[] receiveBuffer = new byte[maxBufferSize];
-				NetworkStream netStream = (NetworkStream)this.BaseStream;
+				NetworkStream netStream = (NetworkStream)BaseStream;
 				do
 				{
 					if (netStream.DataAvailable)
