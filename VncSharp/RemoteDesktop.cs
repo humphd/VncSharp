@@ -25,6 +25,7 @@ using System.Drawing.Imaging;
 using System.Drawing.Drawing2D;
 
 using VncSharp.Encodings;
+using System.Security;
 
 namespace VncSharp
 {
@@ -36,7 +37,7 @@ namespace VncSharp
 	/// <summary>
 	/// When connecting to a VNC Host, a password will sometimes be required.  Therefore a password must be obtained from the user.  A default Password dialog box is included and will be used unless users of the control provide their own Authenticate delegate function for the task.  For example, this might pull a password from a configuration file of some type instead of prompting the user.
 	/// </summary>
-	public delegate string AuthenticateDelegate();
+	public delegate SecureString AuthenticateDelegate();
 
 	/// <summary>
 	/// SpecialKeys is a list of the various keyboard combinations that overlap with the client-side and make it
@@ -83,6 +84,7 @@ namespace VncSharp
 		Image  designModeDesktop;			     // Used when painting control in VS.NET designer
 		VncClient vnc;						     // The Client object handling all protocol-level interaction
 		int port = 5900;					     // The port to connect to on remote host (5900 is default)
+		SecureString _Password = null;           // The password to authenticate with
 		bool passwordPending = false;		     // After Connect() is called, a password might be required.
 		bool fullScreenRefresh = false;		     // Whether or not to request the entire remote screen be sent.
         VncDesktopTransformPolicy desktopPolicy;
@@ -134,6 +136,13 @@ namespace VncSharp
 				port = value;	
 			}
 		}
+
+        /// <summary>
+        /// The password to authenticate with.  If left blank, user will be prompted for the password
+        /// </summary>
+        public SecureString Password {
+            set { _Password = value; }
+        }
 
 		/// <summary>
 		/// True if the RemoteDesktop is connected and authenticated (if necessary) with a remote VNC Host; otherwise False.
@@ -352,13 +361,13 @@ namespace VncSharp
 
             if (passwordPending) {
                 // Server needs a password, so call which ever method is refered to by the GetPassword delegate.
-                string password = GetPassword();
+                if ((_Password == null) || (_Password.Length == 0)) _Password = GetPassword();
 
-                if (password == null) {
+                if (_Password == null) {
                     // No password could be obtained (e.g., user clicked Cancel), so stop connecting
                     return;
                 } else {
-                    Authenticate(password);
+                    Authenticate(_Password);
                 }
             } else {
                 // No password needed, so go ahead and Initialize here
@@ -372,7 +381,7 @@ namespace VncSharp
 		/// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is already Connected.  See <see cref="VncSharp.RemoteDesktop.IsConnected" />.</exception>
 		/// <exception cref="System.NullReferenceException">Thrown if the password is null.</exception>
 		/// <param name="password">The user's password.</param>
-		public void Authenticate(string password)
+		public void Authenticate(SecureString password)
 		{
 			InsureConnection(false);
 			if (!passwordPending) throw new InvalidOperationException("Authentication is only required when Connect() returns True and the VNC Host requires a password.");
