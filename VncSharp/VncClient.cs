@@ -23,6 +23,8 @@ using System.Security.Cryptography;
 using System.Windows.Forms;
 
 using VncSharp.Encodings;
+using System.Security;
+using System.Runtime.InteropServices;
 
 namespace VncSharp
 {
@@ -216,7 +218,7 @@ namespace VncSharp
 		/// </summary>
 		/// <param name="password">The password to use.</param>
 		/// <returns>Returns True if Authentication worked, otherwise False.</returns>
-		public bool Authenticate(string password)
+		public bool Authenticate(SecureString password)
 		{
 			if (password == null) throw new ArgumentNullException("password");
 			
@@ -245,7 +247,7 @@ namespace VncSharp
 		/// Performs VNC Authentication using VNC DES encryption.  See the RFB Protocol doc 6.2.2.
 		/// </summary>
 		/// <param name="password">A string containing the user's password in clear text format.</param>
-		protected void PerformVncAuthentication(string password)
+		protected void PerformVncAuthentication(SecureString password)
 		{
 			byte[] challenge = rfb.ReadSecurityChallenge();
 			rfb.WriteSecurityResponse(EncryptChallenge(password, challenge));
@@ -257,15 +259,27 @@ namespace VncSharp
 		/// <param name="password">The user's password.</param>
 		/// <param name="challenge">The challenge sent by the server.</param>
 		/// <returns>Returns the encrypted challenge.</returns>
-		protected byte[] EncryptChallenge(string password, byte[] challenge)
+		protected byte[] EncryptChallenge(SecureString password, byte[] challenge)
 		{
 			byte[] key = new byte[8];
 
+            // Get plain text password
+            string PlaintextPassword = "";
+            IntPtr UnmanagedString = IntPtr.Zero;
+            try {
+                UnmanagedString = Marshal.SecureStringToBSTR(password);
+                PlaintextPassword = Marshal.PtrToStringAuto(UnmanagedString);
+            } finally {
+                if (UnmanagedString != IntPtr.Zero) {
+                    Marshal.ZeroFreeBSTR(UnmanagedString);
+                }
+            }
+
 			// Key limited to 8 bytes max.
-			if (password.Length >= 8) {
-				System.Text.Encoding.ASCII.GetBytes(password, 0, 8, key, 0);
+			if (PlaintextPassword.Length >= 8) {
+				System.Text.Encoding.ASCII.GetBytes(PlaintextPassword, 0, 8, key, 0);
 			} else {
-				System.Text.Encoding.ASCII.GetBytes(password, 0, password.Length, key, 0);
+				System.Text.Encoding.ASCII.GetBytes(PlaintextPassword, 0, password.Length, key, 0);
 			}			
 
 			// VNC uses reverse byte order in key

@@ -20,6 +20,7 @@ using System.Drawing;
 using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Security;
 
 namespace VncSharp
 {
@@ -125,12 +126,16 @@ namespace VncSharp
 		/// Creates an instance of PasswordDialog and uses it to obtain the user's password.
 		/// </summary>
 		/// <returns>Returns the user's password as entered, or null if he/she clicked Cancel.</returns>
-		public static string GetPassword()
+		public static SecureString GetPassword()
 		{
 			using(PasswordDialog dialog = new PasswordDialog()) {
 				if (dialog.ShowDialog() == DialogResult.OK) {
-					return dialog.Password;
-				} else {
+                    SecureString Result = new SecureString();
+                    for (int i = 0; i < dialog.Password.Length; i++) {
+                        Result.AppendChar(dialog.Password[i]);
+                    }
+                    return Result;
+                } else {
 					// If the user clicks Cancel, return null and not the empty string.
 					return null;
 				}
