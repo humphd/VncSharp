@@ -20,12 +20,16 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using System.ComponentModel;
+#if DEBUG
 using System.Diagnostics;
+#endif
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using static System.Diagnostics.Debug;
 using static System.Reflection.Assembly;
-#pragma warning disable 1587,1584,1711,1572,1581,1580
+// ReSharper disable PossibleLossOfFraction
+#pragma warning disable 1587, 1584, 1711, 1572, 1581, 1580
 
 namespace VncSharp
 {
@@ -55,7 +59,7 @@ namespace VncSharp
 	/// <summary>
 	/// The RemoteDesktop control takes care of all the necessary RFB Protocol and GUI handling, including mouse and keyboard support, as well as requesting and processing screen updates from the remote VNC host.  Most users will choose to use the RemoteDesktop control alone and not use any of the other protocol classes directly.
 	/// </summary>
-	public class RemoteDesktop : Panel
+	public sealed class RemoteDesktop : Panel
 	{
 		[Description("Raised after a successful call to the Connect() method.")]
 		/// <summary>
@@ -79,15 +83,15 @@ namespace VncSharp
         /// Points to a Function capable of obtaining a user's password.  By default this means using the PasswordDialog.GetPassword() function; however, users of RemoteDesktop can replace this with any function they like, so long as it matches the delegate type.
         /// </summary>
         public AuthenticateDelegate GetPassword;
-		
-		Bitmap desktop;						     // Internal representation of remote image.
-		Image  designModeDesktop;			     // Used when painting control in VS.NET designer
-		VncClient vnc;						     // The Client object handling all protocol-level interaction
-		int port = 5900;					     // The port to connect to on remote host (5900 is default)
-		bool passwordPending;		     // After Connect() is called, a password might be required.
-		bool fullScreenRefresh;		     // Whether or not to request the entire remote screen be sent.
-        VncDesktopTransformPolicy desktopPolicy;
-		RuntimeState state = RuntimeState.Disconnected;
+
+	    private Bitmap desktop;						     // Internal representation of remote image.
+	    private Image  designModeDesktop;			     // Used when painting control in VS.NET designer
+	    private VncClient vnc;						     // The Client object handling all protocol-level interaction
+	    private int port = 5900;					     // The port to connect to on remote host (5900 is default)
+	    private bool passwordPending;		     // After Connect() is called, a password might be required.
+	    private bool fullScreenRefresh;		     // Whether or not to request the entire remote screen be sent.
+	    private VncDesktopTransformPolicy desktopPolicy;
+	    private RuntimeState state = RuntimeState.Disconnected;
 
 	    //private KeyboardHook _keyboardHook = new KeyboardHook();
 
@@ -111,6 +115,7 @@ namespace VncSharp
 					 true);
 
 			// Show a screenshot of a Windows desktop from the manifest and cache to be used when painting in design mode
+		    // ReSharper disable once AssignNullToNotNullAttribute
 			designModeDesktop = Image.FromStream(GetAssembly(GetType()).GetManifestResourceStream("VncSharp.Resources.screenshot.png"));
 			
             // Use a simple desktop policy for design mode.  This will be replaced in Connect()
@@ -141,13 +146,9 @@ namespace VncSharp
 		/// <summary>
 		/// True if the RemoteDesktop is connected and authenticated (if necessary) with a remote VNC Host; otherwise False.
 		/// </summary>
-		private bool IsConnected {
-			get {
-				return state == RuntimeState.Connected;
-			}
-		}
-		
-		// This is a hack to get around the issue of DesignMode returning
+		private bool IsConnected => state == RuntimeState.Connected;
+
+	    // This is a hack to get around the issue of DesignMode returning
 		// false when the control is being removed from a form at design time.
 		// First check to see if the control is in DesignMode, then work up 
 		// to also check any parent controls.  DesignMode returns False sometimes
@@ -157,7 +158,7 @@ namespace VncSharp
 				if (base.DesignMode) {
 					return true;
 				} else {
-					Control parent = Parent;
+					var parent = Parent;
 					
 					while (parent != null) {
 						if (parent.Site != null && parent.Site.DesignMode) {
@@ -173,32 +174,20 @@ namespace VncSharp
 		/// <summary>
 		/// Returns a more appropriate default size for initial drawing of the control at design time
 		/// </summary>
-		protected override Size DefaultSize {
-			get { 
-				return new Size(400, 200);
-			}
-		}
+		protected override Size DefaultSize => new Size(400, 200);
 
-        [Description("The name of the remote desktop.")]
+	    [Description("The name of the remote desktop.")]
         /// <summary>
         /// The name of the remote desktop, or "Disconnected" if not connected.
         /// </summary>
-        public string Hostname {
-            get {
-                return vnc == null ? "Disconnected" : vnc.HostName;
-            }
-        }
+        public string Hostname => vnc == null ? "Disconnected" : vnc.HostName;
 
-        /// <summary>
+	    /// <summary>
         /// The image of the remote desktop.
         /// </summary>
-        public Image Desktop {
-            get {
-                return desktop;
-            }
-        }
+        public Image Desktop => desktop;
 
-		/// <summary>
+	    /// <summary>
 		/// Get a complete update of the entire screen from the remote host.
 		/// </summary>
 		/// <remarks>You should allow users to call FullScreenUpdate in order to correct
@@ -220,19 +209,24 @@ namespace VncSharp
 		/// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is in the wrong state.</exception>
 		private void InsureConnection(bool connected)
 		{
-			// Grab the name of the calling routine:
-			string methodName = new StackTrace().GetFrame(1).GetMethod().Name;
-			
+            // Grab the name of the calling routine:
+#if DEBUG
+            var methodName = new StackTrace().GetFrame(1).GetMethod().Name;
+#endif
 			if (connected) {
-				Debug.Assert(state == RuntimeState.Connected || 
+#if DEBUG
+                Assert(state == RuntimeState.Connected || 
 												state == RuntimeState.Disconnecting, // special case for Disconnect()
-												string.Format("RemoteDesktop must be in RuntimeState.Connected before calling {0}.", methodName));
+				    $"RemoteDesktop must be in RuntimeState.Connected before calling {methodName}.");
+#endif
 				if (state != RuntimeState.Connected && state != RuntimeState.Disconnecting) {
 					throw new InvalidOperationException("RemoteDesktop must be in Connected state before calling methods that require an established connection.");
 				}
 			} else { // disconnected
-				System.Diagnostics.Debug.Assert(state == RuntimeState.Disconnected,
-												string.Format("RemoteDesktop must be in RuntimeState.Disconnected before calling {0}.", methodName));
+#if DEBUG
+                Assert(state == RuntimeState.Disconnected,
+				    $"RemoteDesktop must be in RuntimeState.Disconnected before calling {methodName}.");
+#endif
                 if (state != RuntimeState.Disconnected && state != RuntimeState.Disconnecting) {
 					throw new InvalidOperationException("RemoteDesktop cannot be in Connected state when calling methods that establish a connection.");
 				}
@@ -248,12 +242,11 @@ namespace VncSharp
 			e.DesktopUpdater.Draw(desktop);
             Invalidate(desktopPolicy.AdjustUpdateRectangle(e.DesktopUpdater.UpdateRectangle));
 
-			if (state == RuntimeState.Connected) {
-				vnc.RequestScreenUpdate(fullScreenRefresh);
+		    if (state != RuntimeState.Connected) return;
+		    vnc.RequestScreenUpdate(fullScreenRefresh);
 				
-				// Make sure the next screen update is incremental
-    			fullScreenRefresh = false;
-			}
+		    // Make sure the next screen update is incremental
+		    fullScreenRefresh = false;
 		}
 
         /// <summary>
@@ -356,7 +349,7 @@ namespace VncSharp
             if (passwordPending)
             {
                 // Server needs a password, so call which ever method is refered to by the GetPassword delegate.
-                string password = GetPassword();
+                var password = GetPassword();
 
                 if (password != null)
                     Authenticate(password);
@@ -530,16 +523,18 @@ namespace VncSharp
 		/// <param name="message">The message to be drawn.</param>
 		private void DrawDesktopMessage(string message)
 		{
-			Debug.Assert(desktop != null, "Can't draw on desktop when null.");
+			Assert(desktop != null, "Can't draw on desktop when null.");
 			// Draw the given message on the local desktop
-			using (Graphics g = Graphics.FromImage(desktop)) {
+			using (var g = Graphics.FromImage(desktop)) {
 				g.FillRectangle(Brushes.Black, vnc.Framebuffer.Rectangle);
 
-				StringFormat format = new StringFormat();
-				format.Alignment = StringAlignment.Center;
-				format.LineAlignment = StringAlignment.Center;
+			    var format = new StringFormat
+			    {
+			        Alignment = StringAlignment.Center,
+			        LineAlignment = StringAlignment.Center
+			    };
 
-				g.DrawString(message, 
+			    g.DrawString(message, 
 							 new Font("Arial", 12), 
 							 new SolidBrush(Color.White), 
 							 new PointF(vnc.Framebuffer.Width / 2, vnc.Framebuffer.Height / 2), format);
@@ -588,8 +583,8 @@ namespace VncSharp
 				}
 
 				// See if either of the bitmaps used need clean-up.  
-				if (desktop != null) desktop.Dispose();
-				if (designModeDesktop != null) designModeDesktop.Dispose();
+			    desktop?.Dispose();
+			    designModeDesktop?.Dispose();
 			}
 			base.Dispose(disposing);
 		}
@@ -611,19 +606,21 @@ namespace VncSharp
 			if (!DesignMode) {
 				switch(state) {
 					case RuntimeState.Connected:
-						Debug.Assert(desktop != null);
+						Assert(desktop != null);
 						DrawDesktopImage(desktop, pe.Graphics);
 						break;
 					case RuntimeState.Disconnected:
-						// Do nothing, just black background.
-						break;
-					default:
+                    case RuntimeState.Disconnecting:
+                    case RuntimeState.Connecting:
+                        // Do nothing, just black background.
+                        break;
+				    default:
 						// Sanity check
-						throw new NotImplementedException(string.Format("RemoteDesktop in unknown State: {0}.", state.ToString()));
+						throw new NotImplementedException($"RemoteDesktop in unknown State: {state.ToString()}.");
 				}
             } else {
 				// Draw a static screenshot of a Windows desktop to simulate the control in action
-				Debug.Assert(designModeDesktop != null);
+				Assert(designModeDesktop != null);
 				DrawDesktopImage(designModeDesktop, pe.Graphics);
 			}
 			base.OnPaint(pe);
@@ -632,10 +629,10 @@ namespace VncSharp
         protected override void OnResize(EventArgs eventargs)
         {
             // Fix a bug with a ghost scrollbar in clipped mode on maximize
-            Control parent = Parent;
+            var parent = Parent;
             while (parent != null) {
                 if (parent is Form) {
-                    Form form = parent as Form;
+                    var form = parent as Form;
                     if (form.WindowState == FormWindowState.Maximized)
                         form.Invalidate();
                     parent = null;
@@ -682,10 +679,9 @@ namespace VncSharp
         }
 
 	    private void OnClipboardChanged()
-        {
-            if (ClipboardChanged != null)
-                ClipboardChanged(this, EventArgs.Empty);
-        }
+	    {
+	        ClipboardChanged?.Invoke(this, EventArgs.Empty);
+	    }
 
 		/// <summary>
 		/// Dispatches the ConnectionLost event if any targets have registered.
@@ -694,9 +690,7 @@ namespace VncSharp
 		/// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is in the Connected state.</exception>
 		private void OnConnectionLost()
 		{
-			if (ConnectionLost != null) {
-				ConnectionLost(this, EventArgs.Empty);
-			}
+		    ConnectionLost?.Invoke(this, EventArgs.Empty);
 		}
 		
 		/// <summary>
@@ -706,9 +700,7 @@ namespace VncSharp
 		/// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is not in the Connected state.</exception>
 		private void OnConnectComplete(ConnectEventArgs e)
 		{
-			if (ConnectComplete != null) {
-				ConnectComplete(this, e);
-			}
+		    ConnectComplete?.Invoke(this, e);
 		}
 
 		// Handle Mouse Events:		 -------------------------------------------
@@ -746,7 +738,7 @@ namespace VncSharp
 			// HACK: this check insures that while in DesignMode, no messages are sent to a VNC Host
 			// (i.e., there won't be one--NullReferenceException)			
             if (!DesignMode && IsConnected) {
-				Point current = PointToClient(MousePosition);
+				var current = PointToClient(MousePosition);
 				byte mask = 0;
 
 				// mouse was scrolled forward
@@ -765,18 +757,17 @@ namespace VncSharp
 		{
 			// HACK: this check insures that while in DesignMode, no messages are sent to a VNC Host
 			// (i.e., there won't be one--NullReferenceException)			
-			if (!DesignMode && IsConnected) {
-				Point current = PointToClient(MousePosition);
-				byte mask = 0;
+		    if (DesignMode || !IsConnected) return;
+		    var current = PointToClient(MousePosition);
+		    byte mask = 0;
 
-				if (MouseButtons == MouseButtons.Left)   mask += 1;
-				if (MouseButtons == MouseButtons.Middle) mask += 2;
-				if (MouseButtons == MouseButtons.Right)  mask += 4;
+		    if (MouseButtons == MouseButtons.Left)   mask += 1;
+		    if (MouseButtons == MouseButtons.Middle) mask += 2;
+		    if (MouseButtons == MouseButtons.Right)  mask += 4;
 
-                Rectangle adjusted = desktopPolicy.GetMouseMoveRectangle();
-                if (adjusted.Contains(current))
-                    vnc.WritePointerEvent(mask, desktopPolicy.UpdateRemotePointer(current));
-            }
+		    var adjusted = desktopPolicy.GetMouseMoveRectangle();
+		    if (adjusted.Contains(current))
+		        vnc.WritePointerEvent(mask, desktopPolicy.UpdateRemotePointer(current));
 		}
 
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
@@ -791,7 +782,7 @@ namespace VncSharp
             return ProcessKeyEventArgs(ref msg);
         }
 
-        protected static Dictionary<Int32, Int32> KeyTranslationTable = new Dictionary<Int32, Int32>
+	    private static Dictionary<int, int> KeyTranslationTable = new Dictionary<int, int>
         {
             { Win32.VK_CANCEL, RfbProtocol.XK_Cancel },
             { Win32.VK_BACK, RfbProtocol.XK_BackSpace },
@@ -830,7 +821,7 @@ namespace VncSharp
             { Win32.VK_APPS, RfbProtocol.XK_Menu },
         };
 
-        public static Int32 TranslateVirtualKey(Int32 virtualKey, KeyboardHook.ModifierKeys modifierKeys)
+        public static int TranslateVirtualKey(int virtualKey, KeyboardHook.ModifierKeys modifierKeys)
         {
             if (KeyTranslationTable.ContainsKey(virtualKey))
                 return KeyTranslationTable[virtualKey];
@@ -856,12 +847,10 @@ namespace VncSharp
             var charCount = Win32.ToAscii(virtualKey, Win32.MapVirtualKey(virtualKey, 0), keyboardState, charResult, 0);
 
             // TODO: This could probably be handled better. For now, we'll just return the last character.
-            if (charCount > 0) return Convert.ToInt32(charResult[charCount - 1]);
-
-            return virtualKey;
+            return charCount > 0 ? Convert.ToInt32(charResult[charCount - 1]) : virtualKey;
         }
 
-        public static Boolean IsModifierKey(Int32 keyCode)
+        public static bool IsModifierKey(int keyCode)
         {
             switch (keyCode)
             {
@@ -882,9 +871,9 @@ namespace VncSharp
 			}
 		}
 
-	    protected KeyboardHook.ModifierKeys PreviousModifierKeyState;
+	    private KeyboardHook.ModifierKeys PreviousModifierKeyState;
 
-        protected void SyncModifierKeyState(KeyboardHook.ModifierKeys modifierKeys)
+	    private void SyncModifierKeyState(KeyboardHook.ModifierKeys modifierKeys)
 		            {
             if ((PreviousModifierKeyState & KeyboardHook.ModifierKeys.LeftShift) !=
                 (modifierKeys & KeyboardHook.ModifierKeys.LeftShift))
@@ -917,7 +906,7 @@ namespace VncSharp
             PreviousModifierKeyState = modifierKeys;
 		}
 
-        protected bool HandleKeyboardEvent(Int32 msg, Int32 virtualKey, KeyboardHook.ModifierKeys modifierKeys)
+	    private bool HandleKeyboardEvent(int msg, int virtualKey, KeyboardHook.ModifierKeys modifierKeys)
 		{
 		    if (DesignMode || !IsConnected)
                 return false;
@@ -927,7 +916,7 @@ namespace VncSharp
 	
             if (IsModifierKey(virtualKey)) return true;
 
-            Boolean pressed;
+            bool pressed;
             switch (msg)
 		{
                 case Win32.WM_KEYDOWN:
@@ -988,8 +977,6 @@ namespace VncSharp
 					PressKeys(new uint[] { 0xffe3, 0xff1b }, release); // CTRL, ESC
 					break;
 				// TODO: are there more I should support???
-				default:
-					break;
 			}
 		}
 		
@@ -1000,18 +987,20 @@ namespace VncSharp
 		/// <param name="release">A boolean indicating whether the keys should be Pressed and then Released.</param>
 		private void PressKeys(uint[] keys, bool release)
 		{
-			Debug.Assert(keys != null, "keys[] cannot be null.");
+			Assert(keys != null, "keys[] cannot be null.");
 			
-			for(int i = 0; i < keys.Length; ++i) {
-				vnc.WriteKeyboardEvent(keys[i], true);
+			foreach (uint u in keys)
+			{
+			    vnc.WriteKeyboardEvent(u, true);
 			}
-			
-			if (release) {
-				// Walk the keys array backwards in order to release keys in correct order
-				for(int i = keys.Length - 1; i >= 0; --i) {
-					vnc.WriteKeyboardEvent(keys[i], false);
-				}
-			}
+
+		    if (!release) return;
+
+		    // Walk the keys array backwards in order to release keys in correct order
+		    for(var i = keys.Length - 1; i >= 0; --i)
+            {
+		        vnc.WriteKeyboardEvent(keys[i], false);
+		    }
 		}
 	}
 }
