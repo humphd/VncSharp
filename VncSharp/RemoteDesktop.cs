@@ -143,7 +143,8 @@ namespace VncSharp
             set
             {
                 // Ignore attempts to use invalid port numbers
-                if (value < 1 | value > 65535) value = 5900;
+                // TODO: This set is currently not used. However, I believe that this should be "||" not "|"
+                if ((value < 1) | (value > 65535)) value = 5900;
                 port = value;
             }
         }
@@ -173,9 +174,7 @@ namespace VncSharp
                     while (parent != null)
                     {
                         if (parent.Site != null && parent.Site.DesignMode)
-                        {
                             return true;
-                        }
                         parent = parent.Parent;
                     }
                     return false;
@@ -221,22 +220,21 @@ namespace VncSharp
         /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is in the wrong state.</exception>
         private void InsureConnection(bool connected)
         {
-            // Grab the name of the calling routine:
 #if DEBUG
+            // Grab the name of the calling routine:
             var methodName = new StackTrace().GetFrame(1).GetMethod().Name;
 #endif
             if (connected)
             {
 #if DEBUG
+               
                 Assert(state == RuntimeState.Connected || 
-												state == RuntimeState.Disconnecting, // special case for Disconnect()
-				    $"RemoteDesktop must be in RuntimeState.Connected before calling {methodName}.");
+                        state == RuntimeState.Disconnecting, // special case for Disconnect()
+                        $"RemoteDesktop must be in RuntimeState.Connected before calling {methodName}.");
 #endif
                 if (state != RuntimeState.Connected && state != RuntimeState.Disconnecting)
-                {
                     throw new InvalidOperationException(
                         "RemoteDesktop must be in Connected state before calling methods that require an established connection.");
-                }
             }
             else
             {
@@ -246,10 +244,8 @@ namespace VncSharp
 				    $"RemoteDesktop must be in RuntimeState.Disconnected before calling {methodName}.");
 #endif
                 if (state != RuntimeState.Disconnected && state != RuntimeState.Disconnecting)
-                {
                     throw new InvalidOperationException(
                         "RemoteDesktop cannot be in Connected state when calling methods that establish a connection.");
-                }
             }
         }
 
@@ -399,13 +395,9 @@ namespace VncSharp
 
             passwordPending = false; // repeated calls to Authenticate should fail.
             if (vnc.Authenticate(password))
-            {
                 Initialize();
-            }
             else
-            {
                 OnConnectionLost();
-            }
         }
 
         /// <summary>
@@ -435,13 +427,9 @@ namespace VncSharp
         private void SetScalingMode(bool scaled)
         {
             if (scaled)
-            {
                 desktopPolicy = new VncScaledDesktopPolicy(vnc, this);
-            }
             else
-            {
                 desktopPolicy = new VncClippedDesktopPolicy(vnc, this);
-            }
 
             AutoScroll = desktopPolicy.AutoScroll;
             AutoScrollMinSize = desktopPolicy.AutoScrollMinSize;
@@ -600,9 +588,7 @@ namespace VncSharp
             {
                 // Make sure the connection is closed--should never happen :)
                 if (state != RuntimeState.Disconnected)
-                {
                     Disconnect();
-                }
 
                 // See if either of the bitmaps used need clean-up.  
                 desktop?.Dispose();
@@ -620,7 +606,9 @@ namespace VncSharp
                 HandleKeyboardEvent(m.WParam.ToInt32(), msgData.KeyCode, msgData.ModifierKeys);
             }
             else
+            {
                 base.WndProc(ref m);
+            }
         }
 
         protected override void OnPaint(PaintEventArgs pe)
@@ -641,7 +629,8 @@ namespace VncSharp
                         break;
                     default:
                         // Sanity check
-                        throw new NotImplementedException($"RemoteDesktop in unknown State: {state.ToString()}.");
+                        // we should never get here...
+                        throw new NotImplementedException($"RemoteDesktop in unknown State: {state}.");
                 }
             }
             else
@@ -658,7 +647,6 @@ namespace VncSharp
             // Fix a bug with a ghost scrollbar in clipped mode on maximize
             var parent = Parent;
             while (parent != null)
-            {
                 if (parent is Form)
                 {
                     var form = parent as Form;
@@ -670,7 +658,6 @@ namespace VncSharp
                 {
                     parent = parent.Parent;
                 }
-            }
 
             base.OnResize(eventargs);
         }
@@ -697,11 +684,9 @@ namespace VncSharp
             // keyboard/mouse/update notifications, this may get called 
             // many times, and from main or worker thread.
             // Guard against this and invoke Disconnect once.
-            if (state == RuntimeState.Connected)
-            {
-                SetState(RuntimeState.Disconnecting);
-                Disconnect();
-            }
+            if (state != RuntimeState.Connected) return;
+            SetState(RuntimeState.Disconnecting);
+            Disconnect();
         }
 
         // Handle the VncClient ServerCutText event and bubble it up as ClipboardChanged.
@@ -779,14 +764,9 @@ namespace VncSharp
 
                 // mouse was scrolled forward
                 if (mea.Delta > 0)
-                {
                     mask += 8;
-                }
                 else if (mea.Delta < 0)
-                {
-                    // mouse was scrolled backwards
                     mask += 16;
-                }
 
                 vnc.WritePointerEvent(mask, desktopPolicy.GetMouseMovePoint(current));
             }
@@ -822,7 +802,7 @@ namespace VncSharp
             return ProcessKeyEventArgs(ref msg);
         }
 
-        private static Dictionary<int, int> KeyTranslationTable = new Dictionary<int, int>
+        private static readonly Dictionary<int, int> KeyTranslationTable = new Dictionary<int, int>
         {
             {Win32.VK_CANCEL, RfbProtocol.XK_Cancel},
             {Win32.VK_BACK, RfbProtocol.XK_BackSpace},
@@ -1003,6 +983,7 @@ namespace VncSharp
             // For all of these I am sending the key presses manually instead of calling
             // the keyboard event handlers, as I don't want to propegate the calls up to the 
             // base control class and form.
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (keys)
             {
                 case SpecialKeys.Ctrl:
@@ -1033,18 +1014,14 @@ namespace VncSharp
         {
             Assert(keys != null, "keys[] cannot be null.");
 
-            foreach (uint u in keys)
-            {
+            foreach (var u in keys)
                 vnc.WriteKeyboardEvent(u, true);
-            }
 
             if (!release) return;
 
             // Walk the keys array backwards in order to release keys in correct order
             for (var i = keys.Length - 1; i >= 0; --i)
-            {
                 vnc.WriteKeyboardEvent(keys[i], false);
-            }
         }
     }
 }
