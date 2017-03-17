@@ -617,6 +617,9 @@ namespace VncSharp
 					case RuntimeState.Disconnected:
 						// Do nothing, just black background.
 						break;
+					case RuntimeState.Disconnecting:
+						// Do nothing, just black background.
+						break;
 					default:
 						// Sanity check
 						throw new NotImplementedException(string.Format("RemoteDesktop in unknown State: {0}.", state.ToString()));
