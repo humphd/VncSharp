@@ -16,9 +16,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.IO.Compression;
 
 namespace VncSharp.Encodings
 {
@@ -30,8 +27,8 @@ namespace VncSharp.Encodings
 		private const int TILE_WIDTH = 64;
 		private const int TILE_HEIGHT = 64;
 
-		private int[] palette = new int[128];
-		private int[] tileBuffer = new int[TILE_WIDTH * TILE_HEIGHT];
+		private readonly int[] palette = new int[128];
+		private readonly int[] tileBuffer = new int[TILE_WIDTH * TILE_HEIGHT];
 
 		public ZrleRectangle(RfbProtocol rfb, Framebuffer framebuffer, Rectangle rectangle)
 			: base(rfb, framebuffer, rectangle, RfbProtocol.ZRLE_ENCODING)
