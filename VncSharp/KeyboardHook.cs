@@ -121,18 +121,17 @@ namespace VncSharp
             var wParamInt = wParam.ToInt32();
             var result = 0;
 
-            if (nCode == Win32.HC_ACTION)
+            if (nCode != Win32.HC_ACTION)
+                return result != 0 ? new IntPtr(result) : Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
+            // ReSharper disable once SwitchStatementMissingSomeCases
+            switch (wParamInt)
             {
-                // ReSharper disable once SwitchStatementMissingSomeCases
-                switch (wParamInt)
-                {
-                    case Win32.WM_KEYDOWN:
-                    case Win32.WM_SYSKEYDOWN:
-                    case Win32.WM_KEYUP:
-                    case Win32.WM_SYSKEYUP:
-                        result = OnKey(wParamInt, lParam);
-                        break;
-                }
+                case Win32.WM_KEYDOWN:
+                case Win32.WM_SYSKEYDOWN:
+                case Win32.WM_KEYUP:
+                case Win32.WM_SYSKEYUP:
+                    result = OnKey(wParamInt, lParam);
+                    break;
             }
 
             return result != 0 ? new IntPtr(result) : Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
@@ -148,24 +147,23 @@ namespace VncSharp
                 // Mainly when the station is unlocked, or after an admin password is asked
                 try
                 {
-                    if (GetFocusWindow() == notificationEntry.WindowHandle && notificationEntry.KeyCode == key.vkCode)
+                    if (GetFocusWindow() != notificationEntry.WindowHandle || notificationEntry.KeyCode != key.vkCode)
+                        continue;
+                    var modifierKeys = GetModifierKeyState();
+                    if (!ModifierKeysMatch(notificationEntry.ModifierKeys, modifierKeys)) continue;
+
+                    var wParam = new IntPtr(msg);
+                    var lParam = new HookKeyMsgData
                     {
-                        var modifierKeys = GetModifierKeyState();
-                        if (!ModifierKeysMatch(notificationEntry.ModifierKeys, modifierKeys)) continue;
+                        KeyCode = key.vkCode,
+                        ModifierKeys = modifierKeys,
+                        WasBlocked = notificationEntry.Block
+                    };
 
-                        var wParam = new IntPtr(msg);
-                        var lParam = new HookKeyMsgData
-                        {
-                            KeyCode = key.vkCode,
-                            ModifierKeys = modifierKeys,
-                            WasBlocked = notificationEntry.Block
-                        };
+                    if (!PostMessage(notificationEntry.WindowHandle, HookKeyMsg, wParam, lParam))
+                        throw new Win32Exception(Marshal.GetLastWin32Error());
 
-                        if (!PostMessage(notificationEntry.WindowHandle, HookKeyMsg, wParam, lParam))
-                            throw new Win32Exception(Marshal.GetLastWin32Error());
-
-                        if (notificationEntry.Block) result = 1;
-                    }
+                    if (notificationEntry.Block) result = 1;
                 }
                 catch (Win32Exception e)
                 {

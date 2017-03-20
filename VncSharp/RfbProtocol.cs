@@ -233,6 +233,7 @@ namespace VncSharp
 				verMajor = 3;
 
 				// Figure out which version of the protocol this is:
+			    // ReSharper disable once SwitchStatementMissingSomeCases
 				switch (b[10]) {
 					case 0x33: 
 					case 0x36:	// BUG FIX: pass 3.3 for 3.6 to allow UltraVNC to work, thanks to Steve Bostedor.
@@ -264,9 +265,9 @@ namespace VncSharp
 		{
 			// We will use which ever version the server understands, be it 3.3, 3.7, or 3.8.
 			Debug.Assert(verMinor == 3 || verMinor == 7 || verMinor == 8, "Wrong Protocol Version!",
-						 string.Format("Protocol Version should be 3.3, 3.7, or 3.8 but is {0}.{1}", verMajor, verMinor));
+			    $"Protocol Version should be 3.3, 3.7, or 3.8 but is {verMajor}.{verMinor}");
 
-			writer.Write(GetBytes(string.Format("RFB 003.00{0}\n", verMinor)));
+			writer.Write(GetBytes($"RFB 003.00{verMinor}\n"));
 			writer.Flush();
 		}
 
@@ -288,7 +289,7 @@ namespace VncSharp
 		public byte[] ReadSecurityTypes()
 		{
 			// Read and return the types of security supported by the server (see protocol doc 6.1.2)
-			byte[] types = null;
+			byte[] types;
 			
 			// Protocol Version 3.7 onward supports multiple security types, while 3.3 only 1
 			if (verMinor == 3) {
@@ -697,10 +698,9 @@ namespace VncSharp
 			private void FillBuff(int totalBytes)
 			{
 				var bytesRead = 0;
-				var n = 0;
 
-				do {
-					n = BaseStream.Read(buff, bytesRead, totalBytes - bytesRead);
+			    do {
+					var n = BaseStream.Read(buff, bytesRead, totalBytes - bytesRead);
 					
 					if (n == 0)
 						throw new IOException("Unable to read next byte(s).");
@@ -813,16 +813,15 @@ namespace VncSharp
 
 				#region Decode stream in blocks
 				// Decode stream in blocks
-				int bytesToRead;
-				var bytesNeeded = compressedBufferSize;
-				var maxBufferSize = 64 * 1024; // 64k buffer
+			    var bytesNeeded = compressedBufferSize;
+				const int maxBufferSize = 64 * 1024; // 64k buffer
 				var receiveBuffer = new byte[maxBufferSize];
 				var netStream = (NetworkStream)BaseStream;
 				do
 				{
 					if (netStream.DataAvailable)
 					{
-						bytesToRead = bytesNeeded;
+						var bytesToRead = bytesNeeded;
 
 						// the byteToRead should never exceed the maxBufferSize
 						if (bytesToRead > maxBufferSize)
