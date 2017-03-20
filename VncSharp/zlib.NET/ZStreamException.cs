@@ -42,10 +42,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * and contributors of zlib.
 */
 
-using System;
 using System.IO;
 
-namespace ComponentAce.Compression.Libs.zlib
+namespace VncSharp.zlib.NET
 {
 	
 	

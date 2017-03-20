@@ -1,9 +1,7 @@
-
-using System;
 using System.IO;
 using System.Text;
 
-namespace ComponentAce.Compression.Libs.zlib
+namespace VncSharp.zlib.NET
 {
 	public class SupportClass
 	{

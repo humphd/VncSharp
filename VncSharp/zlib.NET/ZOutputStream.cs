@@ -46,7 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 using System;
 using System.IO;
 
-namespace ComponentAce.Compression.Libs.zlib
+namespace VncSharp.zlib.NET
 {
 	
 	public class ZOutputStream:Stream

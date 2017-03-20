@@ -44,7 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 using System;
 
-namespace ComponentAce.Compression.Libs.zlib
+namespace VncSharp.zlib.NET
 {
     internal sealed class Tree
 	{

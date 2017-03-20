@@ -42,7 +42,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * and contributors of zlib.
 */
 
-namespace ComponentAce.Compression.Libs.zlib
+namespace VncSharp.zlib.NET
 {
     internal sealed class StaticTree
 	{

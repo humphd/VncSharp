@@ -22,7 +22,7 @@ using System.IO;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
-using ComponentAce.Compression.Libs.zlib;
+using VncSharp.zlib.NET;
 
 namespace VncSharp
 {
