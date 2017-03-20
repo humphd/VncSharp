@@ -16,7 +16,6 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.Windows.Forms;
 using System.Drawing;
 
 namespace VncSharp
@@ -75,19 +74,18 @@ namespace VncSharp
 
 			if (((double)s.Width / vnc.Framebuffer.Width) <= ((double)s.Height / vnc.Framebuffer.Height)) {
 				return new Size(s.Width, (int)((double)s.Width / vnc.Framebuffer.Width * vnc.Framebuffer.Height));
-			} else {
-				return new Size((int)((double)s.Height / vnc.Framebuffer.Height * vnc.Framebuffer.Width), s.Height);
 			}
+		    return new Size((int)((double)s.Height / vnc.Framebuffer.Height * vnc.Framebuffer.Width), s.Height);
 		}
 
         private double ScaleFactor {
-			get {
-				if (((double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width) <= 
+			get
+			{
+			    if (((double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width) <= 
                     ((double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height)) {
 					return ((double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width);
-				} else {
-					return ((double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height);
 				}
+			    return ((double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height);
 			}
 		}
 

@@ -15,9 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace VncSharp.Encodings
 {
@@ -46,10 +44,10 @@ namespace VncSharp.Encodings
 			// Colour in all the subrectangles, reading the properties of each one after another.
 			for (int i = 0; i < numSubRect; i++) {
 				subRectVal	= preader.ReadPixel();
-				x			= (int) rfb.ReadUInt16();
-				y			= (int) rfb.ReadUInt16();
-				w			= (int) rfb.ReadUInt16();
-				h			= (int) rfb.ReadUInt16();
+				x			= rfb.ReadUInt16();
+				y			= rfb.ReadUInt16();
+				w			= rfb.ReadUInt16();
+				h			= rfb.ReadUInt16();
 				
 				// Colour in this sub-rectangle
 				FillRectangle(new Rectangle(x, y, w, h), subRectVal);

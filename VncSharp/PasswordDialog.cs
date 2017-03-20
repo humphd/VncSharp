@@ -15,9 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Drawing;
-using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
 
@@ -130,10 +127,9 @@ namespace VncSharp
 			using(PasswordDialog dialog = new PasswordDialog()) {
 				if (dialog.ShowDialog() == DialogResult.OK) {
 					return dialog.Password;
-				} else {
-					// If the user clicks Cancel, return null and not the empty string.
-					return null;
 				}
+			    // If the user clicks Cancel, return null and not the empty string.
+			    return null;
 			}
 		}
 	}

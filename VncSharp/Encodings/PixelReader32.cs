@@ -15,7 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.IO;
 
 namespace VncSharp.Encodings
@@ -34,10 +33,10 @@ namespace VncSharp.Encodings
 			// Read the pixel value
 			byte[] b = reader.ReadBytes(4);
 
-            uint pixel = (uint)(((uint)b[0]) & 0xFF | 
-                                ((uint)b[1]) << 8   | 
-                                ((uint)b[2]) << 16  | 
-                                ((uint)b[3]) << 24);
+            uint pixel = ((uint)b[0]) & 0xFF | 
+                         ((uint)b[1]) << 8   | 
+                         ((uint)b[2]) << 16  | 
+                         ((uint)b[3]) << 24;
 
 			// Extract RGB intensities from pixel
 			byte red   = (byte) ((pixel >> framebuffer.RedShift)   & framebuffer.RedMax);

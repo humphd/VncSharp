@@ -274,16 +274,16 @@ namespace VncSharp
 			
 			Framebuffer buffer = new Framebuffer(width, height);
 			
-			buffer.BitsPerPixel	= (int) b[0];
-			buffer.Depth		= (int) b[1];
+			buffer.BitsPerPixel	= b[0];
+			buffer.Depth		= b[1];
 			buffer.BigEndian	= (b[2] != 0);
 			buffer.TrueColour	= (b[3] != 0);
-			buffer.RedMax		= (int) (b[5] | b[4] << 8);
-			buffer.GreenMax		= (int) (b[7] | b[6] << 8);
-			buffer.BlueMax		= (int) (b[9] | b[8] << 8);
-			buffer.RedShift		= (int) b[10];
-			buffer.GreenShift	= (int) b[11];
-			buffer.BlueShift	= (int) b[12];
+			buffer.RedMax		= b[5] | b[4] << 8;
+			buffer.GreenMax		= b[7] | b[6] << 8;
+			buffer.BlueMax		= b[9] | b[8] << 8;
+			buffer.RedShift		= b[10];
+			buffer.GreenShift	= b[11];
+			buffer.BlueShift	= b[12];
 			// Last 3 bytes are padding, ignore									
 
 			return buffer;

@@ -16,12 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.Threading;
-using System.Drawing;
 using System.Diagnostics;
+using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Security.Cryptography;
+using System.Text;
+using System.Threading;
 using System.Windows.Forms;
-
 using VncSharp.Encodings;
 
 namespace VncSharp
@@ -50,12 +51,8 @@ namespace VncSharp
         /// Raised when the server caused the local clipboard to be filled.
         /// </summary>
         public event EventHandler ServerCutText;
-        	
-		public VncClient()
-		{
-		}
 
-		/// <summary>
+	    /// <summary>
 		/// Gets the Framebuffer representing the remote server's desktop geometry.
 		/// </summary>
 		public Framebuffer Framebuffer {
@@ -141,27 +138,25 @@ namespace VncSharp
 						// The server is not able (or willing) to accept the connection.
 						// A message follows indicating why the connection was dropped.
 						throw new VncProtocolException("Connection Failed. The server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
-					} else {
-						securityType = GetSupportedSecurityType(types);
-						Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
-						
-						rfb.WriteSecurityType(securityType);
-						
-						// Protocol 3.8 states that a SecurityResult is still sent when using NONE (see 6.2.1)
-						if (rfb.ServerVersion == 3.8f && securityType == 1) {
-							if (rfb.ReadSecurityResult() > 0) {
-								// For some reason, the server is not accepting the connection.  Get the
-								// reason and throw an exception
-								throw new VncProtocolException("Unable to Connecto to the Server. The Server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
-							}
-						}
-						
-						return (securityType > 1) ? true : false;
 					}
-				} else {
-					// Something is wrong, since we should have gotten at least 1 Security Type
-					throw new VncProtocolException("Protocol Error Connecting to Server. The Server didn't send any Security Types during the initial handshake.");
+				    securityType = GetSupportedSecurityType(types);
+				    Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
+						
+				    rfb.WriteSecurityType(securityType);
+						
+				    // Protocol 3.8 states that a SecurityResult is still sent when using NONE (see 6.2.1)
+				    if (rfb.ServerVersion == 3.8f && securityType == 1) {
+				        if (rfb.ReadSecurityResult() > 0) {
+				            // For some reason, the server is not accepting the connection.  Get the
+				            // reason and throw an exception
+				            throw new VncProtocolException("Unable to Connecto to the Server. The Server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
+				        }
+				    }
+						
+				    return (securityType > 1) ? true : false;
 				}
+			    // Something is wrong, since we should have gotten at least 1 Security Type
+			    throw new VncProtocolException("Protocol Error Connecting to Server. The Server didn't send any Security Types during the initial handshake.");
 			} catch (Exception e) {
 				throw new VncProtocolException("Unable to connect to the server. Error was: " + e.Message, e);
 			}			
@@ -230,15 +225,14 @@ namespace VncSharp
 			
 			if (rfb.ReadSecurityResult() == 0) {
 				return true;
-			} else {
-				// Authentication failed, and if the server is using Protocol version 3.8, a 
-				// plain text message follows indicating why the error happend.  I'm not 
-				// currently using this message, but it is read here to clean out the stream.
-				// In earlier versions of the protocol, the server will just drop the connection.
-				if (rfb.ServerVersion == 3.8) rfb.ReadSecurityFailureReason();
-				rfb.Close();	// TODO: Is this the right place for this???
-				return false;
 			}
+		    // Authentication failed, and if the server is using Protocol version 3.8, a 
+		    // plain text message follows indicating why the error happend.  I'm not 
+		    // currently using this message, but it is read here to clean out the stream.
+		    // In earlier versions of the protocol, the server will just drop the connection.
+		    if (rfb.ServerVersion == 3.8) rfb.ReadSecurityFailureReason();
+		    rfb.Close();	// TODO: Is this the right place for this???
+		    return false;
 		}
 
 		/// <summary>
@@ -263,9 +257,9 @@ namespace VncSharp
 
 			// Key limited to 8 bytes max.
 			if (password.Length >= 8) {
-				System.Text.Encoding.ASCII.GetBytes(password, 0, 8, key, 0);
+				Encoding.ASCII.GetBytes(password, 0, 8, key, 0);
 			} else {
-				System.Text.Encoding.ASCII.GetBytes(password, 0, password.Length, key, 0);
+				Encoding.ASCII.GetBytes(password, 0, password.Length, key, 0);
 			}			
 
 			// VNC uses reverse byte order in key
@@ -319,7 +313,7 @@ namespace VncSharp
 		public void StartUpdates()
 		{
 			// Start getting updates on background thread.
-			worker = new Thread(new ThreadStart(this.GetRfbUpdates));
+			worker = new Thread(GetRfbUpdates);
             // Bug Fix (Grégoire Pailler) for clipboard and threading
             worker.SetApartmentState(ApartmentState.STA);
             worker.IsBackground = true;
@@ -400,10 +394,10 @@ namespace VncSharp
 
                                     // In order to play nicely with WinForms controls, we do a check here to 
                                     // see if it is necessary to synchronize this event with the UI thread.
-                                    if (VncUpdate.Target is System.Windows.Forms.Control) {
+                                    if (VncUpdate.Target is Control) {
                                         Control target = VncUpdate.Target as Control;
                                         if (target != null)
-                                            target.Invoke(VncUpdate, new object[] { this, e });
+                                            target.Invoke(VncUpdate, this, e);
                                     } else {
                                         // Target is not a WinForms control, so do it on this thread...
                                         VncUpdate(this, new VncEventArgs(er));
@@ -436,11 +430,11 @@ namespace VncSharp
 			// In order to play nicely with WinForms controls, we do a check here to 
 			// see if it is necessary to synchronize this event with the UI thread.
 			if (ConnectionLost != null && 
-				ConnectionLost.Target is System.Windows.Forms.Control) {
+				ConnectionLost.Target is Control) {
 				Control target = ConnectionLost.Target as Control;
 
 				if (target != null)
-					target.Invoke(ConnectionLost, new object[] {this, EventArgs.Empty});
+					target.Invoke(ConnectionLost, this, EventArgs.Empty);
 				else
 					ConnectionLost(this, EventArgs.Empty);
 			}
@@ -451,11 +445,11 @@ namespace VncSharp
             // In order to play nicely with WinForms controls, we do a check here to 
             // see if it is necessary to synchronize this event with the UI thread.
             if (ServerCutText != null &&
-                ServerCutText.Target is System.Windows.Forms.Control) {
+                ServerCutText.Target is Control) {
                 Control target = ServerCutText.Target as Control;
 
                 if (target != null)
-                    target.Invoke(ServerCutText, new object[] { this, EventArgs.Empty });
+                    target.Invoke(ServerCutText, this, EventArgs.Empty);
                 else
                     ServerCutText(this, EventArgs.Empty);
             }
@@ -463,7 +457,7 @@ namespace VncSharp
 
 // There is no managed way to get a system beep (until Framework v.2.0). So depending on the platform, something external has to be called.
 #if Win32
-		[System.Runtime.InteropServices.DllImport("kernel32.dll")]
+		[DllImport("kernel32.dll")]
 		private static extern bool Beep(int freq, int duration);
 #else
 		private bool Beep(int freq, int duration)	// bool just so it matches the Win32 API signature

@@ -41,7 +41,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
+
 namespace ComponentAce.Compression.Libs.zlib
 {
 	
@@ -79,7 +81,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		public int avail_out; // remaining free space at next_out
 		public long total_out; // total nb of bytes output so far
 		
-		public System.String msg;
+		public String msg;
 		
 		internal Deflate dstate;
 		internal Inflate istate;

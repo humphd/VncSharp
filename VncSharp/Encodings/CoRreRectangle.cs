@@ -15,9 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 // FIXME: I can't understand why yet, but under the Xvnc server in Unix (v. 3.3.7), this doesn't work.  
 // Everything is fine using the Windows server!?
@@ -51,10 +49,10 @@ namespace VncSharp.Encodings
 			// Colour in all the subrectangles, reading the properties of each one after another.
 			for (int i = 0; i < numSubRect; i++) {
 				subRectVal	= preader.ReadPixel();
-				x			= (int) rfb.ReadByte();
-				y			= (int) rfb.ReadByte();
-				w			= (int) rfb.ReadByte();
-				h			= (int) rfb.ReadByte();
+				x			= rfb.ReadByte();
+				y			= rfb.ReadByte();
+				w			= rfb.ReadByte();
+				h			= rfb.ReadByte();
 				
 				// Colour in this sub-rectangle with the colour provided.
 				FillRectangle(new Rectangle(x, y, w, h), subRectVal);

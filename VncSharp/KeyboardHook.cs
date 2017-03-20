@@ -7,10 +7,10 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
-using System.Collections.Generic;
 
 namespace VncSharp
 {
@@ -37,7 +37,7 @@ namespace VncSharp
             RightAlt = 0x0100,
             Win = 0x0200,
             LeftWin = 0x0400,
-            RightWin = 0x0800,
+            RightWin = 0x0800
         }
 
         protected class KeyNotificationEntry: IEquatable<KeyNotificationEntry>
@@ -164,7 +164,7 @@ namespace VncSharp
                         {
                             KeyCode = key.vkCode,
                             ModifierKeys = modifierKeys,
-                            WasBlocked = notificationEntry.Block,
+                            WasBlocked = notificationEntry.Block
                         };
 
                         if (!PostMessage(notificationEntry.WindowHandle, HookKeyMsg, wParam, lParam))
@@ -207,7 +207,7 @@ namespace VncSharp
             { Win32.VK_LMENU, ModifierKeys.LeftAlt },
             { Win32.VK_RMENU, ModifierKeys.RightAlt },
             { Win32.VK_LWIN, ModifierKeys.LeftWin },
-            { Win32.VK_RWIN, ModifierKeys.RightWin },
+            { Win32.VK_RWIN, ModifierKeys.RightWin }
         };
 
         public static ModifierKeys GetModifierKeyState()
@@ -246,7 +246,7 @@ namespace VncSharp
                 WindowHandle = windowHandle,
                 KeyCode = keyCode,
                 ModifierKeys = modifierKeys,
-                Block = block,
+                Block = block
             };
 
             foreach (var notificationEntry in NotificationEntries)
@@ -267,7 +267,7 @@ namespace VncSharp
                 WindowHandle = windowHandle,
                 KeyCode = keyCode,
                 ModifierKeys = modifierKeys,
-                Block = block,
+                Block = block
             };
 
             NotificationEntries.Remove(notificationEntry);

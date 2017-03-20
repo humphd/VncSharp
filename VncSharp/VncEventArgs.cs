@@ -23,7 +23,7 @@ namespace VncSharp
 	{
 		IDesktopUpdater updater;
 		
-		public VncEventArgs(IDesktopUpdater updater) : base()
+		public VncEventArgs(IDesktopUpdater updater)
 		{
 			this.updater = updater;
 		}

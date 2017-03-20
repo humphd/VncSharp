@@ -34,7 +34,7 @@ namespace VncSharp
 		/// <param name="width">An Integer indicating the Width of the remote framebuffer.</param>
 		/// <param name="height">An Integer indicating the Height of the remote framebuffer.</param>
 		/// <param name="name">A String containing the name of the remote Desktop.</param>
-		public ConnectEventArgs(int width, int height, string name) : base()
+		public ConnectEventArgs(int width, int height, string name)
 		{
 			this.width = width;
 			this.height = height;

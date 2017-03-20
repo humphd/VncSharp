@@ -15,8 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Windows.Forms;
 using System.Drawing;
 
 namespace VncSharp
@@ -39,12 +37,12 @@ namespace VncSharp
         }
 
         public override Size AutoScrollMinSize {
-            get {
+            get
+            {
                 if (vnc != null && vnc.Framebuffer != null) {
                     return new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height);
-                } else {
-                    return new Size(100, 100);
                 }
+                return new Size(100, 100);
             }
         }
 

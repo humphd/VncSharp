@@ -41,7 +41,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
+
 namespace ComponentAce.Compression.Libs.zlib
 {
 	
@@ -376,7 +376,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			return Z_OK;
 		}
 		
-		private static byte[] mark = new byte[]{(byte) 0, (byte) 0, (byte) SupportClass.Identity(0xff), (byte) SupportClass.Identity(0xff)};
+		private static byte[] mark = {0, 0, (byte) SupportClass.Identity(0xff), (byte) SupportClass.Identity(0xff)};
 		
 		internal int inflateSync(ZStream z)
 		{

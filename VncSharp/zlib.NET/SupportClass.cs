@@ -1,6 +1,7 @@
 
 using System;
-
+using System.IO;
+using System.Text;
 
 namespace ComponentAce.Compression.Libs.zlib
 {
@@ -55,10 +56,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <returns>The resulting number from the shift operation</returns>
 		public static int URShift(int number, int bits)
 		{
-			if ( number >= 0)
+		    if ( number >= 0)
 				return number >> bits;
-			else
-				return (number >> bits) + (2 << ~bits);
+		    return (number >> bits) + (2 << ~bits);
 		}
 
 		/// <summary>
@@ -80,10 +80,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <returns>The resulting number from the shift operation</returns>
 		public static long URShift(long number, int bits)
 		{
-			if ( number >= 0)
+		    if ( number >= 0)
 				return number >> bits;
-			else
-				return (number >> bits) + (2L << ~bits);
+		    return (number >> bits) + (2L << ~bits);
 		}
 
 		/// <summary>
@@ -104,7 +103,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source Stream.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source Stream. Returns -1 if the end of the stream is reached.</returns>
-		public static System.Int32 ReadInput(System.IO.Stream sourceStream, byte[] target, int start, int count)
+		public static Int32 ReadInput(Stream sourceStream, byte[] target, int start, int count)
 		{
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0)
@@ -118,7 +117,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				return -1;
                 
 			for(int i = start; i < start + bytesRead; i++)
-				target[i] = (byte)receiver[i];
+				target[i] = receiver[i];
                 
 			return bytesRead;
 		}
@@ -129,7 +128,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source TextReader.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source TextReader. Returns -1 if the end of the stream is reached.</returns>
-		public static System.Int32 ReadInput(System.IO.TextReader sourceTextReader, byte[] target, int start, int count)
+		public static Int32 ReadInput(TextReader sourceTextReader, byte[] target, int start, int count)
 		{
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0) return 0;
@@ -151,9 +150,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// </summary>
 		/// <param name="sourceString">The string to be converted</param>
 		/// <returns>The new array of bytes</returns>
-		public static byte[] ToByteArray(System.String sourceString)
+		public static byte[] ToByteArray(String sourceString)
 		{
-			return System.Text.UTF8Encoding.UTF8.GetBytes(sourceString);
+			return UTF8Encoding.UTF8.GetBytes(sourceString);
 		}
 
 		/// <summary>
@@ -163,7 +162,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <returns>The new array of chars</returns>
 		public static char[] ToCharArray(byte[] byteArray) 
 		{
-			return System.Text.UTF8Encoding.UTF8.GetChars(byteArray);
+			return UTF8Encoding.UTF8.GetChars(byteArray);
 		}
 
 

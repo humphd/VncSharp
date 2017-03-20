@@ -41,7 +41,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
+
 namespace ComponentAce.Compression.Libs.zlib
 {
 	
@@ -50,10 +52,10 @@ namespace ComponentAce.Compression.Libs.zlib
 		private const int MANY = 1440;
 		
 		// And'ing with mask[n] masks the lower n bits		
-		private static readonly int[] inflate_mask = new int[]{0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff};
+		private static readonly int[] inflate_mask = {0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff};
 		
 		// Table for deflate from PKZIP's appnote.txt.		
-		internal static readonly int[] border = new int[]{16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+		internal static readonly int[] border = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 		
 		private const int Z_OK = 0;
 		private const int Z_STREAM_END = 1;
@@ -98,10 +100,10 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal int end; // one byte after sliding window 
 		internal int read; // window read pointer 
 		internal int write; // window write pointer 
-		internal System.Object checkfn; // check function 
+		internal Object checkfn; // check function 
 		internal long check; // check on output 
 		
-		internal InfBlocks(ZStream z, System.Object checkfn, int w)
+		internal InfBlocks(ZStream z, Object checkfn, int w)
 		{
 			hufts = new int[MANY * 3];
 			window = new byte[w];
@@ -147,7 +149,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				p = z.next_in_index; n = z.avail_in; b = bitb; k = bitk;
 			}
 			{
-				q = write; m = (int) (q < read?read - q - 1:end - q);
+				q = write; m = q < read?read - q - 1:end - q;
 			}
 			
 			// process input based on current state
@@ -177,7 +179,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							b |= (z.next_in[p++] & 0xff) << k;
 							k += 8;
 						}
-						t = (int) (b & 7);
+						t = b & 7;
 						last = t & 1;
 						
 						switch (SupportClass.URShift(t, 1))
@@ -289,16 +291,16 @@ namespace ComponentAce.Compression.Libs.zlib
 						{
 							if (q == end && read != 0)
 							{
-								q = 0; m = (int) (q < read?read - q - 1:end - q);
+								q = 0; m = q < read?read - q - 1:end - q;
 							}
 							if (m == 0)
 							{
 								write = q;
 								r = inflate_flush(z, r);
-								q = write; m = (int) (q < read?read - q - 1:end - q);
+								q = write; m = q < read?read - q - 1:end - q;
 								if (q == end && read != 0)
 								{
-									q = 0; m = (int) (q < read?read - q - 1:end - q);
+									q = 0; m = q < read?read - q - 1:end - q;
 								}
 								if (m == 0)
 								{
@@ -575,7 +577,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						codes.free(z);
 						
 						p = z.next_in_index; n = z.avail_in; b = bitb; k = bitk;
-						q = write; m = (int) (q < read?read - q - 1:end - q);
+						q = write; m = q < read?read - q - 1:end - q;
 						
 						if (last == 0)
 						{
@@ -588,7 +590,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					case DRY: 
 						write = q;
 						r = inflate_flush(z, r);
-						q = write; m = (int) (q < read?read - q - 1:end - q);
+						q = write; m = q < read?read - q - 1:end - q;
 						if (read != write)
 						{
 							bitb = b; bitk = k;
@@ -661,7 +663,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			q = read;
 			
 			// compute number of bytes to copy as far as end of window
-			n = (int) ((q <= write?write:end) - q);
+			n = (q <= write?write:end) - q;
 			if (n > z.avail_out)
 				n = z.avail_out;
 			if (n != 0 && r == Z_BUF_ERROR)

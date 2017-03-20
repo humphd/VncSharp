@@ -41,11 +41,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
+
+using System.IO;
+
 namespace ComponentAce.Compression.Libs.zlib
 {
 	
-	public class ZInputStream:System.IO.BinaryReader
+	public class ZInputStream:BinaryReader
 	{
 		internal void  InitBlock()
 		{
@@ -61,7 +63,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			
 			set
 			{
-				this.flush = value;
+				flush = value;
 			}
 			
 		}
@@ -90,9 +92,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		protected byte[] buf, buf1 = new byte[1];
 		protected bool compress;
 		
-		internal System.IO.Stream in_Renamed = null;
+		internal Stream in_Renamed;
 		
-		public ZInputStream(System.IO.Stream in_Renamed):base(in_Renamed)
+		public ZInputStream(Stream in_Renamed):base(in_Renamed)
 		{
 			InitBlock();
 			this.in_Renamed = in_Renamed;
@@ -103,7 +105,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			z.avail_in = 0;
 		}
 		
-		public ZInputStream(System.IO.Stream in_Renamed, int level):base(in_Renamed)
+		public ZInputStream(Stream in_Renamed, int level):base(in_Renamed)
 		{
 			InitBlock();
 			this.in_Renamed = in_Renamed;
@@ -125,7 +127,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			return (buf1[0] & 0xFF);
 		}
 		
-		internal bool nomoreinput = false;
+		internal bool nomoreinput;
 				
 		public int read(byte[] b, int off, int len)
 		{
@@ -170,7 +172,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			if (n < len)
 				len = (int) n;
 			byte[] tmp = new byte[len];
-			return ((long) SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length));
+			return SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length);
 		}
 		
 		public override void  Close()

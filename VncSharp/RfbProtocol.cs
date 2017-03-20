@@ -16,11 +16,13 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.IO;
-using System.Drawing;
-using System.Threading;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using ComponentAce.Compression.Libs.zlib;
 
 namespace VncSharp
 {
@@ -200,7 +202,7 @@ namespace VncSharp
 			byte[] b = reader.ReadBytes(12);
 
 			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
-			if (System.Text.Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
+			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
 			{
 				verMajor = 0;
 				verMinor = 0;
@@ -262,9 +264,9 @@ namespace VncSharp
 		{
 			// We will use which ever version the server understands, be it 3.3, 3.7, or 3.8.
 			Debug.Assert(verMinor == 3 || verMinor == 7 || verMinor == 8, "Wrong Protocol Version!",
-						 string.Format("Protocol Version should be 3.3, 3.7, or 3.8 but is {0}.{1}", verMajor.ToString(), verMinor.ToString()));
+						 string.Format("Protocol Version should be 3.3, 3.7, or 3.8 but is {0}.{1}", verMajor, verMinor));
 
-			writer.Write(GetBytes(string.Format("RFB 003.00{0}\n", verMinor.ToString())));
+			writer.Write(GetBytes(string.Format("RFB 003.00{0}\n", verMinor)));
 			writer.Flush();
 		}
 
@@ -290,7 +292,7 @@ namespace VncSharp
 			
 			// Protocol Version 3.7 onward supports multiple security types, while 3.3 only 1
 			if (verMinor == 3) {
-				types = new byte[] { (byte) reader.ReadUInt32() };
+				types = new[] { (byte) reader.ReadUInt32() };
 			} else {
 				byte num = reader.ReadByte();
 				types = new byte[num];
@@ -637,7 +639,7 @@ namespace VncSharp
 		/// <returns>Returns a Byte Array containing the text as bytes.</returns>
 		protected static byte[] GetBytes(string text)
 		{
-			return System.Text.Encoding.ASCII.GetBytes(text);
+			return Encoding.ASCII.GetBytes(text);
 		}
 		
 		/// <summary>
@@ -647,7 +649,7 @@ namespace VncSharp
 		/// <returns>Returns a String representation of bytes.</returns>
 		protected static string GetString(byte[] bytes)
 		{
-			return System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+			return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 		}
 
 		/// <summary>
@@ -661,7 +663,7 @@ namespace VncSharp
 			{
 			}
 			
-			public BigEndianBinaryReader(Stream input, System.Text.Encoding encoding) : base(input, encoding)
+			public BigEndianBinaryReader(Stream input, Encoding encoding) : base(input, encoding)
 			{
 			}
 
@@ -718,7 +720,7 @@ namespace VncSharp
 			{
 			}
 
-			public BigEndianBinaryWriter(Stream input, System.Text.Encoding encoding) : base(input, encoding)
+			public BigEndianBinaryWriter(Stream input, Encoding encoding) : base(input, encoding)
 			{
 			}
 			
@@ -767,13 +769,13 @@ namespace VncSharp
 		public sealed class ZRLECompressedReader : BinaryReader
 		{
 			MemoryStream zlibMemoryStream;
-			ComponentAce.Compression.Libs.zlib.ZOutputStream zlibDecompressedStream;
+			ZOutputStream zlibDecompressedStream;
 			BinaryReader uncompressedReader;
 
 			public ZRLECompressedReader(Stream uncompressedStream) : base(uncompressedStream)
 			{
 				zlibMemoryStream = new MemoryStream();
-				zlibDecompressedStream = new ComponentAce.Compression.Libs.zlib.ZOutputStream(zlibMemoryStream);
+				zlibDecompressedStream = new ZOutputStream(zlibMemoryStream);
 				uncompressedReader = new BinaryReader(zlibMemoryStream);
 			}
 

@@ -66,7 +66,7 @@ namespace VncSharp
             public Int32 flags;
             public Int32 time;
             public IntPtr dwExtraInfo;
-        };
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT

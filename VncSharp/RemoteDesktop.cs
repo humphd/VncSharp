@@ -15,17 +15,17 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Windows.Forms;
-using System.ComponentModel;
 #if DEBUG
 using System.Diagnostics;
 #endif
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 using System.Security.Permissions;
+using System.Windows.Forms;
 using static System.Diagnostics.Debug;
 using static System.Reflection.Assembly;
 
@@ -167,18 +167,15 @@ namespace VncSharp
                 {
                     return true;
                 }
-                else
-                {
-                    var parent = Parent;
+                var parent = Parent;
 
-                    while (parent != null)
-                    {
-                        if (parent.Site != null && parent.Site.DesignMode)
-                            return true;
-                        parent = parent.Parent;
-                    }
-                    return false;
+                while (parent != null)
+                {
+                    if (parent.Site != null && parent.Site.DesignMode)
+                        return true;
+                    parent = parent.Parent;
                 }
+                return false;
             }
         }
 
@@ -791,7 +788,7 @@ namespace VncSharp
         }
 
         [SecurityPermission(SecurityAction.LinkDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
-        [SecurityPermissionAttribute(SecurityAction.InheritanceDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
+        [SecurityPermission(SecurityAction.InheritanceDemand, Flags = SecurityPermissionFlag.UnmanagedCode)]
         protected override bool ProcessKeyEventArgs(ref Message m)
         {
             return HandleKeyboardEvent(m.Msg, m.WParam.ToInt32(), KeyboardHook.GetModifierKeyState());
@@ -838,7 +835,7 @@ namespace VncSharp
             {Win32.VK_F10, RfbProtocol.XK_F10},
             {Win32.VK_F11, RfbProtocol.XK_F11},
             {Win32.VK_F12, RfbProtocol.XK_F12},
-            {Win32.VK_APPS, RfbProtocol.XK_Menu},
+            {Win32.VK_APPS, RfbProtocol.XK_Menu}
         };
 
         public static int TranslateVirtualKey(int virtualKey, KeyboardHook.ModifierKeys modifierKeys)
