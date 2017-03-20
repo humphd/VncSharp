@@ -85,7 +85,8 @@ namespace VncSharp
         /// Points to a Function capable of obtaining a user's password.  By default this means using the PasswordDialog.GetPassword() function; however, users of RemoteDesktop can replace this with any function they like, so long as it matches the delegate type.
         /// </summary>
         // ReSharper disable once MemberCanBePrivate.Global
-        public readonly AuthenticateDelegate GetPassword;
+        // ReSharper disable once FieldCanBeMadeReadOnly.Global
+        public AuthenticateDelegate GetPassword;
 
         private Bitmap desktop; // Internal representation of remote image.
         private readonly Image designModeDesktop; // Used when painting control in VS.NET designer
