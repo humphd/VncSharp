@@ -256,13 +256,9 @@ namespace VncSharp
 			byte[] key = new byte[8];
 
 			// Key limited to 8 bytes max.
-			if (password.Length >= 8) {
-				Encoding.ASCII.GetBytes(password, 0, 8, key, 0);
-			} else {
-				Encoding.ASCII.GetBytes(password, 0, password.Length, key, 0);
-			}			
+		    Encoding.ASCII.GetBytes(password, 0, password.Length >= 8 ? 8 : password.Length, key, 0);
 
-			// VNC uses reverse byte order in key
+		    // VNC uses reverse byte order in key
             for (int i = 0; i < 8; i++)
                 key[i] = (byte)( ((key[i] & 0x01) << 7) |
                                  ((key[i] & 0x02) << 5) |
@@ -379,8 +375,7 @@ namespace VncSharp
                             for (int i = 0; i < rectangles; ++i) {
                                 // Get the update rectangle's info
                                 Rectangle rectangle;
-                                int enc;
-                                rfb.ReadFramebufferUpdateRectHeader(out rectangle, out enc);
+                                rfb.ReadFramebufferUpdateRectHeader(out rectangle, out int enc);
 
                                 // Build a derived EncodedRectangle type and pull-down all the pixel info
                                 EncodedRectangle er = factory.Build(rectangle, enc);
@@ -388,18 +383,17 @@ namespace VncSharp
 
                                 // Let the UI know that an updated rectangle is available, but check
                                 // to see if the user closed things down first.
-                                if (!CheckIfThreadDone() && VncUpdate != null) {
-                                    VncEventArgs e = new VncEventArgs(er);
+                                if (CheckIfThreadDone() || VncUpdate == null) continue;
+                                VncEventArgs e = new VncEventArgs(er);
 
-                                    // In order to play nicely with WinForms controls, we do a check here to 
-                                    // see if it is necessary to synchronize this event with the UI thread.
-                                    var control = VncUpdate.Target as Control;
-                                    if (control != null) {
-                                        control.Invoke(VncUpdate, this, e);
-                                    } else {
-                                        // Target is not a WinForms control, so do it on this thread...
-                                        VncUpdate(this, new VncEventArgs(er));
-                                    }
+                                // In order to play nicely with WinForms controls, we do a check here to 
+                                // see if it is necessary to synchronize this event with the UI thread.
+                                var control = VncUpdate.Target as Control;
+                                if (control != null) {
+                                    control.Invoke(VncUpdate, this, e);
+                                } else {
+                                    // Target is not a WinForms control, so do it on this thread...
+                                    VncUpdate(this, new VncEventArgs(er));
                                 }
                             }
                             break;
