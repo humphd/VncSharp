@@ -72,13 +72,9 @@ namespace VncSharp
 	    /// <summary>
 		/// Gets a Rectangle object constructed out of the Width and Height for the Framebuffer.  Used as a convenience in other classes.
 		/// </summary>
-		public Rectangle Rectangle {
-			get {
-				return new Rectangle(0, 0, Width, Height);
-			}
-		}
+		public Rectangle Rectangle => new Rectangle(0, 0, Width, Height);
 
-		/// <summary>
+	    /// <summary>
 		/// The number of Bits Per Pixel for the Framebuffer--one of 8, 24, or 32.
 		/// </summary>
 		public int BitsPerPixel { get; private set; }
