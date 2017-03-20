@@ -271,20 +271,22 @@ namespace VncSharp
 		{
 			if (b.Length != 16)
 				throw new ArgumentException("Length of b must be 16 bytes.");
-			
-			var buffer = new Framebuffer(width, height);
-			
-			buffer.BitsPerPixel	= b[0];
-			buffer.Depth		= b[1];
-			buffer.BigEndian	= (b[2] != 0);
-			buffer.TrueColour	= (b[3] != 0);
-			buffer.RedMax		= b[5] | b[4] << 8;
-			buffer.GreenMax		= b[7] | b[6] << 8;
-			buffer.BlueMax		= b[9] | b[8] << 8;
-			buffer.RedShift		= b[10];
-			buffer.GreenShift	= b[11];
-			buffer.BlueShift	= b[12];
-			// Last 3 bytes are padding, ignore									
+
+		    var buffer = new Framebuffer(width, height)
+		    {
+		        BitsPerPixel = b[0],
+		        Depth = b[1],
+		        BigEndian = (b[2] != 0),
+		        TrueColour = (b[3] != 0),
+		        RedMax = b[5] | b[4] << 8,
+		        GreenMax = b[7] | b[6] << 8,
+		        BlueMax = b[9] | b[8] << 8,
+		        RedShift = b[10],
+		        GreenShift = b[11],
+		        BlueShift = b[12]
+		    };
+
+		    // Last 3 bytes are padding, ignore									
 
 			return buffer;
 		}
