@@ -107,14 +107,14 @@ namespace VncSharp.zlib.NET
 			if (target.Length == 0)
 				return 0;
 
-			byte[] receiver = new byte[target.Length];
-			int bytesRead   = sourceStream.Read(receiver, start, count);
+			var receiver = new byte[target.Length];
+			var bytesRead   = sourceStream.Read(receiver, start, count);
 
 			// Returns -1 if EOF
 			if (bytesRead == 0)	
 				return -1;
                 
-			for(int i = start; i < start + bytesRead; i++)
+			for(var i = start; i < start + bytesRead; i++)
 				target[i] = receiver[i];
                 
 			return bytesRead;
@@ -131,13 +131,13 @@ namespace VncSharp.zlib.NET
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0) return 0;
 
-			char[] charArray = new char[target.Length];
-			int bytesRead = sourceTextReader.Read(charArray, start, count);
+			var charArray = new char[target.Length];
+			var bytesRead = sourceTextReader.Read(charArray, start, count);
 
 			// Returns -1 if EOF
 			if (bytesRead == 0) return -1;
 
-			for(int index=start; index<start+bytesRead; index++)
+			for(var index=start; index<start+bytesRead; index++)
 				target[index] = (byte)charArray[index];
 
 			return bytesRead;

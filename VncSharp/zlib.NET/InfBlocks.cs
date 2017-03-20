@@ -198,10 +198,10 @@ namespace VncSharp.zlib.NET
 							
 							case 1:  // fixed
 								{
-									int[] bl = new int[1];
-									int[] bd = new int[1];
-									int[][] tl = new int[1][];
-									int[][] td = new int[1][];
+									var bl = new int[1];
+									var bd = new int[1];
+									var tl = new int[1][];
+									var td = new int[1][];
 									
 									InfTree.inflate_trees_fixed(bl, bd, tl, td, z);
 									codes = new InfCodes(bl[0], bd[0], tl[0], td[0], z);
@@ -532,10 +532,10 @@ namespace VncSharp.zlib.NET
 						
 						tb[0] = - 1;
 						{
-							int[] bl = new int[1];
-							int[] bd = new int[1];
-							int[] tl = new int[1];
-							int[] td = new int[1];
+							var bl = new int[1];
+							var bd = new int[1];
+							var tl = new int[1];
+							var td = new int[1];
 							
 							
 							bl[0] = 9; // must be <= 9 for lookahead assumptions

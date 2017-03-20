@@ -353,8 +353,8 @@ namespace VncSharp.zlib.NET
 		
 		internal int inflateSetDictionary(ZStream z, byte[] dictionary, int dictLength)
 		{
-			int index = 0;
-			int length = dictLength;
+			var index = 0;
+			var length = dictLength;
 			if (z == null || z.istate == null || z.istate.mode != DICT0)
 				return Z_STREAM_ERROR;
 			

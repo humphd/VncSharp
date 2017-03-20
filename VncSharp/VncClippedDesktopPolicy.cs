@@ -48,7 +48,7 @@ namespace VncSharp
 
         public override Point UpdateRemotePointer(Point current)
         {
-            Point adjusted = new Point();
+            var adjusted = new Point();
 			if (remoteDesktop.ClientSize.Width > remoteDesktop.Desktop.Size.Width) {
 			    adjusted.X = current.X - ((remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2);
 			} else {
@@ -106,7 +106,7 @@ namespace VncSharp
 
         public override Rectangle GetMouseMoveRectangle()
         {
-			Rectangle desktopRect = vnc.Framebuffer.Rectangle;
+			var desktopRect = vnc.Framebuffer.Rectangle;
 
 			if (remoteDesktop.ClientSize.Width > remoteDesktop.Desktop.Size.Width) {
 				desktopRect.X = (remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2;

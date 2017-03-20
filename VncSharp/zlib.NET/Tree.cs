@@ -123,17 +123,17 @@ namespace VncSharp.zlib.NET
 		//     not null.
 		internal void  gen_bitlen(Deflate s)
 		{
-			short[] tree = dyn_tree;
-			short[] stree = stat_desc.static_tree;
-			int[] extra = stat_desc.extra_bits;
-			int base_Renamed = stat_desc.extra_base;
-			int max_length = stat_desc.max_length;
+			var tree = dyn_tree;
+			var stree = stat_desc.static_tree;
+			var extra = stat_desc.extra_bits;
+			var base_Renamed = stat_desc.extra_base;
+			var max_length = stat_desc.max_length;
 			int h; // heap index
 			int n, m; // iterate over the tree elements
 			int bits; // bit length
 			int xbits; // extra bits
 			short f; // frequency
-			int overflow = 0; // number of elements with bit length too large
+			var overflow = 0; // number of elements with bit length too large
 			
 			for (bits = 0; bits <= MAX_BITS; bits++)
 				s.bl_count[bits] = 0;
@@ -210,11 +210,11 @@ namespace VncSharp.zlib.NET
 		//     also updated if stree is not null. The field max_code is set.
 		internal void  build_tree(Deflate s)
 		{
-			short[] tree = dyn_tree;
-			short[] stree = stat_desc.static_tree;
-			int elems = stat_desc.elems;
+			var tree = dyn_tree;
+			var stree = stat_desc.static_tree;
+			var elems = stat_desc.elems;
 			int n, m; // iterate over heap elements
-			int max_code = - 1; // largest code with non zero frequency
+			var max_code = - 1; // largest code with non zero frequency
 			int node; // new node being created
 			
 			// Construct the initial heap, with least frequent element in
@@ -303,7 +303,7 @@ namespace VncSharp.zlib.NET
 		//     zero code length.
 		internal static void  gen_codes(short[] tree, int max_code, short[] bl_count)
 		{
-			short[] next_code = new short[MAX_BITS + 1]; // next code value for each bit length
+			var next_code = new short[MAX_BITS + 1]; // next code value for each bit length
 			short code = 0; // running code value
 			int bits; // bit index
 			int n; // code index
@@ -336,7 +336,7 @@ namespace VncSharp.zlib.NET
 		// IN assertion: 1 <= len <= 15
 		internal static int bi_reverse(int code, int len)
 		{
-			int res = 0;
+			var res = 0;
 			do 
 			{
 				res |= code & 1;

@@ -30,7 +30,7 @@ namespace VncSharp.Encodings
 
 		public override int ReadPixel()
 		{
-			byte[] b = reader.ReadBytes(3);
+			var b = reader.ReadBytes(3);
 			return ToGdiPlusOrder(b[2], b[1], b[0]);
 		}
 	}

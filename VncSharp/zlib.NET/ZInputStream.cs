@@ -168,10 +168,10 @@ namespace VncSharp.zlib.NET
 				
 		public long skip(long n)
 		{
-			int len = 512;
+			var len = 512;
 			if (n < len)
 				len = (int) n;
-			byte[] tmp = new byte[len];
+			var tmp = new byte[len];
 			return SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length);
 		}
 		

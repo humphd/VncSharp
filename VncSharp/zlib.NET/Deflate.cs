@@ -317,7 +317,7 @@ namespace VncSharp.zlib.NET
 			window_size = 2 * w_size;
 			
 			head[hash_size - 1] = 0;
-			for (int i = 0; i < hash_size - 1; i++)
+			for (var i = 0; i < hash_size - 1; i++)
 			{
 				head[i] = 0;
 			}
@@ -360,11 +360,11 @@ namespace VncSharp.zlib.NET
 		internal void  init_block()
 		{
 			// Initialize the trees.
-			for (int i = 0; i < L_CODES; i++)
+			for (var i = 0; i < L_CODES; i++)
 				dyn_ltree[i * 2] = 0;
-			for (int i = 0; i < D_CODES; i++)
+			for (var i = 0; i < D_CODES; i++)
 				dyn_dtree[i * 2] = 0;
-			for (int i = 0; i < BL_CODES; i++)
+			for (var i = 0; i < BL_CODES; i++)
 				bl_tree[i * 2] = 0;
 			
 			dyn_ltree[END_BLOCK * 2] = 1;
@@ -378,8 +378,8 @@ namespace VncSharp.zlib.NET
 		// two sons).
 		internal void  pqdownheap(short[] tree, int k)
 		{
-			int v = heap[k];
-			int j = k << 1; // left son of k
+			var v = heap[k];
+			var j = k << 1; // left son of k
 			while (j <= heap_len)
 			{
 				// Set j to the smallest of the two sons:
@@ -409,12 +409,12 @@ namespace VncSharp.zlib.NET
 		internal void  scan_tree(short[] tree, int max_code)
 		{
 			int n; // iterates over all tree elements
-			int prevlen = - 1; // last emitted length
+			var prevlen = - 1; // last emitted length
 			int curlen; // length of current code
 			int nextlen = tree[0 * 2 + 1]; // length of next code
-			int count = 0; // repeat count of the current code
-			int max_count = 7; // max repeat count
-			int min_count = 4; // min repeat count
+			var count = 0; // repeat count of the current code
+			var max_count = 7; // max repeat count
+			var min_count = 4; // min repeat count
 			
 			if (nextlen == 0)
 			{
@@ -516,12 +516,12 @@ namespace VncSharp.zlib.NET
 		internal void  send_tree(short[] tree, int max_code)
 		{
 			int n; // iterates over all tree elements
-			int prevlen = - 1; // last emitted length
+			var prevlen = - 1; // last emitted length
 			int curlen; // length of current code
 			int nextlen = tree[0 * 2 + 1]; // length of next code
-			int count = 0; // repeat count of the current code
-			int max_count = 7; // max repeat count
-			int min_count = 4; // min repeat count
+			var count = 0; // repeat count of the current code
+			var max_count = 7; // max repeat count
+			var min_count = 4; // min repeat count
 			
 			if (nextlen == 0)
 			{
@@ -608,10 +608,10 @@ namespace VncSharp.zlib.NET
 		
 		internal void  send_bits(int value_Renamed, int length)
 		{
-			int len = length;
+			var len = length;
 			if (bi_valid > Buf_size - len)
 			{
-				int val = value_Renamed;
+				var val = value_Renamed;
 				//      bi_buf |= (val << bi_valid);
 				bi_buf = (short) ((ushort) bi_buf | (ushort) (((val << bi_valid) & 0xffff)));
 				put_short(bi_buf);
@@ -683,8 +683,8 @@ namespace VncSharp.zlib.NET
 			if ((last_lit & 0x1fff) == 0 && level > 2)
 			{
 				// Compute an upper bound for the compressed length
-				int out_length = last_lit * 8;
-				int in_length = strstart - block_start;
+				var out_length = last_lit * 8;
+				var in_length = strstart - block_start;
 				int dcode;
 				for (dcode = 0; dcode < D_CODES; dcode++)
 				{
@@ -706,7 +706,7 @@ namespace VncSharp.zlib.NET
 		{
 			int dist; // distance of matched string
 			int lc; // match length or unmatched char (if dist == 0)
-			int lx = 0; // running index in l_buf
+			var lx = 0; // running index in l_buf
 			int code; // the code to send
 			int extra; // number of extra bits to send
 			
@@ -760,9 +760,9 @@ namespace VncSharp.zlib.NET
 		// frequencies does not exceed 64K (to fit in an int on 16 bit machines).
 		internal void  set_data_type()
 		{
-			int n = 0;
-			int ascii_freq = 0;
-			int bin_freq = 0;
+			var n = 0;
+			var ascii_freq = 0;
+			var bin_freq = 0;
 			while (n < 7)
 			{
 				bin_freq += dyn_ltree[n * 2]; n++;
@@ -850,7 +850,7 @@ namespace VncSharp.zlib.NET
 			// Stored blocks are limited to 0xffff bytes, pending_buf is limited
 			// to pending_buf_size, and each stored block has a 5 byte header:
 			
-			int max_block_size = 0xffff;
+			var max_block_size = 0xffff;
 			int max_start;
 			
 			if (max_block_size > pending_buf_size - 5)
@@ -916,7 +916,7 @@ namespace VncSharp.zlib.NET
 		internal void  _tr_flush_block(int buf, int stored_len, bool eof)
 		{
 			int opt_lenb, static_lenb; // opt_len and static_len in bytes
-			int max_blindex = 0; // index of last bit length code of non zero freq
+			var max_blindex = 0; // index of last bit length code of non zero freq
 			
 			// Build the Huffman trees unless a stored block is forced
 			if (level > 0)
@@ -1088,7 +1088,7 @@ namespace VncSharp.zlib.NET
 		internal int deflate_fast(int flush)
 		{
 			//    short hash_head = 0; // head of the hash chain
-			int hash_head = 0; // head of the hash chain
+			var hash_head = 0; // head of the hash chain
 			bool bflush; // set if current block must be flushed
 			
 			while (true)
@@ -1207,7 +1207,7 @@ namespace VncSharp.zlib.NET
 		internal int deflate_slow(int flush)
 		{
 			//    short hash_head = 0;    // head of hash chain
-			int hash_head = 0; // head of hash chain
+			var hash_head = 0; // head of hash chain
 			bool bflush; // set if current block must be flushed
 			
 			// Process the input block.
@@ -1270,7 +1270,7 @@ namespace VncSharp.zlib.NET
 				// match is not better, output the previous match:
 				if (prev_length >= MIN_MATCH && match_length <= prev_length)
 				{
-					int max_insert = strstart + lookahead - MIN_MATCH;
+					var max_insert = strstart + lookahead - MIN_MATCH;
 					// Do not insert strings in hash table beyond this.
 					
 					//          check_match(strstart-1, prev_match, prev_length);
@@ -1354,22 +1354,22 @@ namespace VncSharp.zlib.NET
 		
 		internal int longest_match(int cur_match)
 		{
-			int chain_length = max_chain_length; // max hash chain length
-			int scan = strstart; // current string
+			var chain_length = max_chain_length; // max hash chain length
+			var scan = strstart; // current string
 			int match; // matched string
 			int len; // length of current match
-			int best_len = prev_length; // best match length so far
-			int limit = strstart > (w_size - MIN_LOOKAHEAD)?strstart - (w_size - MIN_LOOKAHEAD):0;
-			int nice_match = this.nice_match;
+			var best_len = prev_length; // best match length so far
+			var limit = strstart > (w_size - MIN_LOOKAHEAD)?strstart - (w_size - MIN_LOOKAHEAD):0;
+			var nice_match = this.nice_match;
 			
 			// Stop when cur_match becomes <= limit. To simplify the code,
 			// we prevent matches with the string of window index 0.
 			
-			int wmask = w_mask;
+			var wmask = w_mask;
 			
-			int strend = strstart + MAX_MATCH;
-			byte scan_end1 = window[scan + best_len - 1];
-			byte scan_end = window[scan + best_len];
+			var strend = strstart + MAX_MATCH;
+			var scan_end1 = window[scan + best_len - 1];
+			var scan_end = window[scan + best_len];
 			
 			// The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
 			// It is easy to get rid of this optimization if necessary.
@@ -1438,7 +1438,7 @@ namespace VncSharp.zlib.NET
 		}
 		internal int deflateInit2(ZStream strm, int level, int method, int windowBits, int memLevel, int strategy)
 		{
-			int noheader = 0;
+			var noheader = 0;
 			//    byte[] my_version=ZLIB_VERSION;
 			
 			//
@@ -1541,7 +1541,7 @@ namespace VncSharp.zlib.NET
 		
 		internal int deflateParams(ZStream strm, int _level, int _strategy)
 		{
-			int err = Z_OK;
+			var err = Z_OK;
 			
 			if (_level == Z_DEFAULT_COMPRESSION)
 			{
@@ -1572,8 +1572,8 @@ namespace VncSharp.zlib.NET
 		
 		internal int deflateSetDictionary(ZStream strm, byte[] dictionary, int dictLength)
 		{
-			int length = dictLength;
-			int index = 0;
+			var length = dictLength;
+			var index = 0;
 			
 			if (dictionary == null || status != INIT_STATE)
 				return Z_STREAM_ERROR;
@@ -1598,7 +1598,7 @@ namespace VncSharp.zlib.NET
 			ins_h = window[0] & 0xff;
 			ins_h = (((ins_h) << hash_shift) ^ (window[1] & 0xff)) & hash_mask;
 			
-			for (int n = 0; n <= length - MIN_MATCH; n++)
+			for (var n = 0; n <= length - MIN_MATCH; n++)
 			{
 				ins_h = (((ins_h) << hash_shift) ^ (window[(n) + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
 				prev[n & w_mask] = head[ins_h];
@@ -1634,8 +1634,8 @@ namespace VncSharp.zlib.NET
 			// Write the zlib header
 			if (status == INIT_STATE)
 			{
-				int header = (Z_DEFLATED + ((w_bits - 8) << 4)) << 8;
-				int level_flags = ((level - 1) & 0xff) >> 1;
+				var header = (Z_DEFLATED + ((w_bits - 8) << 4)) << 8;
+				var level_flags = ((level - 1) & 0xff) >> 1;
 				
 				if (level_flags > 3)
 					level_flags = 3;
@@ -1693,7 +1693,7 @@ namespace VncSharp.zlib.NET
 			// Start a new block or continue the current one.
 			if (strm.avail_in != 0 || lookahead != 0 || (flush != Z_NO_FLUSH && status != FINISH_STATE))
 			{
-				int bstate = - 1;
+				var bstate = - 1;
 				switch (config_table[level].func)
 				{
 					
@@ -1748,7 +1748,7 @@ namespace VncSharp.zlib.NET
 						if (flush == Z_FULL_FLUSH)
 						{
 							//state.head[s.hash_size-1]=0;
-							for (int i = 0; i < hash_size; i++)
+							for (var i = 0; i < hash_size; i++)
 							// forget history
 								head[i] = 0;
 						}

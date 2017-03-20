@@ -38,8 +38,8 @@ namespace VncSharp
 
         public override Rectangle AdjustUpdateRectangle(Rectangle updateRectangle)
         {
-            Size scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
-            Rectangle adjusted = new Rectangle(AdjusteNormalToScaled(updateRectangle.X) + ((remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2),
+            var scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
+            var adjusted = new Rectangle(AdjusteNormalToScaled(updateRectangle.X) + ((remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2),
                                                AdjusteNormalToScaled(updateRectangle.Y) + ((remoteDesktop.ClientRectangle.Height - scaledSize.Height) / 2),
                                                AdjusteNormalToScaled(updateRectangle.Width),
                                                AdjusteNormalToScaled(updateRectangle.Height));
@@ -91,7 +91,7 @@ namespace VncSharp
 
         private Point GetScaledMouse(Point src)
 		{
-            Size scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
+            var scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
 			src.X = AdjusteScaledToNormal(src.X - ((remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2));
 			src.Y = AdjusteScaledToNormal(src.Y - ((remoteDesktop.ClientRectangle.Height - scaledSize.Height) / 2));
             return src;
@@ -99,7 +99,7 @@ namespace VncSharp
 
 		private Rectangle GetScaledRectangle(Rectangle rect)
 		{
-			Size scaledSize = GetScaledSize(rect.Size);
+			var scaledSize = GetScaledSize(rect.Size);
 			return new Rectangle((rect.Width - scaledSize.Width) / 2,
                                  (rect.Height - scaledSize.Height) / 2, 
                                  scaledSize.Width, 

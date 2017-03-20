@@ -240,7 +240,7 @@ namespace VncSharp
 		/// <returns>A byte array of 16 bytes containing the properties of the framebuffer in a format ready for transmission to the VNC server.</returns>
 		public byte[] ToPixelFormat()
 		{
-			byte[] b = new byte[16];
+			var b = new byte[16];
 			
 			b[0]  = (byte) bpp;
 			b[1]  = (byte) depth;
@@ -272,7 +272,7 @@ namespace VncSharp
 			if (b.Length != 16)
 				throw new ArgumentException("Length of b must be 16 bytes.");
 			
-			Framebuffer buffer = new Framebuffer(width, height);
+			var buffer = new Framebuffer(width, height);
 			
 			buffer.BitsPerPixel	= b[0];
 			buffer.Depth		= b[1];

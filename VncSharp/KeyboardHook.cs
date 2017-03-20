@@ -206,7 +206,7 @@ namespace VncSharp
         {
             var modifierKeyState = ModifierKeys.None;
 
-            foreach (KeyValuePair<int, ModifierKeys> pair in ModifierKeyTable)
+            foreach (var pair in ModifierKeyTable)
             {
                 if ((Win32.GetAsyncKeyState(pair.Key) & Win32.KEYSTATE_PRESSED) != 0) modifierKeyState |= pair.Value;
             }

@@ -31,9 +31,9 @@ namespace VncSharp.Encodings
 
 		public override void Decode()
 		{
-			int numSubRect = (int) rfb.ReadUint32();	// Number of sub-rectangles within this rectangle
-			int bgPixelVal = preader.ReadPixel();		// Background colour
-			int subRectVal = 0;							// Colour to be used for each sub-rectangle
+			var numSubRect = (int) rfb.ReadUint32();	// Number of sub-rectangles within this rectangle
+			var bgPixelVal = preader.ReadPixel();		// Background colour
+			var subRectVal = 0;							// Colour to be used for each sub-rectangle
 			
 			// Dimensions of each sub-rectangle will be read into these
 			int x, y, w, h;
@@ -42,7 +42,7 @@ namespace VncSharp.Encodings
 			FillRectangle(rectangle, bgPixelVal);
 
 			// Colour in all the subrectangles, reading the properties of each one after another.
-			for (int i = 0; i < numSubRect; i++) {
+			for (var i = 0; i < numSubRect; i++) {
 				subRectVal	= preader.ReadPixel();
 				x			= rfb.ReadUInt16();
 				y			= rfb.ReadUInt16();

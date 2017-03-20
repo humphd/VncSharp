@@ -92,7 +92,7 @@ namespace VncSharp.zlib.NET
 			// lengths), or Z_MEM_ERROR if not enough memory.
 			
 			int a; // counter for codes of length k
-			int[] c = new int[BMAX + 1]; // bit length count table
+			var c = new int[BMAX + 1]; // bit length count table
 			int f; // i repeats in table every f entries
 			int g; // maximum code length
 			int h; // table level
@@ -103,10 +103,10 @@ namespace VncSharp.zlib.NET
 			int mask; // (1 << w) - 1, to avoid cc -O bug on HP
 			int p; // pointer into c[], b[], or v[]
 			int q; // points to current table
-			int[] r = new int[3]; // table entry for structure assignment
-			int[] u = new int[BMAX]; // table stack
+			var r = new int[3]; // table entry for structure assignment
+			var u = new int[BMAX]; // table stack
 			int w; // bits before this table == (l * h)
-			int[] x = new int[BMAX + 1]; // bit offsets, then code stack
+			var x = new int[BMAX + 1]; // bit offsets, then code stack
 			int xp; // pointer into x
 			int y; // number of dummy codes added
 			int z; // number of entries in current table
@@ -302,8 +302,8 @@ namespace VncSharp.zlib.NET
 		internal static int inflate_trees_bits(int[] c, int[] bb, int[] tb, int[] hp, ZStream z)
 		{
 			int r;
-			int[] hn = new int[1]; // hufts used in space
-			int[] v = new int[19]; // work area for huft_build 
+			var hn = new int[1]; // hufts used in space
+			var v = new int[19]; // work area for huft_build 
 			
 			r = huft_build(c, 0, 19, 19, null, null, tb, bb, hp, hn, v);
 			
@@ -322,8 +322,8 @@ namespace VncSharp.zlib.NET
 		internal static int inflate_trees_dynamic(int nl, int nd, int[] c, int[] bl, int[] bd, int[] tl, int[] td, int[] hp, ZStream z)
 		{
 			int r;
-			int[] hn = new int[1]; // hufts used in space
-			int[] v = new int[288]; // work area for huft_build
+			var hn = new int[1]; // hufts used in space
+			var v = new int[288]; // work area for huft_build
 			
 			// build literal/length tree
 			r = huft_build(c, 0, nl, 257, cplens, cplext, tl, bl, hp, hn, v);

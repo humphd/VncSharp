@@ -121,7 +121,7 @@ namespace VncSharp
 		/// <returns>Returns the user's password as entered, or null if he/she clicked Cancel.</returns>
 		public static string GetPassword()
 		{
-			using(PasswordDialog dialog = new PasswordDialog())
+			using(var dialog = new PasswordDialog())
 			{
                 // If the user clicks Cancel, return null and not the empty string.
                 return dialog.ShowDialog() == DialogResult.OK ? dialog.Password : null;

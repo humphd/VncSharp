@@ -32,7 +32,7 @@ namespace VncSharp.Encodings
 		public override void Decode()
 		{
 			// Each pixel from the remote server represents a pixel to be drawn
-			for (int i = 0; i < rectangle.Width * rectangle.Height; ++i) {
+			for (var i = 0; i < rectangle.Width * rectangle.Height; ++i) {
 				framebuffer[i] = preader.ReadPixel();
 			}
 		}

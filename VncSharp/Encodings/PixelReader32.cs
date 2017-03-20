@@ -31,17 +31,17 @@ namespace VncSharp.Encodings
 		public override int ReadPixel()
 		{
 			// Read the pixel value
-			byte[] b = reader.ReadBytes(4);
+			var b = reader.ReadBytes(4);
 
-            uint pixel = ((uint)b[0]) & 0xFF | 
+            var pixel = ((uint)b[0]) & 0xFF | 
                          ((uint)b[1]) << 8   | 
                          ((uint)b[2]) << 16  | 
                          ((uint)b[3]) << 24;
 
 			// Extract RGB intensities from pixel
-			byte red   = (byte) ((pixel >> framebuffer.RedShift)   & framebuffer.RedMax);
-			byte green = (byte) ((pixel >> framebuffer.GreenShift) & framebuffer.GreenMax);
-			byte blue  = (byte) ((pixel >> framebuffer.BlueShift)  & framebuffer.BlueMax);
+			var red   = (byte) ((pixel >> framebuffer.RedShift)   & framebuffer.RedMax);
+			var green = (byte) ((pixel >> framebuffer.GreenShift) & framebuffer.GreenMax);
+			var blue  = (byte) ((pixel >> framebuffer.BlueShift)  & framebuffer.BlueMax);
 
 			return ToGdiPlusOrder(red, green, blue);			
 		}

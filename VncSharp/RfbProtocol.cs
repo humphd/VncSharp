@@ -199,7 +199,7 @@ namespace VncSharp
 		/// <exception cref="NotSupportedException">Thrown if the version of the host is not known or supported.</exception>
 		public void ReadProtocolVersion()
 		{
-			byte[] b = reader.ReadBytes(12);
+			var b = reader.ReadBytes(12);
 
 			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
 			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
@@ -275,7 +275,7 @@ namespace VncSharp
 		/// </summary>
 		public void WriteProxyAddress()
 		{
-			byte[] proxyMessage = new byte[250];
+			var proxyMessage = new byte[250];
 			GetBytes("ID:" + ProxyID + "\n").CopyTo(proxyMessage, 0);
 			writer.Write(proxyMessage);
 			writer.Flush();
@@ -294,10 +294,10 @@ namespace VncSharp
 			if (verMinor == 3) {
 				types = new[] { (byte) reader.ReadUInt32() };
 			} else {
-				byte num = reader.ReadByte();
+				var num = reader.ReadByte();
 				types = new byte[num];
 				
-				for (int i = 0; i < num; ++i) {
+				for (var i = 0; i < num; ++i) {
 					types[i] = reader.ReadByte();
 				}
 			}
@@ -310,7 +310,7 @@ namespace VncSharp
 		/// <returns>Returns a string containing the reason for the server rejecting the connection.</returns>
 		public string ReadSecurityFailureReason()
 		{
-			int length = (int) reader.ReadUInt32();
+			var length = (int) reader.ReadUInt32();
 			return GetString(reader.ReadBytes(length));
 		}
 
@@ -378,8 +378,8 @@ namespace VncSharp
 		{
 			int w = reader.ReadUInt16();
 			int h = reader.ReadUInt16();
-			Framebuffer buffer = Framebuffer.FromPixelFormat(reader.ReadBytes(16), w, h);
-			int length = (int) reader.ReadUInt32();
+			var buffer = Framebuffer.FromPixelFormat(reader.ReadBytes(16), w, h);
+			var length = (int) reader.ReadUInt32();
 
 			buffer.DesktopName = GetString(reader.ReadBytes(length));
 			
@@ -408,7 +408,7 @@ namespace VncSharp
 			WritePadding(1);
 			writer.Write((ushort)encodings.Length);
 			
-			for (int i = 0; i < encodings.Length; i++) {
+			for (var i = 0; i < encodings.Length; i++) {
 				writer.Write(encodings[i]);
 			}
 
@@ -524,10 +524,10 @@ namespace VncSharp
 		public void ReadColourMapEntry()
 		{
 			ReadPadding(1);
-			ushort firstColor = ReadUInt16();
-			ushort nbColors = ReadUInt16();
+			var firstColor = ReadUInt16();
+			var nbColors = ReadUInt16();
 
-			for (int i = 0; i < nbColors; i++, firstColor++)
+			for (var i = 0; i < nbColors; i++, firstColor++)
 			{
 				mapEntries[firstColor, 0] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// R
 				mapEntries[firstColor, 1] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// G
@@ -542,7 +542,7 @@ namespace VncSharp
 		public string ReadServerCutText()
 		{
 			ReadPadding(3);
-			int length = (int) reader.ReadUInt32();
+			var length = (int) reader.ReadUInt32();
 			return GetString(reader.ReadBytes(length));
 		}
 
@@ -628,7 +628,7 @@ namespace VncSharp
 		/// <param name="length">The number of bytes of padding to write.</param>
 		protected void WritePadding(int length)
 		{
-			byte [] padding = new byte[length];
+			var padding = new byte[length];
 			writer.Write(padding, 0, padding.Length);
 		}
 
@@ -696,8 +696,8 @@ namespace VncSharp
 
 			private void FillBuff(int totalBytes)
 			{
-				int bytesRead = 0;
-				int n = 0;
+				var bytesRead = 0;
+				var n = 0;
 
 				do {
 					n = BaseStream.Read(buff, bytesRead, totalBytes - bytesRead);
@@ -795,12 +795,12 @@ namespace VncSharp
 				zlibMemoryStream.Position = 0;
 
 				// Get compressed stream length to read
-				byte[] buff = new byte[4];
+				var buff = new byte[4];
 				if (BaseStream.Read(buff, 0, 4) != 4)
 					throw new Exception("ZRLE decoder: Invalid compressed stream size");
 
 				// BigEndian to LittleEndian conversion
-				int compressedBufferSize = buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24;
+				var compressedBufferSize = buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24;
 				if (compressedBufferSize > 64 * 1024 * 1024)
 					throw new Exception("ZRLE decoder: Invalid compressed data size");
 
@@ -814,10 +814,10 @@ namespace VncSharp
 				#region Decode stream in blocks
 				// Decode stream in blocks
 				int bytesToRead;
-				int bytesNeeded = compressedBufferSize;
-				int maxBufferSize = 64 * 1024; // 64k buffer
-				byte[] receiveBuffer = new byte[maxBufferSize];
-				NetworkStream netStream = (NetworkStream)BaseStream;
+				var bytesNeeded = compressedBufferSize;
+				var maxBufferSize = 64 * 1024; // 64k buffer
+				var receiveBuffer = new byte[maxBufferSize];
+				var netStream = (NetworkStream)BaseStream;
 				do
 				{
 					if (netStream.DataAvailable)
@@ -829,7 +829,7 @@ namespace VncSharp
 							bytesToRead = maxBufferSize;
 
 						// try reading bytes
-						int bytesRead = netStream.Read(receiveBuffer, 0, bytesToRead);
+						var bytesRead = netStream.Read(receiveBuffer, 0, bytesToRead);
 						// lower the bytesNeeded with the bytesRead.
 						bytesNeeded -= bytesRead;
 

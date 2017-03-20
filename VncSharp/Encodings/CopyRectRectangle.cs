@@ -47,7 +47,7 @@ namespace VncSharp.Encodings
 		public unsafe override void Draw(Bitmap desktop)
 		{
 			// Given a source area, copy this region to the point specified by destination
-			BitmapData bmpd = desktop.LockBits(new Rectangle(new Point(0,0), desktop.Size),
+			var bmpd = desktop.LockBits(new Rectangle(new Point(0,0), desktop.Size),
 											   ImageLockMode.ReadWrite, 
 											   desktop.PixelFormat);
 
@@ -59,11 +59,11 @@ namespace VncSharp.Encodings
 			}
 
 			try {
-				int* pSrc  = (int*)(void*)bmpd.Scan0;
-				int* pDest = (int*)(void*)bmpd.Scan0;
+				var pSrc  = (int*)(void*)bmpd.Scan0;
+				var pDest = (int*)(void*)bmpd.Scan0;
 
                 // Calculate the difference between the stride of the desktop, and the pixels we really copied. 
-                int nonCopiedPixelStride = desktop.Width - rectangle.Width;
+                var nonCopiedPixelStride = desktop.Width - rectangle.Width;
 
                 // Move source and destination pointers
                 pSrc += source.Y * desktop.Width + source.X;
@@ -73,8 +73,8 @@ namespace VncSharp.Encodings
                 // they've been moved, so we need to work out whether this slides pixels upwards in memeory,
                 // or downwards, and run the loop backwards if necessary. 
                 if (pDest < pSrc) {   // we can copy with pointers that increment
-                    for (int y = 0; y < rectangle.Height; ++y) {
-                        for (int x = 0; x < rectangle.Width; ++x) {
+                    for (var y = 0; y < rectangle.Height; ++y) {
+                        for (var x = 0; x < rectangle.Width; ++x) {
                             *pDest++ = *pSrc++;
                         }
 
@@ -88,8 +88,8 @@ namespace VncSharp.Encodings
                     pSrc  += (rectangle.Height * desktop.Width) + rectangle.Width;
                     pDest += (rectangle.Height * desktop.Width) + rectangle.Width;
 
-                    for (int y = 0; y < rectangle.Height; ++y) {
-                        for (int x = 0; x < rectangle.Width; ++x) {
+                    for (var y = 0; y < rectangle.Height; ++y) {
+                        for (var x = 0; x < rectangle.Width; ++x) {
                             *(--pDest) = *(--pSrc);
                         }
 

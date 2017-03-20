@@ -128,7 +128,7 @@ namespace VncSharp
 				rfb.WriteProtocolVersion();
 
 				// Figure out which type of authentication the server uses
-				byte[] types = rfb.ReadSecurityTypes();
+				var types = rfb.ReadSecurityTypes();
 				
 				// Based on what the server sends back in the way of supported Security Types, one of
 				// two things will need to be done: either the server will reject the connection (i.e., type = 0),
@@ -192,7 +192,7 @@ namespace VncSharp
 		{
 			// Pick the first match in the list of given types.  If you want to add support for new
 			// security types, do it here:
-			for (int i = 0; i < types.Length; ++i) {
+			for (var i = 0; i < types.Length; ++i) {
 				if (   types[i] == 1  	// None
 					|| types[i] == 2	// VNC Authentication
 // TODO: None of the following are currently supported -------------------
@@ -241,7 +241,7 @@ namespace VncSharp
 		/// <param name="password">A string containing the user's password in clear text format.</param>
 		protected void PerformVncAuthentication(string password)
 		{
-			byte[] challenge = rfb.ReadSecurityChallenge();
+			var challenge = rfb.ReadSecurityChallenge();
 			rfb.WriteSecurityResponse(EncryptChallenge(password, challenge));
 		}
 
@@ -253,13 +253,13 @@ namespace VncSharp
 		/// <returns>Returns the encrypted challenge.</returns>
 		protected byte[] EncryptChallenge(string password, byte[] challenge)
 		{
-			byte[] key = new byte[8];
+			var key = new byte[8];
 
 			// Key limited to 8 bytes max.
 		    Encoding.ASCII.GetBytes(password, 0, password.Length >= 8 ? 8 : password.Length, key, 0);
 
 		    // VNC uses reverse byte order in key
-            for (int i = 0; i < 8; i++)
+            for (var i = 0; i < 8; i++)
                 key[i] = (byte)( ((key[i] & 0x01) << 7) |
                                  ((key[i] & 0x02) << 5) |
                                  ((key[i] & 0x04) << 3) |
@@ -274,9 +274,9 @@ namespace VncSharp
 			des.Padding = PaddingMode.None;
 			des.Mode = CipherMode.ECB;
 
-			ICryptoTransform enc = des.CreateEncryptor(key, null); 
+			var enc = des.CreateEncryptor(key, null); 
 
-			byte[] response = new byte[16];
+			var response = new byte[16];
 			enc.TransformBlock(challenge, 0, challenge.Length, response, 0);
 			
 			return response;
@@ -372,19 +372,19 @@ namespace VncSharp
                                 break;
 
                             // TODO: consider gathering all update rectangles in a batch and *then* posting the event back to the main thread.
-                            for (int i = 0; i < rectangles; ++i) {
+                            for (var i = 0; i < rectangles; ++i) {
                                 // Get the update rectangle's info
                                 Rectangle rectangle;
                                 rfb.ReadFramebufferUpdateRectHeader(out rectangle, out int enc);
 
                                 // Build a derived EncodedRectangle type and pull-down all the pixel info
-                                EncodedRectangle er = factory.Build(rectangle, enc);
+                                var er = factory.Build(rectangle, enc);
                                 er.Decode();
 
                                 // Let the UI know that an updated rectangle is available, but check
                                 // to see if the user closed things down first.
                                 if (CheckIfThreadDone() || VncUpdate == null) continue;
-                                VncEventArgs e = new VncEventArgs(er);
+                                var e = new VncEventArgs(er);
 
                                 // In order to play nicely with WinForms controls, we do a check here to 
                                 // see if it is necessary to synchronize this event with the UI thread.
@@ -422,7 +422,7 @@ namespace VncSharp
 			// In order to play nicely with WinForms controls, we do a check here to 
 			// see if it is necessary to synchronize this event with the UI thread.
 		    if (!(ConnectionLost?.Target is Control)) return;
-		    Control target = (Control) ConnectionLost.Target;
+		    var target = (Control) ConnectionLost.Target;
 
 		    if (target != null)
 		        target.Invoke(ConnectionLost, this, EventArgs.Empty);
@@ -435,7 +435,7 @@ namespace VncSharp
             // In order to play nicely with WinForms controls, we do a check here to 
             // see if it is necessary to synchronize this event with the UI thread.
             if (!(ServerCutText?.Target is Control)) return;
-            Control target = (Control) ServerCutText.Target;
+            var target = (Control) ServerCutText.Target;
 
             if (target != null)
                 target.Invoke(ServerCutText, this, EventArgs.Empty);
