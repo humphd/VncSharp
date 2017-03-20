@@ -95,12 +95,12 @@ namespace VncSharp
 		/// <returns>Returns True if the VNC Host requires a Password to be sent after Connect() is called, otherwise False.</returns>
 		public bool Connect(string host, int display, int port, bool viewOnly)
 		{
-			if (host == null) throw new ArgumentNullException("host");
+			if (host == null) throw new ArgumentNullException(nameof(host));
 
 			// If a diplay number is specified (used to connect to Unix servers)
 			// it must be 0 or greater.  This gets added to the default port number
 			// in order to determine where the server will be listening for connections.
-			if (display < 0) throw new ArgumentOutOfRangeException("display", display, "Display number must be non-negative.");
+			if (display < 0) throw new ArgumentOutOfRangeException(nameof(display), display, "Display number must be non-negative.");
 			port += display;
 			
 			rfb = new RfbProtocol();
@@ -133,30 +133,30 @@ namespace VncSharp
 				// Based on what the server sends back in the way of supported Security Types, one of
 				// two things will need to be done: either the server will reject the connection (i.e., type = 0),
 				// or a list of supported types will be sent, of which we need to choose and use one.
-				if (types.Length > 0) {
-					if (types[0] == 0) {
-						// The server is not able (or willing) to accept the connection.
-						// A message follows indicating why the connection was dropped.
-						throw new VncProtocolException("Connection Failed. The server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
-					}
-				    securityType = GetSupportedSecurityType(types);
-				    Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
+			    if (types.Length <= 0)
+                    // Something is wrong, since we should have gotten at least 1 Security Type
+                    throw new VncProtocolException(
+			            "Protocol Error Connecting to Server. The Server didn't send any Security Types during the initial handshake.");
+			    if (types[0] == 0) {
+			        // The server is not able (or willing) to accept the connection.
+			        // A message follows indicating why the connection was dropped.
+			        throw new VncProtocolException("Connection Failed. The server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
+			    }
+			    securityType = GetSupportedSecurityType(types);
+			    Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
 						
-				    rfb.WriteSecurityType(securityType);
+			    rfb.WriteSecurityType(securityType);
 						
-				    // Protocol 3.8 states that a SecurityResult is still sent when using NONE (see 6.2.1)
-				    if (rfb.ServerVersion == 3.8f && securityType == 1) {
-				        if (rfb.ReadSecurityResult() > 0) {
-				            // For some reason, the server is not accepting the connection.  Get the
-				            // reason and throw an exception
-				            throw new VncProtocolException("Unable to Connecto to the Server. The Server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
-				        }
-				    }
-						
-				    return (securityType > 1) ? true : false;
-				}
-			    // Something is wrong, since we should have gotten at least 1 Security Type
-			    throw new VncProtocolException("Protocol Error Connecting to Server. The Server didn't send any Security Types during the initial handshake.");
+			    // Protocol 3.8 states that a SecurityResult is still sent when using NONE (see 6.2.1)
+			    if (rfb.ServerVersion != 3.8f || securityType != 1) return securityType > 1;
+			    if (rfb.ReadSecurityResult() > 0) {
+			        // For some reason, the server is not accepting the connection.  Get the
+			        // reason and throw an exception
+			        throw new VncProtocolException("Unable to Connecto to the Server. The Server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
+			    }
+
+			    return securityType > 1;
+			    
 			} catch (Exception e) {
 				throw new VncProtocolException("Unable to connect to the server. Error was: " + e.Message, e);
 			}			
@@ -213,7 +213,7 @@ namespace VncSharp
 		/// <returns>Returns True if Authentication worked, otherwise False.</returns>
 		public bool Authenticate(string password)
 		{
-			if (password == null) throw new ArgumentNullException("password");
+			if (password == null) throw new ArgumentNullException(nameof(password));
 			
 			// If new Security Types are supported in future, add the code here.  For now, only 
 			// VNC Authentication is supported.
@@ -359,10 +359,7 @@ namespace VncSharp
 		/// </summary>
 		private void GetRfbUpdates()
 		{
-			int rectangles;
-			int enc;
-
-			// Get the initial destkop from the host
+		    // Get the initial destkop from the host
 			RequestScreenUpdate(true);
 
 			while (true) {
@@ -370,9 +367,10 @@ namespace VncSharp
 					break;
 
                 try {
+                    // ReSharper disable once SwitchStatementMissingSomeCases
                     switch (rfb.ReadServerMessageType()) {
                         case RfbProtocol.FRAMEBUFFER_UPDATE:
-                            rectangles = rfb.ReadFramebufferUpdate();
+                            var rectangles = rfb.ReadFramebufferUpdate();
 
                             if (CheckIfThreadDone())
                                 break;
@@ -381,6 +379,7 @@ namespace VncSharp
                             for (int i = 0; i < rectangles; ++i) {
                                 // Get the update rectangle's info
                                 Rectangle rectangle;
+                                int enc;
                                 rfb.ReadFramebufferUpdateRectHeader(out rectangle, out enc);
 
                                 // Build a derived EncodedRectangle type and pull-down all the pixel info
@@ -394,10 +393,9 @@ namespace VncSharp
 
                                     // In order to play nicely with WinForms controls, we do a check here to 
                                     // see if it is necessary to synchronize this event with the UI thread.
-                                    if (VncUpdate.Target is Control) {
-                                        Control target = VncUpdate.Target as Control;
-                                        if (target != null)
-                                            target.Invoke(VncUpdate, this, e);
+                                    var control = VncUpdate.Target as Control;
+                                    if (control != null) {
+                                        control.Invoke(VncUpdate, this, e);
                                     } else {
                                         // Target is not a WinForms control, so do it on this thread...
                                         VncUpdate(this, new VncEventArgs(er));
@@ -429,30 +427,26 @@ namespace VncSharp
 		{
 			// In order to play nicely with WinForms controls, we do a check here to 
 			// see if it is necessary to synchronize this event with the UI thread.
-			if (ConnectionLost != null && 
-				ConnectionLost.Target is Control) {
-				Control target = ConnectionLost.Target as Control;
+		    if (!(ConnectionLost?.Target is Control)) return;
+		    Control target = (Control) ConnectionLost.Target;
 
-				if (target != null)
-					target.Invoke(ConnectionLost, this, EventArgs.Empty);
-				else
-					ConnectionLost(this, EventArgs.Empty);
-			}
+		    if (target != null)
+		        target.Invoke(ConnectionLost, this, EventArgs.Empty);
+		    else
+		        ConnectionLost(this, EventArgs.Empty);
 		}
 
 	    protected void OnServerCutText()
         {
             // In order to play nicely with WinForms controls, we do a check here to 
             // see if it is necessary to synchronize this event with the UI thread.
-            if (ServerCutText != null &&
-                ServerCutText.Target is Control) {
-                Control target = ServerCutText.Target as Control;
+            if (!(ServerCutText?.Target is Control)) return;
+            Control target = (Control) ServerCutText.Target;
 
-                if (target != null)
-                    target.Invoke(ServerCutText, this, EventArgs.Empty);
-                else
-                    ServerCutText(this, EventArgs.Empty);
-            }
+            if (target != null)
+                target.Invoke(ServerCutText, this, EventArgs.Empty);
+            else
+                ServerCutText(this, EventArgs.Empty);
         }
 
 // There is no managed way to get a system beep (until Framework v.2.0). So depending on the platform, something external has to be called.

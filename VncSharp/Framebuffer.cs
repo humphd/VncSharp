@@ -42,21 +42,21 @@ namespace VncSharp
 	    private readonly int height;
 	    private readonly int[] pixels;	 // I'm reusing the same pixel buffer for all update rectangles.
 								 // Pixel values will always be 32-bits to match GDI representation
-	    private readonly int pixelCount; // The total number of pixels (w x h) assigned in SetSize()
 
 
-		/// <summary>
+	    /// <summary>
 		/// Creates a new Framebuffer with (width x height) pixels.
 		/// </summary>
 		/// <param name="width">The width in pixels of the remote desktop.</param>
 		/// <param name="height">The height in pixels of the remote desktop.</param>
 		public Framebuffer(int width, int height)
 		{
-			this.width = width;
+		    this.width = width;
 			this.height = height;
-			
-			// Cache the total size of the pixel array and initialize
-			pixelCount = width * height;
+
+            // Cache the total size of the pixel array and initialize
+            // The total number of pixels (w x h) assigned in SetSize()
+            var pixelCount = width * height;
 			pixels = new int[pixelCount];
 		}
 

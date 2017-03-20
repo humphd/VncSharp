@@ -490,6 +490,7 @@ namespace VncSharp
             state = newState;
 
             // Set mouse pointer according to new state
+            // ReSharper disable once SwitchStatementMissingSomeCases
             switch (state)
             {
                 case RuntimeState.Connected:

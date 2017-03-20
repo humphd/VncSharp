@@ -49,10 +49,7 @@ namespace VncSharp
 
             public bool Equals(KeyNotificationEntry obj)
             {
-                return (WindowHandle == obj.WindowHandle &&
-                        KeyCode == obj.KeyCode &&
-                        ModifierKeys == obj.ModifierKeys &&
-                        Block == obj.Block);
+                return obj != null && WindowHandle == obj.WindowHandle && KeyCode == obj.KeyCode && ModifierKeys == obj.ModifierKeys && Block == obj.Block;
             }
         }
 
@@ -62,12 +59,10 @@ namespace VncSharp
         {
             get
             {
+                if (_hookKeyMsg != 0) return _hookKeyMsg;
+                _hookKeyMsg = Win32.RegisterWindowMessage(HookKeyMsgName).ToInt32();
                 if (_hookKeyMsg == 0)
-                {
-                    _hookKeyMsg = Win32.RegisterWindowMessage(HookKeyMsgName).ToInt32();
-                    if (_hookKeyMsg == 0)
-                        throw new Win32Exception(Marshal.GetLastWin32Error());
-                }
+                    throw new Win32Exception(Marshal.GetLastWin32Error());
                 return _hookKeyMsg;
             }
         }
@@ -128,6 +123,7 @@ namespace VncSharp
 
             if (nCode == Win32.HC_ACTION)
             {
+                // ReSharper disable once SwitchStatementMissingSomeCases
                 switch (wParamInt)
                 {
                     case Win32.WM_KEYDOWN:
@@ -139,9 +135,7 @@ namespace VncSharp
                 }
             }
 
-            if (result != 0) return new IntPtr(result);
-
-            return Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
+            return result != 0 ? new IntPtr(result) : Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
         }
 
         private static int OnKey(int msg, Win32.KBDLLHOOKSTRUCT key)
@@ -187,12 +181,10 @@ namespace VncSharp
         private static IntPtr GetFocusWindow()
         {
             var guiThreadInfo = new Win32.GUITHREADINFO();
-            if (!Win32.GetGUIThreadInfo(0, guiThreadInfo))
-            {
-                var except = Marshal.GetLastWin32Error();
-                throw new Win32Exception(except);
-            }
-            return Win32.GetAncestor(guiThreadInfo.hwndFocus, Win32.GA_ROOT);
+            if (Win32.GetGUIThreadInfo(0, guiThreadInfo))
+                return Win32.GetAncestor(guiThreadInfo.hwndFocus, Win32.GA_ROOT);
+            var except = Marshal.GetLastWin32Error();
+            throw new Win32Exception(except);
         }
 
         private static readonly Dictionary<int, ModifierKeys> ModifierKeyTable = new Dictionary<int, ModifierKeys>

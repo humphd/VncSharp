@@ -51,7 +51,7 @@ namespace VncSharp
 		/// <returns></returns>
 		public EncodedRectangle Build(Rectangle rectangle, int encoding)
 		{
-			EncodedRectangle e = null;
+			EncodedRectangle e;
 
 			switch (encoding) {
 				case RfbProtocol.RAW_ENCODING:
