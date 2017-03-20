@@ -456,7 +456,7 @@ namespace VncSharp
 				inputPolicy = new VncDefaultInputPolicy(rfb);
 		}
 
-        public virtual void WriteClientCutText(string text)
+        public void WriteClientCutText(string text)
         {
             try {
                 rfb.WriteClientCutText(text);
@@ -466,7 +466,7 @@ namespace VncSharp
         }
 
 		// TODO: This needs to be pushed into the protocol rather than expecting keysym from the caller.
-		public virtual void WriteKeyboardEvent(uint keysym, bool pressed)
+		public void WriteKeyboardEvent(uint keysym, bool pressed)
 		{
 			try {
 				inputPolicy.WriteKeyboardEvent(keysym, pressed);
@@ -476,7 +476,7 @@ namespace VncSharp
 		}
 
 		// TODO: This needs to be pushed into the protocol rather than expecting the caller to create the mask.
-		public virtual void WritePointerEvent(byte buttonMask, Point point)
+		public void WritePointerEvent(byte buttonMask, Point point)
 		{
 			try {
 				inputPolicy.WritePointerEvent(buttonMask, point);
