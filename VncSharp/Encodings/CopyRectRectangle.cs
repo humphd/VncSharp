@@ -85,12 +85,12 @@ namespace VncSharp.Encodings
                 } else {
                     // Move source and destination pointers to just beyond the furthest-from-origin 
                     // pixel to be copied.
-                    pSrc  += (rectangle.Height * desktop.Width) + rectangle.Width;
-                    pDest += (rectangle.Height * desktop.Width) + rectangle.Width;
+                    pSrc  += rectangle.Height * desktop.Width + rectangle.Width;
+                    pDest += rectangle.Height * desktop.Width + rectangle.Width;
 
                     for (var y = 0; y < rectangle.Height; ++y) {
                         for (var x = 0; x < rectangle.Width; ++x) {
-                            *(--pDest) = *(--pSrc);
+                            *--pDest = *--pSrc;
                         }
 
                         // Move pointers to end of previous row in rectangle

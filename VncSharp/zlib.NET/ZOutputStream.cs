@@ -60,7 +60,7 @@ namespace VncSharp.zlib.NET
 		{
 			get
 			{
-				return (flush_Renamed_Field);
+				return flush_Renamed_Field;
 			}
 			
 			set

@@ -32,7 +32,7 @@ namespace VncSharp.Encodings
 		{
 			var b = reader.ReadBytes(2);
 
-            var pixel = (ushort)(((uint)b[0]) & 0xFF | ((uint)b[1]) << 8);
+            var pixel = (ushort)((uint)b[0] & 0xFF | (uint)b[1] << 8);
 
 			var red = (byte)(((pixel >> framebuffer.RedShift) & framebuffer.RedMax) * 255 / framebuffer.RedMax);
 			var green = (byte)(((pixel >> framebuffer.GreenShift) & framebuffer.GreenMax) * 255 / framebuffer.GreenMax);

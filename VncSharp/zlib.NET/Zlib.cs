@@ -57,7 +57,7 @@ namespace VncSharp.zlib.NET
 		public const int Z_NO_COMPRESSION = 0;
 		public const int Z_BEST_SPEED = 1;
 		public const int Z_BEST_COMPRESSION = 9;
-		public const int Z_DEFAULT_COMPRESSION = (- 1);
+		public const int Z_DEFAULT_COMPRESSION = - 1;
 		
 		// compression strategy
 		public const int Z_FILTERED = 1;

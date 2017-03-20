@@ -196,9 +196,9 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						b = (z.next_in[z.next_in_index++]) & 0xff;
+						b = z.next_in[z.next_in_index++] & 0xff;
 						
-						if ((((z.istate.method << 8) + b) % 31) != 0)
+						if (((z.istate.method << 8) + b) % 31 != 0)
 						{
 							z.istate.mode = BAD;
 							z.msg = "incorrect header check";
@@ -230,7 +230,7 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L;
 						z.istate.mode = DICT2;
 						goto case DICT2;
 					
@@ -240,7 +240,7 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L;
 						z.istate.mode = DICT1;
 						goto case DICT1;
 					
@@ -250,7 +250,7 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (z.next_in[z.next_in_index++] & 0xffL);
+						z.istate.need += z.next_in[z.next_in_index++] & 0xffL;
 						z.adler = z.istate.need;
 						z.istate.mode = DICT0;
 						return Z_NEED_DICT;
@@ -304,7 +304,7 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L;
 						z.istate.mode = CHECK2;
 						goto case CHECK2;
 					
@@ -314,7 +314,7 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L;
 						z.istate.mode = CHECK1;
 						goto case CHECK1;
 					
@@ -324,9 +324,9 @@ namespace VncSharp.zlib.NET
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (z.next_in[z.next_in_index++] & 0xffL);
+						z.istate.need += z.next_in[z.next_in_index++] & 0xffL;
 						
-						if (((int) (z.istate.was[0])) != ((int) (z.istate.need)))
+						if ((int) z.istate.was[0] != (int) z.istate.need)
 						{
 							z.istate.mode = BAD;
 							z.msg = "incorrect data check";
@@ -365,7 +365,7 @@ namespace VncSharp.zlib.NET
 			
 			z.adler = z._adler.adler32(0, null, 0, 0);
 			
-			if (length >= (1 << z.istate.wbits))
+			if (length >= 1 << z.istate.wbits)
 			{
 				length = (1 << z.istate.wbits) - 1;
 				index = dictLength - length;

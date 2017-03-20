@@ -71,29 +71,29 @@ namespace VncSharp.zlib.NET
 				len -= k;
 				while (k >= 16)
 				{
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
 					k -= 16;
 				}
 				if (k != 0)
 				{
 					do 
 					{
-						s1 += (buf[index++] & 0xff); s2 += s1;
+						s1 += buf[index++] & 0xff; s2 += s1;
 					}
 					while (--k != 0);
 				}

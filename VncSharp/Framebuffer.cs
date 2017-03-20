@@ -185,8 +185,8 @@ namespace VncSharp
 		    {
 		        BitsPerPixel = b[0],
 		        Depth = b[1],
-		        BigEndian = (b[2] != 0),
-		        TrueColour = (b[3] != 0),
+		        BigEndian = b[2] != 0,
+		        TrueColour = b[3] != 0,
 		        RedMax = b[5] | b[4] << 8,
 		        GreenMax = b[7] | b[6] << 8,
 		        BlueMax = b[9] | b[8] << 8,

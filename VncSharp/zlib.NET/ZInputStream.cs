@@ -58,7 +58,7 @@ namespace VncSharp.zlib.NET
 		{
 			get
 			{
-				return (flush);
+				return flush;
 			}
 			
 			set
@@ -123,8 +123,8 @@ namespace VncSharp.zlib.NET
 		public  override int Read()
 		{
 			if (read(buf1, 0, 1) == - 1)
-				return (- 1);
-			return (buf1[0] & 0xFF);
+				return - 1;
+			return buf1[0] & 0xFF;
 		}
 		
 		internal bool nomoreinput;
@@ -132,14 +132,14 @@ namespace VncSharp.zlib.NET
 		public int read(byte[] b, int off, int len)
 		{
 			if (len == 0)
-				return (0);
+				return 0;
 			int err;
 			z.next_out = b;
 			z.next_out_index = off;
 			z.avail_out = len;
 			do 
 			{
-				if ((z.avail_in == 0) && (!nomoreinput))
+				if (z.avail_in == 0 && !nomoreinput)
 				{
 					// if buffer is empty and more input is avaiable, refill it
 					z.next_in_index = 0;
@@ -154,16 +154,16 @@ namespace VncSharp.zlib.NET
 					err = z.deflate(flush);
 				else
 					err = z.inflate(flush);
-				if (nomoreinput && (err == zlibConst.Z_BUF_ERROR))
-					return (- 1);
+				if (nomoreinput && err == zlibConst.Z_BUF_ERROR)
+					return - 1;
 				if (err != zlibConst.Z_OK && err != zlibConst.Z_STREAM_END)
 					throw new ZStreamException((compress?"de":"in") + "flating: " + z.msg);
-				if (nomoreinput && (z.avail_out == len))
-					return (- 1);
+				if (nomoreinput && z.avail_out == len)
+					return - 1;
 			}
 			while (z.avail_out == len && err == zlibConst.Z_OK);
 			//System.err.print("("+(len-z.avail_out)+")");
-			return (len - z.avail_out);
+			return len - z.avail_out;
 		}
 				
 		public long skip(long n)

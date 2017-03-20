@@ -34,7 +34,7 @@ namespace VncSharp
         #region Constants
         // ReSharper disable InconsistentNaming
         // Version Constants
-        public const string RFB_VERSION_ZERO			= "RFB 000.000\n";
+	    private const string RFB_VERSION_ZERO			= "RFB 000.000\n";
 
 		// Encoding Constants
 		public const int RAW_ENCODING 					= 0;
@@ -50,13 +50,13 @@ namespace VncSharp
 		public const int BELL 							= 2;
 		public const int SERVER_CUT_TEXT 				= 3;
 
-		// Client to Server Message-Type constants
-		protected const byte SET_PIXEL_FORMAT 			= 0;
-		protected const byte SET_ENCODINGS 				= 2;
-		protected const byte FRAMEBUFFER_UPDATE_REQUEST = 3;
-		protected const byte KEY_EVENT 					= 4;
-		protected const byte POINTER_EVENT 				= 5;
-		protected const byte CLIENT_CUT_TEXT 			= 6;
+        // Client to Server Message-Type constants
+        private const byte SET_PIXEL_FORMAT 			= 0;
+        private const byte SET_ENCODINGS 				= 2;
+        private const byte FRAMEBUFFER_UPDATE_REQUEST = 3;
+        private const byte KEY_EVENT 					= 4;
+        private const byte POINTER_EVENT 				= 5;
+        private const byte CLIENT_CUT_TEXT 			= 6;
 
         // Keyboard constants
         public const int XK_BackSpace = 0xFF08;
@@ -111,49 +111,32 @@ namespace VncSharp
         // ReSharper restore InconsistentNaming
         #endregion
 
-        protected int verMajor;	// Major version of Protocol--probably 3
-		protected int verMinor; // Minor version of Protocol--probably 3, 7, or 8
+        private int verMajor;   // Major version of Protocol--probably 3
+        private int verMinor; // Minor version of Protocol--probably 3, 7, or 8
 
-		protected TcpClient tcp;		// Network object used to communicate with host
-		protected NetworkStream stream;	// Stream object used to send/receive data
-		protected BinaryReader reader;	// Integral rather than Byte values are typically
-		protected BinaryWriter writer;	// sent and received, so these handle this.
-		protected ZRLECompressedReader zrleReader;
+        private TcpClient tcp;      // Network object used to communicate with host
+        private NetworkStream stream;   // Stream object used to send/receive data
+	    private BinaryWriter writer;    // sent and received, so these handle this.
 
 	    /// <summary>
 		/// Gets the Protocol Version of the remote VNC Host--probably 3.3, 3.7, or 3.8.
 		/// </summary>
-		public float ServerVersion {
-			get {
-				return verMajor + (verMinor * 0.1f);
-			}
-		}
+		public float ServerVersion => verMajor + verMinor * 0.1f;
 
-		/// <summary>
+	    /// <summary>
 		/// Gets or sets the proxy identifier to be send when using UltraVNC's repeater functionality
 		/// </summary>
 		/// <value>
 		/// The proxy identifier.
 		/// </value>
-		public int ProxyID { get; set; }
+	    // ReSharper disable once UnusedAutoPropertyAccessor.Local
+		private int ProxyID { get; set; }
 
-		public BinaryReader Reader
-		{
-			get
-			{
-				return reader;
-			}
-		}
+		public BinaryReader Reader { get; private set; }
 
-		public ZRLECompressedReader ZrleReader
-		{
-			get
-			{
-				return zrleReader;
-			}
-		}
+	    public ZRLECompressedReader ZrleReader { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Attempt to connect to a remote VNC Host.
 		/// </summary>
 		/// <param name="host">The IP Address or Host Name of the VNC Host.</param>
@@ -172,9 +155,9 @@ namespace VncSharp
 			// Most of the RFB protocol uses Big-Endian byte order, while
 			// .NET uses Little-Endian. These wrappers convert between the
 			// two.  See BigEndianReader and BigEndianWriter below for more details.
-			reader = new BigEndianBinaryReader(stream);
+			Reader = new BigEndianBinaryReader(stream);
 			writer = new BigEndianBinaryWriter(stream);
-			zrleReader = new ZRLECompressedReader(stream);
+			ZrleReader = new ZRLECompressedReader(stream);
 		}
 
 		/// <summary>
@@ -184,7 +167,7 @@ namespace VncSharp
 		{
 			try {
 				writer.Close();
-				reader.Close();
+				Reader.Close();
 				stream.Close();
 				tcp.Close();
 			} catch (Exception ex) {
@@ -198,7 +181,7 @@ namespace VncSharp
 		/// <exception cref="NotSupportedException">Thrown if the version of the host is not known or supported.</exception>
 		public void ReadProtocolVersion()
 		{
-			var b = reader.ReadBytes(12);
+			var b = Reader.ReadBytes(12);
 
 			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
 			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
@@ -292,13 +275,13 @@ namespace VncSharp
 			
 			// Protocol Version 3.7 onward supports multiple security types, while 3.3 only 1
 			if (verMinor == 3) {
-				types = new[] { (byte) reader.ReadUInt32() };
+				types = new[] { (byte) Reader.ReadUInt32() };
 			} else {
-				var num = reader.ReadByte();
+				var num = Reader.ReadByte();
 				types = new byte[num];
 				
 				for (var i = 0; i < num; ++i) {
-					types[i] = reader.ReadByte();
+					types[i] = Reader.ReadByte();
 				}
 			}
 			return types;
@@ -310,8 +293,8 @@ namespace VncSharp
 		/// <returns>Returns a string containing the reason for the server rejecting the connection.</returns>
 		public string ReadSecurityFailureReason()
 		{
-			var length = (int) reader.ReadUInt32();
-			return GetString(reader.ReadBytes(length));
+			var length = (int) Reader.ReadUInt32();
+			return GetString(Reader.ReadBytes(length));
 		}
 
 		/// <summary>
@@ -336,7 +319,7 @@ namespace VncSharp
 		/// <returns>Returns the 16 byte Challenge sent by the server.</returns>
 		public byte[] ReadSecurityChallenge()
 		{
-			return reader.ReadBytes(16);
+			return Reader.ReadBytes(16);
 		}
 
 		/// <summary>
@@ -356,7 +339,7 @@ namespace VncSharp
 		/// <returns>An integer indicating the status of authentication: 0 = OK; 1 = Failed; 2 = Too Many (deprecated).</returns>
 		public uint ReadSecurityResult()
 		{
-			return reader.ReadUInt32();
+			return Reader.ReadUInt32();
 		}
 
 		/// <summary>
@@ -376,12 +359,12 @@ namespace VncSharp
 		/// <returns>Returns a Framebuffer object representing the geometry and properties of the remote host.</returns>
 		public Framebuffer ReadServerInit()
 		{
-			int w = reader.ReadUInt16();
-			int h = reader.ReadUInt16();
-			var buffer = Framebuffer.FromPixelFormat(reader.ReadBytes(16), w, h);
-			var length = (int) reader.ReadUInt32();
+			int w = Reader.ReadUInt16();
+			int h = Reader.ReadUInt16();
+			var buffer = Framebuffer.FromPixelFormat(Reader.ReadBytes(16), w, h);
+			var length = (int) Reader.ReadUInt32();
 
-			buffer.DesktopName = GetString(reader.ReadBytes(length));
+			buffer.DesktopName = GetString(Reader.ReadBytes(length));
 			
 			return buffer;
 		}
@@ -481,7 +464,7 @@ namespace VncSharp
 		/// <returns>Returns the message type as an integer.</returns>
 		public int ReadServerMessageType()
 		{
-			return reader.ReadByte();
+			return Reader.ReadByte();
 		}
 
 		/// <summary>
@@ -491,7 +474,7 @@ namespace VncSharp
 		public int ReadFramebufferUpdate()
 		{
 			ReadPadding(1);
-			return reader.ReadUInt16();
+			return Reader.ReadUInt16();
 		}
 
 		/// <summary>
@@ -503,12 +486,12 @@ namespace VncSharp
 		{
 		    rectangle = new Rectangle
 		    {
-		        X = reader.ReadUInt16(),
-		        Y = reader.ReadUInt16(),
-		        Width = reader.ReadUInt16(),
-		        Height = reader.ReadUInt16()
+		        X = Reader.ReadUInt16(),
+		        Y = Reader.ReadUInt16(),
+		        Width = Reader.ReadUInt16(),
+		        Height = Reader.ReadUInt16()
 		    };
-		    encoding = (int) reader.ReadUInt32();
+		    encoding = (int) Reader.ReadUInt32();
 		}
 		
 		// TODO: this colour map code should probably go in Framebuffer.cs
@@ -538,8 +521,8 @@ namespace VncSharp
 		public string ReadServerCutText()
 		{
 			ReadPadding(3);
-			var length = (int) reader.ReadUInt32();
-			return GetString(reader.ReadBytes(length));
+			var length = (int) Reader.ReadUInt32();
+			return GetString(Reader.ReadBytes(length));
 		}
 
 		// ---------------------------------------------------------------------------------------
@@ -551,7 +534,7 @@ namespace VncSharp
 		/// <returns>Returns a UInt32 value.</returns>
 		public uint ReadUint32()
 		{
-			return reader.ReadUInt32(); 
+			return Reader.ReadUInt32(); 
 		}
 		
 		/// <summary>
@@ -560,7 +543,7 @@ namespace VncSharp
 		/// <returns>Returns a UInt16 value.</returns>
 		public ushort ReadUInt16()
 		{
-			return reader.ReadUInt16(); 
+			return Reader.ReadUInt16(); 
 		}
 		
 		/// <summary>
@@ -569,7 +552,7 @@ namespace VncSharp
 		/// <returns>Returns a Byte value.</returns>
 		public byte ReadByte()
 		{
-			return reader.ReadByte();
+			return Reader.ReadByte();
 		}
 		
 		/// <summary>
@@ -579,7 +562,7 @@ namespace VncSharp
 		/// <returns>Returns a Byte Array containing the values read.</returns>
 		public byte[] ReadBytes(int count)
 		{
-			return reader.ReadBytes(count);
+			return Reader.ReadBytes(count);
 		}
 
 		/// <summary>
@@ -668,7 +651,7 @@ namespace VncSharp
 			public override ushort ReadUInt16()
 			{
 				FillBuff(2);
-				return (ushort)(buff[1] | ((uint)buff[0]) << 8);
+				return (ushort)(buff[1] | (uint)buff[0] << 8);
 				
 			}
 			
@@ -681,7 +664,7 @@ namespace VncSharp
 			public override uint ReadUInt32()
 			{
 				FillBuff(4);
-				return ((uint)buff[3]) & 0xFF | ((uint)buff[2]) << 8 | ((uint)buff[1]) << 16 | ((uint)buff[0]) << 24;
+				return (uint)buff[3] & 0xFF | (uint)buff[2] << 8 | (uint)buff[1] << 16 | (uint)buff[0] << 24;
 			}
 			
 			public override int ReadInt32()

@@ -38,7 +38,7 @@ namespace VncSharp.Encodings
 			this.rectangle = rectangle;
 
 			//Select appropriate reader
-			var reader = (encoding == RfbProtocol.ZRLE_ENCODING) ? rfb.ZrleReader : rfb.Reader;
+			var reader = encoding == RfbProtocol.ZRLE_ENCODING ? rfb.ZrleReader : rfb.Reader;
 
 			// Create the appropriate PixelReader depending on screen size and encoding
 			switch (framebuffer.BitsPerPixel)

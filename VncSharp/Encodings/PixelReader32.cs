@@ -33,10 +33,10 @@ namespace VncSharp.Encodings
 			// Read the pixel value
 			var b = reader.ReadBytes(4);
 
-            var pixel = ((uint)b[0]) & 0xFF | 
-                         ((uint)b[1]) << 8   | 
-                         ((uint)b[2]) << 16  | 
-                         ((uint)b[3]) << 24;
+            var pixel = (uint)b[0] & 0xFF | 
+                         (uint)b[1] << 8   | 
+                         (uint)b[2] << 16  | 
+                         (uint)b[3] << 24;
 
 			// Extract RGB intensities from pixel
 			var red   = (byte) ((pixel >> framebuffer.RedShift)   & framebuffer.RedMax);

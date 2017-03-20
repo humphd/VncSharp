@@ -50,13 +50,13 @@ namespace VncSharp
         {
             var adjusted = new Point();
 			if (remoteDesktop.ClientSize.Width > remoteDesktop.Desktop.Size.Width) {
-			    adjusted.X = current.X - ((remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2);
+			    adjusted.X = current.X - (remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2;
 			} else {
 				adjusted.X = current.X - remoteDesktop.AutoScrollPosition.X;
 			}
  
 			if (remoteDesktop.ClientSize.Height > remoteDesktop.Desktop.Size.Height ) {
-				adjusted.Y = current.Y - ((remoteDesktop.ClientRectangle.Height - remoteDesktop.Desktop.Height) / 2);
+				adjusted.Y = current.Y - (remoteDesktop.ClientRectangle.Height - remoteDesktop.Desktop.Height) / 2;
 			} else {
 				adjusted.Y = current.Y - remoteDesktop.AutoScrollPosition.Y;
 			}

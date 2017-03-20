@@ -48,7 +48,7 @@ namespace VncSharp.Encodings
 
 					var subencoding = rfb.ZrleReader.ReadByte();
 
-					if ((subencoding >= 17 && subencoding <= 127) || subencoding == 129)
+					if (subencoding >= 17 && subencoding <= 127 || subencoding == 129)
 						throw new Exception("Invalid subencoding value");
 
 					var isRLE = (subencoding & 128) != 0;
@@ -90,8 +90,8 @@ namespace VncSharp.Encodings
 		
 		private void ReadZrlePackedPixels(int tw, int th, int[] palette, int palSize, int[] tile)
 		{
-			var bppp = ((palSize > 16) ? 8 :
-			  ((palSize > 4) ? 4 : ((palSize > 2) ? 2 : 1)));
+			var bppp = palSize > 16 ? 8 :
+			    (palSize > 4 ? 4 : (palSize > 2 ? 2 : 1));
 			var ptr = 0;
 
 			for (var i = 0; i < th; i++) {

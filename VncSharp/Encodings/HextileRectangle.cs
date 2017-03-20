@@ -59,12 +59,12 @@ namespace VncSharp.Encodings
 			for (var ty = 0; ty < rectangle.Height; ty += 16) {			
 				// Tiles in the last row will often be less than 16 pixels high.
 				// All others will be 16 high.
-				var th = (rectangle.Height - ty < 16) ? rectangle.Height - ty : 16;
+				var th = rectangle.Height - ty < 16 ? rectangle.Height - ty : 16;
 
 				for (var tx = 0; tx < rectangle.Width; tx += 16) {				
 					// Tiles in the list column will often be less than 16 pixels wide.
 					// All others will be 16 wide.
-					var tw = (rectangle.Width - tx < 16) ? rectangle.Width - tx : 16;
+					var tw = rectangle.Width - tx < 16 ? rectangle.Width - tx : 16;
 
 					var tlStart = ty * rectangle.Width + tx;
 					var tlOffset = rectangle.Width - tw;

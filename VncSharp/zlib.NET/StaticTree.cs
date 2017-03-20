@@ -52,7 +52,7 @@ namespace VncSharp.zlib.NET
 		private const int D_CODES = 30;
 		private const int LITERALS = 256;
 		private const int LENGTH_CODES = 29;		
-		private static readonly int L_CODES = (LITERALS + 1 + LENGTH_CODES);
+		private static readonly int L_CODES = LITERALS + 1 + LENGTH_CODES;
 		
 		// Bit length codes must not exceed MAX_BL_BITS bits
 		internal const int MAX_BL_BITS = 7;

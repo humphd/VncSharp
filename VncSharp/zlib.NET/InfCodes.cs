@@ -172,7 +172,7 @@ namespace VncSharp.zlib.NET
 					case LEN:  // i: get length/literal/eob next
 						j = need;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -191,8 +191,8 @@ namespace VncSharp.zlib.NET
 						
 						tindex = (tree_index + (b & inflate_mask[j])) * 3;
 						
-						b = SupportClass.URShift(b, (tree[tindex + 1]));
-						k -= (tree[tindex + 1]);
+						b = SupportClass.URShift(b, tree[tindex + 1]);
+						k -= tree[tindex + 1];
 						
 						e = tree[tindex];
 						
@@ -237,7 +237,7 @@ namespace VncSharp.zlib.NET
 					case LENEXT:  // i: getting length extra (have base)
 						j = get_Renamed;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -253,7 +253,7 @@ namespace VncSharp.zlib.NET
 							k += 8;
 						}
 						
-						len += (b & inflate_mask[j]);
+						len += b & inflate_mask[j];
 						
 						b >>= j;
 						k -= j;
@@ -267,7 +267,7 @@ namespace VncSharp.zlib.NET
 					case DIST:  // i: get distance next
 						j = need;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -288,7 +288,7 @@ namespace VncSharp.zlib.NET
 						b >>= tree[tindex + 1];
 						k -= tree[tindex + 1];
 						
-						e = (tree[tindex]);
+						e = tree[tindex];
 						if ((e & 16) != 0)
 						{
 							// distance
@@ -317,7 +317,7 @@ namespace VncSharp.zlib.NET
 					case DISTEXT:  // i: getting distance extra
 						j = get_Renamed;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -333,7 +333,7 @@ namespace VncSharp.zlib.NET
 							k += 8;
 						}
 						
-						dist += (b & inflate_mask[j]);
+						dist += b & inflate_mask[j];
 						
 						b >>= j;
 						k -= j;
@@ -511,7 +511,7 @@ namespace VncSharp.zlib.NET
 			{
 				// assume called with m >= 258 && n >= 10
 				// get literal/length code
-				while (k < (20))
+				while (k < 20)
 				{
 					// max bits for literal/length code
 					n--;
@@ -523,7 +523,7 @@ namespace VncSharp.zlib.NET
 				tp_index = tl_index;
 				if ((e = tp[(tp_index + t) * 3]) == 0)
 				{
-					b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+					b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 					
 					s.window[q++] = (byte) tp[(tp_index + t) * 3 + 2];
 					m--;
@@ -532,7 +532,7 @@ namespace VncSharp.zlib.NET
 				do 
 				{
 					
-					b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+					b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 					
 					if ((e & 16) != 0)
 					{
@@ -542,7 +542,7 @@ namespace VncSharp.zlib.NET
 						b >>= e; k -= e;
 						
 						// decode distance base of block to copy
-						while (k < (15))
+						while (k < 15)
 						{
 							// max bits for distance code
 							n--;
@@ -557,13 +557,13 @@ namespace VncSharp.zlib.NET
 						do 
 						{
 							
-							b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+							b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 							
 							if ((e & 16) != 0)
 							{
 								// get extra bits to add to distance base
 								e &= 15;
-								while (k < (e))
+								while (k < e)
 								{
 									// get extra bits (up to 13)
 									n--;
@@ -572,7 +572,7 @@ namespace VncSharp.zlib.NET
 								
 								d = tp[(tp_index + t) * 3 + 2] + (b & inflate_mask[e]);
 								
-								b >>= (e); k -= (e);
+								b >>= e; k -= e;
 								
 								// do the copy
 								m -= c;
@@ -581,7 +581,7 @@ namespace VncSharp.zlib.NET
 									// offset before dest
 									//  just copy
 									r = q - d;
-									if (q - r > 0 && 2 > (q - r))
+									if (q - r > 0 && 2 > q - r)
 									{
 										s.window[q++] = s.window[r++]; c--; // minimum count is three,
 										s.window[q++] = s.window[r++]; c--; // so unroll loop a little
@@ -606,7 +606,7 @@ namespace VncSharp.zlib.NET
 									{
 										// if source crosses,
 										c -= e; // wrapped copy
-										if (q - r > 0 && e > (q - r))
+										if (q - r > 0 && e > q - r)
 										{
 											do 
 											{
@@ -624,7 +624,7 @@ namespace VncSharp.zlib.NET
 								}
 								
 								// copy all or what's left
-								if (q - r > 0 && c > (q - r))
+								if (q - r > 0 && c > q - r)
 								{
 									do 
 									{
@@ -642,14 +642,14 @@ namespace VncSharp.zlib.NET
 						    if ((e & 64) == 0)
 						    {
 						        t += tp[(tp_index + t) * 3 + 2];
-						        t += (b & inflate_mask[e]);
+						        t += b & inflate_mask[e];
 						        e = tp[(tp_index + t) * 3];
 						    }
 						    else
 						    {
 						        z.msg = "invalid distance code";
 								
-						        c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+						        c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 								
 						        s.bitb = b; s.bitk = k;
 						        z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
@@ -665,11 +665,11 @@ namespace VncSharp.zlib.NET
 					if ((e & 64) == 0)
 					{
 						t += tp[(tp_index + t) * 3 + 2];
-						t += (b & inflate_mask[e]);
+						t += b & inflate_mask[e];
 						if ((e = tp[(tp_index + t) * 3]) == 0)
 						{
 							
-							b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+							b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 							
 							s.window[q++] = (byte) tp[(tp_index + t) * 3 + 2];
 							m--;
@@ -679,7 +679,7 @@ namespace VncSharp.zlib.NET
 					else if ((e & 32) != 0)
 					{
 						
-						c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+						c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 						
 						s.bitb = b; s.bitk = k;
 						z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
@@ -691,7 +691,7 @@ namespace VncSharp.zlib.NET
 					{
 						z.msg = "invalid literal/length code";
 						
-						c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+						c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 						
 						s.bitb = b; s.bitk = k;
 						z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
@@ -705,7 +705,7 @@ namespace VncSharp.zlib.NET
 			while (m >= 258 && n >= 10);
 			
 			// not enough input or output--restore pointers and return
-			c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+			c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 			
 			s.bitb = b; s.bitk = k;
 			z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
