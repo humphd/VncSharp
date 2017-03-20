@@ -18,7 +18,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.InteropServices;
+using System.Media;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
@@ -58,22 +58,14 @@ namespace VncSharp
 	    /// <summary>
         /// Gets the hostname of the remote desktop
         /// </summary>
-        public string HostName {
-            get {
-                return Framebuffer.DesktopName;
-            }
-        }
+        public string HostName => Framebuffer.DesktopName;
 
-		/// <summary>
+	    /// <summary>
 		/// Returns True if the VncClient object is View-Only, meaning no mouse/keyboard events are being sent.
 		/// </summary>
-		public bool IsViewOnly {
-			get {
-				return inputPolicy != null && inputPolicy is VncViewInputPolicy;
-			}
-		}
+		public bool IsViewOnly => inputPolicy is VncViewInputPolicy;
 
-		// Just for API compat, since I've added viewOnly
+	    // Just for API compat, since I've added viewOnly
 		public bool Connect(string host, int display, int port)
 		{
 			return Connect(host, display, port, false);
@@ -182,7 +174,7 @@ namespace VncSharp
 		/// </summary>
 		/// <param name="types">An array of bytes representing the Security Types supported by the VNC Server.</param>
 		/// <returns>A byte that represents the Security Type to be used by the Client.</returns>
-		protected byte GetSupportedSecurityType(byte[] types)
+		private byte GetSupportedSecurityType(byte[] types)
 		{
 			// Pick the first match in the list of given types.  If you want to add support for new
 			// security types, do it here:
@@ -233,7 +225,7 @@ namespace VncSharp
 		/// Performs VNC Authentication using VNC DES encryption.  See the RFB Protocol doc 6.2.2.
 		/// </summary>
 		/// <param name="password">A string containing the user's password in clear text format.</param>
-		protected void PerformVncAuthentication(string password)
+		private void PerformVncAuthentication(string password)
 		{
 			var challenge = rfb.ReadSecurityChallenge();
 			rfb.WriteSecurityResponse(EncryptChallenge(password, challenge));
@@ -245,7 +237,7 @@ namespace VncSharp
 		/// <param name="password">The user's password.</param>
 		/// <param name="challenge">The challenge sent by the server.</param>
 		/// <returns>Returns the encrypted challenge.</returns>
-		protected byte[] EncryptChallenge(string password, byte[] challenge)
+		private byte[] EncryptChallenge(string password, byte[] challenge)
 		{
 			var key = new byte[8];
 
@@ -392,7 +384,7 @@ namespace VncSharp
                             }
                             break;
                         case RfbProtocol.BELL:
-                            Beep(500, 300);  // TODO: are there better values than these?
+                            Beep();
                             break;
                         case RfbProtocol.SERVER_CUT_TEXT:
                             if (CheckIfThreadDone())
@@ -411,7 +403,7 @@ namespace VncSharp
 			}
 		}
 
-		protected void OnConnectionLost()
+	    private void OnConnectionLost()
 		{
 			// In order to play nicely with WinForms controls, we do a check here to 
 			// see if it is necessary to synchronize this event with the UI thread.
@@ -424,7 +416,7 @@ namespace VncSharp
 		        ConnectionLost(this, EventArgs.Empty);
 		}
 
-	    protected void OnServerCutText()
+	    private void OnServerCutText()
         {
             // In order to play nicely with WinForms controls, we do a check here to 
             // see if it is necessary to synchronize this event with the UI thread.
@@ -439,10 +431,12 @@ namespace VncSharp
 
 // There is no managed way to get a system beep (until Framework v.2.0). So depending on the platform, something external has to be called.
 #if Win32
-		[DllImport("kernel32.dll")]
-		private static extern bool Beep(int freq, int duration);
+	    private static void Beep()
+	    {
+            SystemSounds.Beep.Play();
+        }
 #else
-		private bool Beep(int freq, int duration)	// bool just so it matches the NativeMethods API signature
+		private void Beep()	// bool just so it matches the NativeMethods API signature
 		{
 			// TODO: How to do this under Unix?
 			System.Console.Write("Beep!");
