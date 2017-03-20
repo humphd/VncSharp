@@ -262,13 +262,14 @@ namespace VncSharp
                                  ((key[i] & 0x20) >> 3) |
                                  ((key[i] & 0x40) >> 5) |
                                  ((key[i] & 0x80) >> 7)  );
- 
-			// VNC uses DES, not 3DES as written in some documentation
-			DES des = new DESCryptoServiceProvider();
-			des.Padding = PaddingMode.None;
-			des.Mode = CipherMode.ECB;
 
-			var enc = des.CreateEncryptor(key, null); 
+            // VNC uses DES, not 3DES as written in some documentation
+            DES des = new DESCryptoServiceProvider()
+            {
+                Padding = PaddingMode.None,
+                Mode = CipherMode.ECB
+            };
+            var enc = des.CreateEncryptor(key, null); 
 
 			var response = new byte[16];
 			enc.TransformBlock(challenge, 0, challenge.Length, response, 0);
@@ -368,8 +369,7 @@ namespace VncSharp
                             // TODO: consider gathering all update rectangles in a batch and *then* posting the event back to the main thread.
                             for (var i = 0; i < rectangles; ++i) {
                                 // Get the update rectangle's info
-                                Rectangle rectangle;
-                                rfb.ReadFramebufferUpdateRectHeader(out rectangle, out int enc);
+                                rfb.ReadFramebufferUpdateRectHeader(out Rectangle rectangle, out int enc);
 
                                 // Build a derived EncodedRectangle type and pull-down all the pixel info
                                 var er = factory.Build(rectangle, enc);
