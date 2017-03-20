@@ -84,10 +84,10 @@ namespace VncSharp
         /// <summary>
         /// Points to a Function capable of obtaining a user's password.  By default this means using the PasswordDialog.GetPassword() function; however, users of RemoteDesktop can replace this with any function they like, so long as it matches the delegate type.
         /// </summary>
-        public AuthenticateDelegate GetPassword;
+        private readonly AuthenticateDelegate GetPassword;
 
         private Bitmap desktop; // Internal representation of remote image.
-        private Image designModeDesktop; // Used when painting control in VS.NET designer
+        private readonly Image designModeDesktop; // Used when painting control in VS.NET designer
         private VncClient vnc; // The Client object handling all protocol-level interaction
         private int port = 5900; // The port to connect to on remote host (5900 is default)
         private bool passwordPending; // After Connect() is called, a password might be required.
