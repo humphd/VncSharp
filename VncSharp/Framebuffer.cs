@@ -27,16 +27,16 @@ namespace VncSharp
 	{
 	    private string name;
 
-	    private readonly int[] pixels;	 // I'm reusing the same pixel buffer for all update rectangles.
-								 // Pixel values will always be 32-bits to match GDI representation
+	    private readonly int[] pixels;   // I'm reusing the same pixel buffer for all update rectangles.
+                                         // Pixel values will always be 32-bits to match GDI representation
 
 
-	    /// <summary>
-		/// Creates a new Framebuffer with (width x height) pixels.
-		/// </summary>
-		/// <param name="width">The width in pixels of the remote desktop.</param>
-		/// <param name="height">The height in pixels of the remote desktop.</param>
-		public Framebuffer(int width, int height)
+        /// <summary>
+        /// Creates a new Framebuffer with (width x height) pixels.
+        /// </summary>
+        /// <param name="width">The width in pixels of the remote desktop.</param>
+        /// <param name="height">The height in pixels of the remote desktop.</param>
+        private Framebuffer(int width, int height)
 		{
 		    this.Width = width;
 			this.Height = height;
@@ -81,52 +81,52 @@ namespace VncSharp
 		/// <summary>
 		/// The number of Bits Per Pixel for the Framebuffer--one of 8, 24, or 32.
 		/// </summary>
-		public int BitsPerPixel { get; set; }
+		public int BitsPerPixel { get; private set; }
 
 	    /// <summary>
 		/// The Colour Depth of the Framebuffer.
 		/// </summary>
-		public int Depth { get; set; }
+	    private int Depth { get; set; }
 
 	    /// <summary>
 		/// Indicates whether the remote host uses Big- or Little-Endian order when sending multi-byte values.
 		/// </summary>
-		public bool BigEndian { get; set; }
+	    private bool BigEndian { get; set; }
 
 	    /// <summary>
 		/// Indicates whether the remote host supports True Colour.
 		/// </summary>
-		public bool TrueColour { get; set; }
+	    private bool TrueColour { get; set; }
 
 	    /// <summary>
 		/// The maximum value for Red in a pixel's colour value.
 		/// </summary>
-		public int RedMax { get; set; }
+		public int RedMax { get; private set; }
 
 	    /// <summary>
 		/// The maximum value for Green in a pixel's colour value.
 		/// </summary>
-		public int GreenMax { get; set; }
+		public int GreenMax { get; private set; }
 
 	    /// <summary>
 		/// The maximum value for Blue in a pixel's colour value.
 		/// </summary>
-		public int BlueMax { get; set; }
+		public int BlueMax { get; private set; }
 
 	    /// <summary>
 		/// The number of bits to shift pixel values in order to obtain Red values.
 		/// </summary>
-		public int RedShift { get; set; }
+		public int RedShift { get; private set; }
 
 	    /// <summary>
 		/// The number of bits to shift pixel values in order to obtain Green values.
 		/// </summary>
-		public int GreenShift { get; set; }
+		public int GreenShift { get; private set; }
 
 	    /// <summary>
 		/// The number of bits to shift pixel values in order to obtain Blue values.
 		/// </summary>
-		public int BlueShift { get; set; }
+		public int BlueShift { get; private set; }
 
 	    /// <summary>
 		/// The name of the remote destkop, if any.  Must be non-null.
