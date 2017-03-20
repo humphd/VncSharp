@@ -164,10 +164,9 @@ namespace VncSharp
 
 			// Try to connect, passing any exceptions up to the caller, and if successful, 
 			// wrap a big endian Binary Reader and Binary Writer around the resulting stream.
-			tcp = new TcpClient();
-			tcp.NoDelay = true;  // turn-off Nagle's Algorithm for better interactive performance with host.
-						
-			tcp.Connect(host, port);
+		    tcp = new TcpClient {NoDelay = true}; // turn-off Nagle's Algorithm for better interactive performance with host.
+
+		    tcp.Connect(host, port);
 			stream = tcp.GetStream();
 
 			// Most of the RFB protocol uses Big-Endian byte order, while
@@ -502,12 +501,14 @@ namespace VncSharp
 		/// <param name="encoding">The encoding used for this rectangle.</param>
 		public void ReadFramebufferUpdateRectHeader(out Rectangle rectangle, out int encoding)
 		{
-			rectangle = new Rectangle();
-			rectangle.X = reader.ReadUInt16();
-			rectangle.Y = reader.ReadUInt16();
-			rectangle.Width = reader.ReadUInt16();
-			rectangle.Height = reader.ReadUInt16();
-			encoding = (int) reader.ReadUInt32();
+		    rectangle = new Rectangle
+		    {
+		        X = reader.ReadUInt16(),
+		        Y = reader.ReadUInt16(),
+		        Width = reader.ReadUInt16(),
+		        Height = reader.ReadUInt16()
+		    };
+		    encoding = (int) reader.ReadUInt32();
 		}
 		
 		// TODO: this colour map code should probably go in Framebuffer.cs
