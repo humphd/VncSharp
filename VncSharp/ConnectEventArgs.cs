@@ -32,9 +32,9 @@ namespace VncSharp
 		/// <param name="name">A String containing the name of the remote Desktop.</param>
 		public ConnectEventArgs(int width, int height, string name)
 		{
-			this.DesktopWidth = width;
-			this.DesktopHeight = height;
-			this.DesktopName = name;
+			DesktopWidth = width;
+			DesktopHeight = height;
+			DesktopName = name;
 		}
 		
 		/// <summary>

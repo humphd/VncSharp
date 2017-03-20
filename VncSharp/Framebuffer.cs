@@ -38,8 +38,8 @@ namespace VncSharp
         /// <param name="height">The height in pixels of the remote desktop.</param>
         private Framebuffer(int width, int height)
 		{
-		    this.Width = width;
-			this.Height = height;
+		    Width = width;
+			Height = height;
 
             // Cache the total size of the pixel array and initialize
             // The total number of pixels (w x h) assigned in SetSize()

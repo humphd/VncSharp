@@ -150,7 +150,7 @@ namespace VncSharp.zlib.NET
 		/// <returns>The new array of bytes</returns>
 		public static byte[] ToByteArray(string sourceString)
 		{
-			return UTF8Encoding.UTF8.GetBytes(sourceString);
+			return Encoding.UTF8.GetBytes(sourceString);
 		}
 
 		/// <summary>
@@ -160,7 +160,7 @@ namespace VncSharp.zlib.NET
 		/// <returns>The new array of chars</returns>
 		public static char[] ToCharArray(byte[] byteArray) 
 		{
-			return UTF8Encoding.UTF8.GetChars(byteArray);
+			return Encoding.UTF8.GetChars(byteArray);
 		}
 
 

@@ -23,7 +23,7 @@ namespace VncSharp
 	{
 	    public VncEventArgs(IDesktopUpdater updater)
 		{
-			this.DesktopUpdater = updater;
+			DesktopUpdater = updater;
 		}
 		
 		/// <summary>
