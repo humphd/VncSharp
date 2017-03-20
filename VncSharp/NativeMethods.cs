@@ -3,8 +3,7 @@ using System.Runtime.InteropServices;
 
 namespace VncSharp
 {
-    // ReSharper disable InconsistentNaming
-    public static class Win32
+    public static class NativeMethods
     {
         #region Functions
 

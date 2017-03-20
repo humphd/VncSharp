@@ -472,17 +472,17 @@ namespace VncSharp
             vnc.VncUpdate += VncUpdate;
             vnc.StartUpdates();
 
-            KeyboardHook.RequestKeyNotification(Handle, Win32.VK_LWIN, true);
-            KeyboardHook.RequestKeyNotification(Handle, Win32.VK_RWIN, true);
-            KeyboardHook.RequestKeyNotification(Handle, Win32.VK_ESCAPE, KeyboardHook.ModifierKeys.Control, true);
-            KeyboardHook.RequestKeyNotification(Handle, Win32.VK_TAB, KeyboardHook.ModifierKeys.Alt, true);
+            KeyboardHook.RequestKeyNotification(Handle, NativeMethods.VK_LWIN, true);
+            KeyboardHook.RequestKeyNotification(Handle, NativeMethods.VK_RWIN, true);
+            KeyboardHook.RequestKeyNotification(Handle, NativeMethods.VK_ESCAPE, KeyboardHook.ModifierKeys.Control, true);
+            KeyboardHook.RequestKeyNotification(Handle, NativeMethods.VK_TAB, KeyboardHook.ModifierKeys.Alt, true);
 
             // TODO: figure out why Alt-Shift isn't blocked
-            //KeyboardHook.RequestKeyNotification(this.Handle, Win32.VK_SHIFT, KeyboardHook.ModifierKeys.Alt, true);
-            //KeyboardHook.RequestKeyNotification(this.Handle, Win32.VK_MENU, KeyboardHook.ModifierKeys.Shift, true);
+            //KeyboardHook.RequestKeyNotification(this.Handle, NativeMethods.VK_SHIFT, KeyboardHook.ModifierKeys.Alt, true);
+            //KeyboardHook.RequestKeyNotification(this.Handle, NativeMethods.VK_MENU, KeyboardHook.ModifierKeys.Shift, true);
 
             // TODO: figure out why PrtScn doesn't work
-            //KeyboardHook.RequestKeyNotification(this.Handle, Win32.VK_SNAPSHOT, true);
+            //KeyboardHook.RequestKeyNotification(this.Handle, NativeMethods.VK_SNAPSHOT, true);
         }
 
         private void SetState(RuntimeState newState)
@@ -802,41 +802,41 @@ namespace VncSharp
 
         private static readonly Dictionary<int, int> KeyTranslationTable = new Dictionary<int, int>
         {
-            {Win32.VK_CANCEL, RfbProtocol.XK_Cancel},
-            {Win32.VK_BACK, RfbProtocol.XK_BackSpace},
-            {Win32.VK_TAB, RfbProtocol.XK_Tab},
-            {Win32.VK_CLEAR, RfbProtocol.XK_Clear},
-            {Win32.VK_RETURN, RfbProtocol.XK_Return},
-            {Win32.VK_PAUSE, RfbProtocol.XK_Pause},
-            {Win32.VK_ESCAPE, RfbProtocol.XK_Escape},
-            {Win32.VK_SNAPSHOT, RfbProtocol.XK_Sys_Req},
-            {Win32.VK_INSERT, RfbProtocol.XK_Insert},
-            {Win32.VK_DELETE, RfbProtocol.XK_Delete},
-            {Win32.VK_HOME, RfbProtocol.XK_Home},
-            {Win32.VK_END, RfbProtocol.XK_End},
-            {Win32.VK_PRIOR, RfbProtocol.XK_Prior}, // Page Up
-            {Win32.VK_NEXT, RfbProtocol.XK_Next}, // Page Down
-            {Win32.VK_LEFT, RfbProtocol.XK_Left},
-            {Win32.VK_UP, RfbProtocol.XK_Up},
-            {Win32.VK_RIGHT, RfbProtocol.XK_Right},
-            {Win32.VK_DOWN, RfbProtocol.XK_Down},
-            {Win32.VK_SELECT, RfbProtocol.XK_Select},
-            {Win32.VK_PRINT, RfbProtocol.XK_Print},
-            {Win32.VK_EXECUTE, RfbProtocol.XK_Execute},
-            {Win32.VK_HELP, RfbProtocol.XK_Help},
-            {Win32.VK_F1, RfbProtocol.XK_F1},
-            {Win32.VK_F2, RfbProtocol.XK_F2},
-            {Win32.VK_F3, RfbProtocol.XK_F3},
-            {Win32.VK_F4, RfbProtocol.XK_F4},
-            {Win32.VK_F5, RfbProtocol.XK_F5},
-            {Win32.VK_F6, RfbProtocol.XK_F6},
-            {Win32.VK_F7, RfbProtocol.XK_F7},
-            {Win32.VK_F8, RfbProtocol.XK_F8},
-            {Win32.VK_F9, RfbProtocol.XK_F9},
-            {Win32.VK_F10, RfbProtocol.XK_F10},
-            {Win32.VK_F11, RfbProtocol.XK_F11},
-            {Win32.VK_F12, RfbProtocol.XK_F12},
-            {Win32.VK_APPS, RfbProtocol.XK_Menu}
+            {NativeMethods.VK_CANCEL, RfbProtocol.XK_Cancel},
+            {NativeMethods.VK_BACK, RfbProtocol.XK_BackSpace},
+            {NativeMethods.VK_TAB, RfbProtocol.XK_Tab},
+            {NativeMethods.VK_CLEAR, RfbProtocol.XK_Clear},
+            {NativeMethods.VK_RETURN, RfbProtocol.XK_Return},
+            {NativeMethods.VK_PAUSE, RfbProtocol.XK_Pause},
+            {NativeMethods.VK_ESCAPE, RfbProtocol.XK_Escape},
+            {NativeMethods.VK_SNAPSHOT, RfbProtocol.XK_Sys_Req},
+            {NativeMethods.VK_INSERT, RfbProtocol.XK_Insert},
+            {NativeMethods.VK_DELETE, RfbProtocol.XK_Delete},
+            {NativeMethods.VK_HOME, RfbProtocol.XK_Home},
+            {NativeMethods.VK_END, RfbProtocol.XK_End},
+            {NativeMethods.VK_PRIOR, RfbProtocol.XK_Prior}, // Page Up
+            {NativeMethods.VK_NEXT, RfbProtocol.XK_Next}, // Page Down
+            {NativeMethods.VK_LEFT, RfbProtocol.XK_Left},
+            {NativeMethods.VK_UP, RfbProtocol.XK_Up},
+            {NativeMethods.VK_RIGHT, RfbProtocol.XK_Right},
+            {NativeMethods.VK_DOWN, RfbProtocol.XK_Down},
+            {NativeMethods.VK_SELECT, RfbProtocol.XK_Select},
+            {NativeMethods.VK_PRINT, RfbProtocol.XK_Print},
+            {NativeMethods.VK_EXECUTE, RfbProtocol.XK_Execute},
+            {NativeMethods.VK_HELP, RfbProtocol.XK_Help},
+            {NativeMethods.VK_F1, RfbProtocol.XK_F1},
+            {NativeMethods.VK_F2, RfbProtocol.XK_F2},
+            {NativeMethods.VK_F3, RfbProtocol.XK_F3},
+            {NativeMethods.VK_F4, RfbProtocol.XK_F4},
+            {NativeMethods.VK_F5, RfbProtocol.XK_F5},
+            {NativeMethods.VK_F6, RfbProtocol.XK_F6},
+            {NativeMethods.VK_F7, RfbProtocol.XK_F7},
+            {NativeMethods.VK_F8, RfbProtocol.XK_F8},
+            {NativeMethods.VK_F9, RfbProtocol.XK_F9},
+            {NativeMethods.VK_F10, RfbProtocol.XK_F10},
+            {NativeMethods.VK_F11, RfbProtocol.XK_F11},
+            {NativeMethods.VK_F12, RfbProtocol.XK_F12},
+            {NativeMethods.VK_APPS, RfbProtocol.XK_Menu}
         };
 
         public static int TranslateVirtualKey(int virtualKey, KeyboardHook.ModifierKeys modifierKeys)
@@ -849,20 +849,20 @@ namespace VncSharp
             // state of the modifier keys. This will give us the lowercase letter
             // unless the user is also pressing Shift.
             var keyboardState = new byte[256];
-            if (!Win32.GetKeyboardState(keyboardState))
+            if (!NativeMethods.GetKeyboardState(keyboardState))
                 throw new Win32Exception(Marshal.GetLastWin32Error());
 
-            keyboardState[Win32.VK_CONTROL] = 0;
-            keyboardState[Win32.VK_LCONTROL] = 0;
-            keyboardState[Win32.VK_RCONTROL] = 0;
-            keyboardState[Win32.VK_MENU] = 0;
-            keyboardState[Win32.VK_LMENU] = 0;
-            keyboardState[Win32.VK_RMENU] = 0;
-            keyboardState[Win32.VK_LWIN] = 0;
-            keyboardState[Win32.VK_RWIN] = 0;
+            keyboardState[NativeMethods.VK_CONTROL] = 0;
+            keyboardState[NativeMethods.VK_LCONTROL] = 0;
+            keyboardState[NativeMethods.VK_RCONTROL] = 0;
+            keyboardState[NativeMethods.VK_MENU] = 0;
+            keyboardState[NativeMethods.VK_LMENU] = 0;
+            keyboardState[NativeMethods.VK_RMENU] = 0;
+            keyboardState[NativeMethods.VK_LWIN] = 0;
+            keyboardState[NativeMethods.VK_RWIN] = 0;
 
             var charResult = new byte[2];
-            var charCount = Win32.ToAscii(virtualKey, Win32.MapVirtualKey(virtualKey, 0), keyboardState, charResult, 0);
+            var charCount = NativeMethods.ToAscii(virtualKey, NativeMethods.MapVirtualKey(virtualKey, 0), keyboardState, charResult, 0);
 
             // TODO: This could probably be handled better. For now, we'll just return the last character.
             return charCount > 0 ? Convert.ToInt32(charResult[charCount - 1]) : virtualKey;
@@ -872,17 +872,17 @@ namespace VncSharp
         {
             switch (keyCode)
             {
-                case Win32.VK_SHIFT:
-                case Win32.VK_LSHIFT:
-                case Win32.VK_RSHIFT:
-                case Win32.VK_CONTROL:
-                case Win32.VK_LCONTROL:
-                case Win32.VK_RCONTROL:
-                case Win32.VK_MENU:
-                case Win32.VK_LMENU:
-                case Win32.VK_RMENU:
-                case Win32.VK_LWIN:
-                case Win32.VK_RWIN:
+                case NativeMethods.VK_SHIFT:
+                case NativeMethods.VK_LSHIFT:
+                case NativeMethods.VK_RSHIFT:
+                case NativeMethods.VK_CONTROL:
+                case NativeMethods.VK_LCONTROL:
+                case NativeMethods.VK_RCONTROL:
+                case NativeMethods.VK_MENU:
+                case NativeMethods.VK_LMENU:
+                case NativeMethods.VK_RMENU:
+                case NativeMethods.VK_LWIN:
+                case NativeMethods.VK_RWIN:
                     return true;
                 default:
                     return false;
@@ -940,12 +940,12 @@ namespace VncSharp
             bool pressed;
             switch (msg)
             {
-                case Win32.WM_KEYDOWN:
-                case Win32.WM_SYSKEYDOWN:
+                case NativeMethods.WM_KEYDOWN:
+                case NativeMethods.WM_SYSKEYDOWN:
                     pressed = true;
                     break;
-                case Win32.WM_KEYUP:
-                case Win32.WM_SYSKEYUP:
+                case NativeMethods.WM_KEYUP:
+                case NativeMethods.WM_SYSKEYUP:
                     pressed = false;
                     break;
                 default:

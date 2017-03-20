@@ -51,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KeyboardHook.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="VncDesignModeDesktopPolicy.cs" />
     <Compile Include="VncDesktopTransformPolicy.cs" />
     <Compile Include="VncScaledDesktopPolicy.cs" />
@@ -85,7 +86,6 @@
     <Compile Include="VncEventArgs.cs" />
     <Compile Include="VncProtocolException.cs" />
     <Compile Include="VncViewInputPolicy.cs" />
-    <Compile Include="Win32.cs" />
     <Compile Include="zlib.NET\Adler32.cs" />
     <Compile Include="zlib.NET\Deflate.cs" />
     <Compile Include="zlib.NET\InfBlocks.cs" />

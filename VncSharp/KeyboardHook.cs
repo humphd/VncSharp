@@ -60,7 +60,7 @@ namespace VncSharp
             get
             {
                 if (_hookKeyMsg != 0) return _hookKeyMsg;
-                _hookKeyMsg = Win32.RegisterWindowMessage(HookKeyMsgName).ToInt32();
+                _hookKeyMsg = NativeMethods.RegisterWindowMessage(HookKeyMsgName).ToInt32();
                 if (_hookKeyMsg == 0)
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 return _hookKeyMsg;
@@ -79,7 +79,7 @@ namespace VncSharp
 
         private static int _referenceCount;
         private static IntPtr _hook;
-        private static readonly Win32.LowLevelKeyboardProcDelegate LowLevelKeyboardProcStaticDelegate = LowLevelKeyboardProc;
+        private static readonly NativeMethods.LowLevelKeyboardProcDelegate LowLevelKeyboardProcStaticDelegate = LowLevelKeyboardProc;
         private static readonly List<KeyNotificationEntry> NotificationEntries = new List<KeyNotificationEntry>();
 
         public KeyboardHook()
@@ -101,7 +101,7 @@ namespace VncSharp
             var curProcess = Process.GetCurrentProcess();
             var curModule = curProcess.MainModule;
 
-            var hook = Win32.SetWindowsHookEx(Win32.WH_KEYBOARD_LL, LowLevelKeyboardProcStaticDelegate, Win32.GetModuleHandle(curModule.ModuleName), 0);
+            var hook = NativeMethods.SetWindowsHookEx(NativeMethods.WH_KEYBOARD_LL, LowLevelKeyboardProcStaticDelegate, NativeMethods.GetModuleHandle(curModule.ModuleName), 0);
             if (hook == IntPtr.Zero)
                 throw new Win32Exception(Marshal.GetLastWin32Error());
 
@@ -112,32 +112,32 @@ namespace VncSharp
         {
             if (_hook == IntPtr.Zero) return;
 
-            Win32.UnhookWindowsHookEx(_hook);
+            NativeMethods.UnhookWindowsHookEx(_hook);
             _hook = IntPtr.Zero;
         }
 
-        private static IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, Win32.KBDLLHOOKSTRUCT lParam)
+        private static IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, NativeMethods.KBDLLHOOKSTRUCT lParam)
         {
             var wParamInt = wParam.ToInt32();
             var result = 0;
 
-            if (nCode != Win32.HC_ACTION)
-                return result != 0 ? new IntPtr(result) : Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
+            if (nCode != NativeMethods.HC_ACTION)
+                return result != 0 ? new IntPtr(result) : NativeMethods.CallNextHookEx(_hook, nCode, wParam, lParam);
             // ReSharper disable once SwitchStatementMissingSomeCases
             switch (wParamInt)
             {
-                case Win32.WM_KEYDOWN:
-                case Win32.WM_SYSKEYDOWN:
-                case Win32.WM_KEYUP:
-                case Win32.WM_SYSKEYUP:
+                case NativeMethods.WM_KEYDOWN:
+                case NativeMethods.WM_SYSKEYDOWN:
+                case NativeMethods.WM_KEYUP:
+                case NativeMethods.WM_SYSKEYUP:
                     result = OnKey(wParamInt, lParam);
                     break;
             }
 
-            return result != 0 ? new IntPtr(result) : Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
+            return result != 0 ? new IntPtr(result) : NativeMethods.CallNextHookEx(_hook, nCode, wParam, lParam);
         }
 
-        private static int OnKey(int msg, Win32.KBDLLHOOKSTRUCT key)
+        private static int OnKey(int msg, NativeMethods.KBDLLHOOKSTRUCT key)
         {
             var result = 0;
 
@@ -178,26 +178,26 @@ namespace VncSharp
 
         private static IntPtr GetFocusWindow()
         {
-            var guiThreadInfo = new Win32.GUITHREADINFO();
-            if (Win32.GetGUIThreadInfo(0, guiThreadInfo))
-                return Win32.GetAncestor(guiThreadInfo.hwndFocus, Win32.GA_ROOT);
+            var guiThreadInfo = new NativeMethods.GUITHREADINFO();
+            if (NativeMethods.GetGUIThreadInfo(0, guiThreadInfo))
+                return NativeMethods.GetAncestor(guiThreadInfo.hwndFocus, NativeMethods.GA_ROOT);
             var except = Marshal.GetLastWin32Error();
             throw new Win32Exception(except);
         }
 
         private static readonly Dictionary<int, ModifierKeys> ModifierKeyTable = new Dictionary<int, ModifierKeys>
         {
-            { Win32.VK_SHIFT, ModifierKeys.Shift },
-            { Win32.VK_LSHIFT, ModifierKeys.LeftShift },
-            { Win32.VK_RSHIFT, ModifierKeys.RightShift },
-            { Win32.VK_CONTROL, ModifierKeys.Control },
-            { Win32.VK_LCONTROL, ModifierKeys.LeftControl },
-            { Win32.VK_RCONTROL, ModifierKeys.RightControl },
-            { Win32.VK_MENU, ModifierKeys.Alt },
-            { Win32.VK_LMENU, ModifierKeys.LeftAlt },
-            { Win32.VK_RMENU, ModifierKeys.RightAlt },
-            { Win32.VK_LWIN, ModifierKeys.LeftWin },
-            { Win32.VK_RWIN, ModifierKeys.RightWin }
+            { NativeMethods.VK_SHIFT, ModifierKeys.Shift },
+            { NativeMethods.VK_LSHIFT, ModifierKeys.LeftShift },
+            { NativeMethods.VK_RSHIFT, ModifierKeys.RightShift },
+            { NativeMethods.VK_CONTROL, ModifierKeys.Control },
+            { NativeMethods.VK_LCONTROL, ModifierKeys.LeftControl },
+            { NativeMethods.VK_RCONTROL, ModifierKeys.RightControl },
+            { NativeMethods.VK_MENU, ModifierKeys.Alt },
+            { NativeMethods.VK_LMENU, ModifierKeys.LeftAlt },
+            { NativeMethods.VK_RMENU, ModifierKeys.RightAlt },
+            { NativeMethods.VK_LWIN, ModifierKeys.LeftWin },
+            { NativeMethods.VK_RWIN, ModifierKeys.RightWin }
         };
 
         public static ModifierKeys GetModifierKeyState()
@@ -206,7 +206,7 @@ namespace VncSharp
 
             foreach (var pair in ModifierKeyTable)
             {
-                if ((Win32.GetAsyncKeyState(pair.Key) & Win32.KEYSTATE_PRESSED) != 0) modifierKeyState |= pair.Value;
+                if ((NativeMethods.GetAsyncKeyState(pair.Key) & NativeMethods.KEYSTATE_PRESSED) != 0) modifierKeyState |= pair.Value;
             }
 
             if ((modifierKeyState & ModifierKeys.LeftWin) != 0) modifierKeyState |= ModifierKeys.Win;
