@@ -44,8 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace ComponentAce.Compression.Libs.zlib
 {
-	
-	sealed class StaticTree
+    internal sealed class StaticTree
 	{
 		private const int MAX_BITS = 15;
 		

@@ -46,8 +46,7 @@ using System;
 
 namespace ComponentAce.Compression.Libs.zlib
 {
-	
-	sealed class Tree
+    internal sealed class Tree
 	{
 		private const int MAX_BITS = 15;
 		private const int BL_CODES = 19;

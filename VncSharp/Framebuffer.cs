@@ -25,24 +25,24 @@ namespace VncSharp
 	/// </summary>
 	public class Framebuffer
 	{
-		string name;
+	    private string name;
 
-		int	 bpp;
-		int	 depth;
-		bool bigEndian;
-		bool trueColour;
-		int	 redMax;
-		int	 greenMax;
-		int	 blueMax;
-		int	 redShift;
-		int	 greenShift;
-		int	 blueShift;
+	    private int	 bpp;
+	    private int	 depth;
+	    private bool bigEndian;
+	    private bool trueColour;
+	    private int	 redMax;
+	    private int	 greenMax;
+	    private int	 blueMax;
+	    private int	 redShift;
+	    private int	 greenShift;
+	    private int	 blueShift;
 
-		readonly int width;
-		readonly int height;
-		readonly int[] pixels;	 // I'm reusing the same pixel buffer for all update rectangles.
+	    private readonly int width;
+	    private readonly int height;
+	    private readonly int[] pixels;	 // I'm reusing the same pixel buffer for all update rectangles.
 								 // Pixel values will always be 32-bits to match GDI representation
-		readonly int pixelCount; // The total number of pixels (w x h) assigned in SetSize()
+	    private readonly int pixelCount; // The total number of pixels (w x h) assigned in SetSize()
 
 
 		/// <summary>

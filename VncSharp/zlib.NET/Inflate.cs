@@ -44,8 +44,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace ComponentAce.Compression.Libs.zlib
 {
-	
-	sealed class Inflate
+    internal sealed class Inflate
 	{
 		
 		private const int MAX_WBITS = 15; // 32K LZ77 window

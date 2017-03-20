@@ -31,7 +31,7 @@ namespace VncSharp.Encodings
 		}
 
 		// CopyRect Source Point (x,y) from which to copy pixels in Draw
-		Point source;
+	    private Point source;
 
 		/// <summary>
 		/// Decodes a CopyRect encoded rectangle.

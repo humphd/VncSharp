@@ -21,7 +21,7 @@ namespace VncSharp
 {
 	public class VncEventArgs : EventArgs
 	{
-		IDesktopUpdater updater;
+	    private IDesktopUpdater updater;
 		
 		public VncEventArgs(IDesktopUpdater updater)
 		{

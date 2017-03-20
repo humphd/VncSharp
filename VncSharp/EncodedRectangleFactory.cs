@@ -26,8 +26,8 @@ namespace VncSharp
 	/// </summary>
 	public class EncodedRectangleFactory
 	{
-		RfbProtocol rfb;
-		Framebuffer framebuffer;
+	    private RfbProtocol rfb;
+	    private Framebuffer framebuffer;
 		
 		/// <summary>
 		/// Creates an instance of the EncodedRectangleFactory using the connected RfbProtocol object and associated Framebuffer object.

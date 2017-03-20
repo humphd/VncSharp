@@ -46,8 +46,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 namespace ComponentAce.Compression.Libs.zlib
 {
-	
-	sealed class Adler32
+    internal sealed class Adler32
 	{
 		
 		// largest prime smaller than 65536

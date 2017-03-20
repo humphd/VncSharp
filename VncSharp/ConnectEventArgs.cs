@@ -24,9 +24,9 @@ namespace VncSharp
 	/// </summary>
 	public class ConnectEventArgs : EventArgs
 	{
-		int width;
-		int height;
-		string name;
+	    private int width;
+	    private int height;
+	    private string name;
 		
 		/// <summary>
 		/// Constructor for ConnectEventArgs

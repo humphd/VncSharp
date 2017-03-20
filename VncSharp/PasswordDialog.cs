@@ -25,11 +25,11 @@ namespace VncSharp
 	/// </summary>
 	public class PasswordDialog : Form
 	{
-		Button btnOk;
-		Button btnCancel;
-		TextBox txtPassword;
+	    private Button btnOk;
+	    private Button btnCancel;
+	    private TextBox txtPassword;
 
-		Container components = null;
+	    private Container components = null;
 
 		private PasswordDialog()
 		{

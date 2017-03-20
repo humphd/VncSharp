@@ -768,9 +768,9 @@ namespace VncSharp
 		/// </summary>
 		public sealed class ZRLECompressedReader : BinaryReader
 		{
-			MemoryStream zlibMemoryStream;
-			ZOutputStream zlibDecompressedStream;
-			BinaryReader uncompressedReader;
+		    private MemoryStream zlibMemoryStream;
+		    private ZOutputStream zlibDecompressedStream;
+		    private BinaryReader uncompressedReader;
 
 			public ZRLECompressedReader(Stream uncompressedStream) : base(uncompressedStream)
 			{

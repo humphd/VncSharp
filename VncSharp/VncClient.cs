@@ -34,13 +34,13 @@ namespace VncSharp
 	
 	public class VncClient
 	{
-		RfbProtocol rfb;			// The protocol object handling all communication with server.
-		Framebuffer buffer;			// The geometry and properties of the remote framebuffer
-		byte securityType;			// The type of Security agreed upon by client/server
-		EncodedRectangleFactory factory;
-		Thread worker;				// To request and read in-coming updates from server
-		ManualResetEvent done;		// Used to tell the worker thread to die cleanly
-		IVncInputPolicy inputPolicy;// A mouse/keyboard input strategy
+	    private RfbProtocol rfb;			// The protocol object handling all communication with server.
+	    private Framebuffer buffer;			// The geometry and properties of the remote framebuffer
+	    private byte securityType;			// The type of Security agreed upon by client/server
+	    private EncodedRectangleFactory factory;
+	    private Thread worker;				// To request and read in-coming updates from server
+	    private ManualResetEvent done;		// Used to tell the worker thread to die cleanly
+	    private IVncInputPolicy inputPolicy;// A mouse/keyboard input strategy
 
 		/// <summary>
 		/// Raised when the connection to the remote host is lost.

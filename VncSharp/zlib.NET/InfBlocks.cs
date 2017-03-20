@@ -46,8 +46,7 @@ using System;
 
 namespace ComponentAce.Compression.Libs.zlib
 {
-	
-	sealed class InfBlocks
+    internal sealed class InfBlocks
 	{
 		private const int MANY = 1440;
 		
