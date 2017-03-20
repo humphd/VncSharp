@@ -17,11 +17,11 @@ namespace VncSharp
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         internal static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, KBDLLHOOKSTRUCT lParam);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
         internal static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        internal static extern IntPtr RegisterWindowMessage(string lpString);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern uint RegisterWindowMessage(string lpString);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
@@ -60,20 +60,20 @@ namespace VncSharp
         [StructLayout(LayoutKind.Sequential)]
         public class KBDLLHOOKSTRUCT
         {
-            public int vkCode;
-            public int scanCode;
-            public int flags;
-            public int time;
-            public IntPtr dwExtraInfo;
+            internal int vkCode;
+            internal int scanCode;
+            internal int flags;
+            internal int time;
+            internal IntPtr dwExtraInfo;
         }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {
-            public int left;
-            public int top;
-            public int right;
-            public int bottom;
+            internal int left;
+            internal int top;
+            internal int right;
+            internal int bottom;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -84,15 +84,15 @@ namespace VncSharp
                 cbSize = Convert.ToInt32(Marshal.SizeOf(this));
             }
 
-            public int cbSize;
-            public int flags;
-            public IntPtr hwndActive;
-            public IntPtr hwndFocus;
-            public IntPtr hwndCapture;
-            public IntPtr hwndMenuOwner;
-            public IntPtr hwndMoveSize;
-            public IntPtr hwndCaret;
-            public RECT rcCaret;
+            internal int cbSize;
+            internal int flags;
+            internal IntPtr hwndActive;
+            internal IntPtr hwndFocus;
+            internal IntPtr hwndCapture;
+            internal IntPtr hwndMenuOwner;
+            internal IntPtr hwndMoveSize;
+            internal IntPtr hwndCaret;
+            internal RECT rcCaret;
         }
 
         #endregion

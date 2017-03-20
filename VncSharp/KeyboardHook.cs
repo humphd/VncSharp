@@ -19,7 +19,7 @@ namespace VncSharp
         // ReSharper disable InconsistentNaming
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, HookKeyMsgData lParam);
+        private static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, HookKeyMsgData lParam);
         // ReSharper restore InconsistentNaming
 
         [Flags]
@@ -54,13 +54,13 @@ namespace VncSharp
         }
 
         private const string HookKeyMsgName = "HOOKKEYMSG-{EC4E5587-8F3A-4A56-A00B-2A5F827ABA79}";
-        private static int _hookKeyMsg;
-        public static int HookKeyMsg
+        private static uint _hookKeyMsg;
+        public static uint HookKeyMsg
         {
             get
             {
                 if (_hookKeyMsg != 0) return _hookKeyMsg;
-                _hookKeyMsg = NativeMethods.RegisterWindowMessage(HookKeyMsgName).ToInt32();
+                _hookKeyMsg = NativeMethods.RegisterWindowMessage(HookKeyMsgName);
                 if (_hookKeyMsg == 0)
                     throw new Win32Exception(Marshal.GetLastWin32Error());
                 return _hookKeyMsg;

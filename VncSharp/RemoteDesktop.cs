@@ -580,6 +580,7 @@ namespace VncSharp
             vnc.WriteClientCutText(text);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Usage", "CA2213:DisposableFieldsShouldBeDisposed", MessageId = "desktop")]
         protected override void Dispose(bool disposing)
         {
             if (disposing)
@@ -589,6 +590,7 @@ namespace VncSharp
                     Disconnect();
 
                 // See if either of the bitmaps used need clean-up.  
+                // CodeAnalysis doesn't like null propagation...
                 desktop?.Dispose();
                 designModeDesktop?.Dispose();
             }
