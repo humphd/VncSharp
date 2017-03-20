@@ -34,7 +34,6 @@ namespace VncSharp
 	public class VncClient
 	{
 	    private RfbProtocol rfb;			// The protocol object handling all communication with server.
-	    private Framebuffer buffer;			// The geometry and properties of the remote framebuffer
 	    private byte securityType;			// The type of Security agreed upon by client/server
 	    private EncodedRectangleFactory factory;
 	    private Thread worker;				// To request and read in-coming updates from server
@@ -54,18 +53,14 @@ namespace VncSharp
 	    /// <summary>
 		/// Gets the Framebuffer representing the remote server's desktop geometry.
 		/// </summary>
-		public Framebuffer Framebuffer {
-			get { 
-				return buffer; 
-			}
-		}
+		public Framebuffer Framebuffer { get; private set; }
 
-        /// <summary>
+	    /// <summary>
         /// Gets the hostname of the remote desktop
         /// </summary>
         public string HostName {
             get {
-                return buffer.DesktopName;
+                return Framebuffer.DesktopName;
             }
         }
 
@@ -288,8 +283,8 @@ namespace VncSharp
 		{
 			// Finish initializing protocol with host
 			rfb.WriteClientInitialisation(false);
-			buffer = rfb.ReadServerInit();
-			rfb.WriteSetPixelFormat(buffer);	// just use the server's framebuffer format
+			Framebuffer = rfb.ReadServerInit();
+			rfb.WriteSetPixelFormat(Framebuffer);	// just use the server's framebuffer format
 
 			rfb.WriteSetEncodings(new uint[] {	RfbProtocol.ZRLE_ENCODING,
 			                                    RfbProtocol.HEXTILE_ENCODING, 
@@ -299,7 +294,7 @@ namespace VncSharp
 												RfbProtocol.RAW_ENCODING });
 			
 			// Create an EncodedRectangleFactory so that EncodedRectangles can be built according to set pixel layout
-			factory = new EncodedRectangleFactory(rfb, buffer);
+			factory = new EncodedRectangleFactory(rfb, Framebuffer);
 		}
 
 		/// <summary>
@@ -509,7 +504,7 @@ namespace VncSharp
 		public void RequestScreenUpdate(bool refreshFullScreen)
 		{
 			try {
-				rfb.WriteFramebufferUpdateRequest(0, 0, (ushort) buffer.Width, (ushort) buffer.Height, !refreshFullScreen);
+				rfb.WriteFramebufferUpdateRequest(0, 0, (ushort) Framebuffer.Width, (ushort) Framebuffer.Height, !refreshFullScreen);
 			} catch {
 				OnConnectionLost();
 			}

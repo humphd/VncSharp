@@ -511,15 +511,9 @@ namespace VncSharp
 		}
 		
 		// TODO: this colour map code should probably go in Framebuffer.cs
-		private ushort[,] mapEntries = new ushort[256, 3];
-		public ushort[,] MapEntries
-		{
-			get {
-				return mapEntries;
-			}
-		}
+	    public ushort[,] MapEntries { get; } = new ushort[256, 3];
 
-		/// <summary>
+	    /// <summary>
 		/// Reads 8-bit RGB colour values (or updated values) into the colour map.  See RFB Doc v. 3.8 section 6.5.2.
 		/// </summary>
 		public void ReadColourMapEntry()
@@ -530,9 +524,9 @@ namespace VncSharp
 
 			for (var i = 0; i < nbColors; i++, firstColor++)
 			{
-				mapEntries[firstColor, 0] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// R
-				mapEntries[firstColor, 1] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// G
-				mapEntries[firstColor, 2] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// B
+				MapEntries[firstColor, 0] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// R
+				MapEntries[firstColor, 1] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// G
+				MapEntries[firstColor, 2] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// B
 			}
 		} 
 

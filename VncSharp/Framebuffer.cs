@@ -27,19 +27,6 @@ namespace VncSharp
 	{
 	    private string name;
 
-	    private int	 bpp;
-	    private int	 depth;
-	    private bool bigEndian;
-	    private bool trueColour;
-	    private int	 redMax;
-	    private int	 greenMax;
-	    private int	 blueMax;
-	    private int	 redShift;
-	    private int	 greenShift;
-	    private int	 blueShift;
-
-	    private readonly int width;
-	    private readonly int height;
 	    private readonly int[] pixels;	 // I'm reusing the same pixel buffer for all update rectangles.
 								 // Pixel values will always be 32-bits to match GDI representation
 
@@ -51,8 +38,8 @@ namespace VncSharp
 		/// <param name="height">The height in pixels of the remote desktop.</param>
 		public Framebuffer(int width, int height)
 		{
-		    this.width = width;
-			this.height = height;
+		    this.Width = width;
+			this.Height = height;
 
             // Cache the total size of the pixel array and initialize
             // The total number of pixels (w x h) assigned in SetSize()
@@ -75,151 +62,73 @@ namespace VncSharp
 		/// <summary>
 		/// The Width of the Framebuffer, measured in Pixels.
 		/// </summary>
-		public int Width {
-			get {
-				return width;
-			}
-		}
+		public int Width { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// The Height of the Framebuffer, measured in Pixels.
 		/// </summary>
-		public int Height {
-			get {
-				return height;
-			}
-		}
+		public int Height { get; }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets a Rectangle object constructed out of the Width and Height for the Framebuffer.  Used as a convenience in other classes.
 		/// </summary>
 		public Rectangle Rectangle {
 			get {
-				return new Rectangle(0, 0, width, height);
+				return new Rectangle(0, 0, Width, Height);
 			}
 		}
 
 		/// <summary>
 		/// The number of Bits Per Pixel for the Framebuffer--one of 8, 24, or 32.
 		/// </summary>
-		public int BitsPerPixel {
-			get {
-				return bpp;
-			}
-			set {
-				bpp = value;
-			}
-		}
+		public int BitsPerPixel { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The Colour Depth of the Framebuffer.
 		/// </summary>
-		public int Depth {
-			get {
-				return depth;
-			}
-			set {
-				depth = value;
-			}
-		}
+		public int Depth { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Indicates whether the remote host uses Big- or Little-Endian order when sending multi-byte values.
 		/// </summary>
-		public bool BigEndian {
-			get {
-				return bigEndian;
-			}
-			set {
-				bigEndian = value;
-			}
-		}
+		public bool BigEndian { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Indicates whether the remote host supports True Colour.
 		/// </summary>
-		public bool TrueColour {
-			get {
-				return trueColour;
-			}
-			set {
-				trueColour = value;
-			}
-		}
+		public bool TrueColour { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The maximum value for Red in a pixel's colour value.
 		/// </summary>
-		public int RedMax {
-			get {
-				return redMax;
-			}
-			set {
-				redMax = value;
-			}
-		}
+		public int RedMax { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The maximum value for Green in a pixel's colour value.
 		/// </summary>
-		public int GreenMax {
-			get {
-				return greenMax;
-			}
-			set {
-				greenMax = value;
-			}
-		}
+		public int GreenMax { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The maximum value for Blue in a pixel's colour value.
 		/// </summary>
-		public int BlueMax {
-			get {
-				return blueMax;
-			}
-			set {
-				blueMax = value;
-			}
-		}
+		public int BlueMax { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The number of bits to shift pixel values in order to obtain Red values.
 		/// </summary>
-		public int RedShift {
-			get {
-				return redShift;
-			}
-			set {
-				redShift = value;
-			}
-		}
+		public int RedShift { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The number of bits to shift pixel values in order to obtain Green values.
 		/// </summary>
-		public int GreenShift {
-			get {
-				return greenShift;
-			}
-			set {
-				greenShift = value;
-			}
-		}
+		public int GreenShift { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The number of bits to shift pixel values in order to obtain Blue values.
 		/// </summary>
-		public int BlueShift {
-			get {
-				return blueShift;
-			}
-			set {
-				blueShift = value;
-			}
-		}
+		public int BlueShift { get; set; }
 
-		/// <summary>
+	    /// <summary>
 		/// The name of the remote destkop, if any.  Must be non-null.
 		/// </summary>
 		/// <exception cref="ArgumentNullException">Thrown if a null string is used when setting DesktopName.</exception>
@@ -229,7 +138,7 @@ namespace VncSharp
 			}
 			set {
 				if (value == null)
-					throw new ArgumentNullException("DesktopName");
+					throw new ArgumentNullException($"DesktopName");
 				name = value;
 			}
 		}
@@ -242,19 +151,19 @@ namespace VncSharp
 		{
 			var b = new byte[16];
 			
-			b[0]  = (byte) bpp;
-			b[1]  = (byte) depth;
-			b[2]  = (byte) (bigEndian ? 1 : 0);
-			b[3]  = (byte) (trueColour ? 1 : 0);
-			b[4]  = (byte) ((redMax >> 8) & 0xff);
-			b[5]  = (byte) (redMax & 0xff);
-			b[6]  = (byte) ((greenMax >> 8) & 0xff);
-			b[7]  = (byte) (greenMax & 0xff);
-			b[8]  = (byte) ((blueMax >> 8) & 0xff);
-			b[9]  = (byte) (blueMax & 0xff);
-			b[10] = (byte) redShift;
-			b[11] = (byte) greenShift;
-			b[12] = (byte) blueShift;
+			b[0]  = (byte) BitsPerPixel;
+			b[1]  = (byte) Depth;
+			b[2]  = (byte) (BigEndian ? 1 : 0);
+			b[3]  = (byte) (TrueColour ? 1 : 0);
+			b[4]  = (byte) ((RedMax >> 8) & 0xff);
+			b[5]  = (byte) (RedMax & 0xff);
+			b[6]  = (byte) ((GreenMax >> 8) & 0xff);
+			b[7]  = (byte) (GreenMax & 0xff);
+			b[8]  = (byte) ((BlueMax >> 8) & 0xff);
+			b[9]  = (byte) (BlueMax & 0xff);
+			b[10] = (byte) RedShift;
+			b[11] = (byte) GreenShift;
+			b[12] = (byte) BlueShift;
 			// plus 3 bytes padding = 16 bytes
 			
 			return b;
