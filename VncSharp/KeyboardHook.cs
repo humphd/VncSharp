@@ -19,7 +19,7 @@ namespace VncSharp
         // ReSharper disable InconsistentNaming
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        private static extern bool PostMessage(IntPtr hWnd, Int32 Msg, IntPtr wParam, HookKeyMsgData lParam);
+        private static extern bool PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, HookKeyMsgData lParam);
         // ReSharper restore InconsistentNaming
 
         [Flags]
@@ -43,9 +43,9 @@ namespace VncSharp
         protected class KeyNotificationEntry: IEquatable<KeyNotificationEntry>
         {
             public IntPtr WindowHandle;
-            public Int32 KeyCode;
+            public int KeyCode;
             public ModifierKeys ModifierKeys;
-            public Boolean Block;
+            public bool Block;
 
             public bool Equals(KeyNotificationEntry obj)
             {
@@ -57,8 +57,8 @@ namespace VncSharp
         }
 
         private const string HookKeyMsgName = "HOOKKEYMSG-{EC4E5587-8F3A-4A56-A00B-2A5F827ABA79}";
-        private static Int32 _hookKeyMsg;
-        public static Int32 HookKeyMsg
+        private static int _hookKeyMsg;
+        public static int HookKeyMsg
         {
             get
             {
@@ -77,9 +77,9 @@ namespace VncSharp
         [StructLayout(LayoutKind.Sequential)]
         public class HookKeyMsgData
         {
-            public Int32 KeyCode;
+            public int KeyCode;
             public ModifierKeys ModifierKeys;
-            public Boolean WasBlocked;
+            public bool WasBlocked;
         }
 
         private static int _referenceCount;
@@ -121,7 +121,7 @@ namespace VncSharp
             _hook = IntPtr.Zero;
         }
 
-        private static IntPtr LowLevelKeyboardProc(Int32 nCode, IntPtr wParam, Win32.KBDLLHOOKSTRUCT lParam)
+        private static IntPtr LowLevelKeyboardProc(int nCode, IntPtr wParam, Win32.KBDLLHOOKSTRUCT lParam)
         {
             var wParamInt = wParam.ToInt32();
             var result = 0;
@@ -144,7 +144,7 @@ namespace VncSharp
             return Win32.CallNextHookEx(_hook, nCode, wParam, lParam);
         }
 
-        private static int OnKey(Int32 msg, Win32.KBDLLHOOKSTRUCT key)
+        private static int OnKey(int msg, Win32.KBDLLHOOKSTRUCT key)
         {
             var result = 0;
 
@@ -195,7 +195,7 @@ namespace VncSharp
             return Win32.GetAncestor(guiThreadInfo.hwndFocus, Win32.GA_ROOT);
         }
 
-        private static readonly Dictionary<Int32, ModifierKeys> ModifierKeyTable = new Dictionary<Int32, ModifierKeys>
+        private static readonly Dictionary<int, ModifierKeys> ModifierKeyTable = new Dictionary<int, ModifierKeys>
         {
             { Win32.VK_SHIFT, ModifierKeys.Shift },
             { Win32.VK_LSHIFT, ModifierKeys.LeftShift },
@@ -214,7 +214,7 @@ namespace VncSharp
         {
             var modifierKeyState = ModifierKeys.None;
 
-            foreach (KeyValuePair<Int32, ModifierKeys> pair in ModifierKeyTable)
+            foreach (KeyValuePair<int, ModifierKeys> pair in ModifierKeyTable)
             {
                 if ((Win32.GetAsyncKeyState(pair.Key) & Win32.KEYSTATE_PRESSED) != 0) modifierKeyState |= pair.Value;
             }
@@ -225,7 +225,7 @@ namespace VncSharp
             return modifierKeyState;
         }
 
-        private static Boolean ModifierKeysMatch(ModifierKeys requestedKeys, ModifierKeys pressedKeys)
+        private static bool ModifierKeysMatch(ModifierKeys requestedKeys, ModifierKeys pressedKeys)
         {
             if ((requestedKeys & ModifierKeys.Shift) != 0) pressedKeys &= ~(ModifierKeys.LeftShift | ModifierKeys.RightShift);
             if ((requestedKeys & ModifierKeys.Control) != 0) pressedKeys &= ~(ModifierKeys.LeftControl | ModifierKeys.RightControl);
@@ -234,12 +234,12 @@ namespace VncSharp
             return requestedKeys == pressedKeys;
         }
 
-        public static void RequestKeyNotification(IntPtr windowHandle, Int32 keyCode, Boolean block)
+        public static void RequestKeyNotification(IntPtr windowHandle, int keyCode, bool block)
         {
             RequestKeyNotification(windowHandle, keyCode, ModifierKeys.None, block);
         }
 
-        public static void RequestKeyNotification(IntPtr windowHandle, Int32 keyCode, ModifierKeys modifierKeys = ModifierKeys.None, Boolean block = false)
+        public static void RequestKeyNotification(IntPtr windowHandle, int keyCode, ModifierKeys modifierKeys = ModifierKeys.None, bool block = false)
         {
             var newNotificationEntry = new KeyNotificationEntry
             {
@@ -255,12 +255,12 @@ namespace VncSharp
             NotificationEntries.Add(newNotificationEntry);
         }
 
-        public static void CancelKeyNotification(IntPtr windowHandle, Int32 keyCode, Boolean block)
+        public static void CancelKeyNotification(IntPtr windowHandle, int keyCode, bool block)
         {
             CancelKeyNotification(windowHandle, keyCode, ModifierKeys.None, block);
         }
 
-        private static void CancelKeyNotification(IntPtr windowHandle, Int32 keyCode, ModifierKeys modifierKeys = ModifierKeys.None, Boolean block = false)
+        private static void CancelKeyNotification(IntPtr windowHandle, int keyCode, ModifierKeys modifierKeys = ModifierKeys.None, bool block = false)
         {
             var notificationEntry = new KeyNotificationEntry
             {

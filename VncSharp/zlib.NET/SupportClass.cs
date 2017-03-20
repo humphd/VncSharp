@@ -103,7 +103,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source Stream.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source Stream. Returns -1 if the end of the stream is reached.</returns>
-		public static Int32 ReadInput(Stream sourceStream, byte[] target, int start, int count)
+		public static int ReadInput(Stream sourceStream, byte[] target, int start, int count)
 		{
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0)
@@ -128,7 +128,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source TextReader.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source TextReader. Returns -1 if the end of the stream is reached.</returns>
-		public static Int32 ReadInput(TextReader sourceTextReader, byte[] target, int start, int count)
+		public static int ReadInput(TextReader sourceTextReader, byte[] target, int start, int count)
 		{
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0) return 0;
@@ -150,7 +150,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// </summary>
 		/// <param name="sourceString">The string to be converted</param>
 		/// <returns>The new array of bytes</returns>
-		public static byte[] ToByteArray(String sourceString)
+		public static byte[] ToByteArray(string sourceString)
 		{
 			return UTF8Encoding.UTF8.GetBytes(sourceString);
 		}
