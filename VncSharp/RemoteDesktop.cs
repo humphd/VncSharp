@@ -154,7 +154,8 @@ namespace VncSharp
         /// <summary>
         /// True if the RemoteDesktop is connected and authenticated (if necessary) with a remote VNC Host; otherwise False.
         /// </summary>
-        private bool IsConnected => state == RuntimeState.Connected;
+        // ReSharper disable once MemberCanBePrivate.Global
+        public bool IsConnected => state == RuntimeState.Connected;
 
         // This is a hack to get around the issue of DesignMode returning
         // false when the control is being removed from a form at design time.
