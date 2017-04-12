@@ -145,11 +145,7 @@ namespace VncSharp
             set
             {
                 // Ignore attempts to use invalid port numbers
-                /* TODO: This set is currently not used in VncSharp itself.
-                 * It may or may not be used in consuming applications...
-                 * However, I believe that this should be "||" not "|"
-                 * */
-                if ((value < 1) | (value > 65535)) value = 5900;
+                if (value < 1 || value > 65535) value = 5900;
                 port = value;
             }
         }
