@@ -41,8 +41,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
 	
 	sealed public class ZStream
@@ -79,7 +81,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		public int avail_out; // remaining free space at next_out
 		public long total_out; // total nb of bytes output so far
 		
-		public System.String msg;
+		public string msg;
 		
 		internal Deflate dstate;
 		internal Inflate istate;
@@ -109,7 +111,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		{
 			if (istate == null)
 				return Z_STREAM_ERROR;
-			int ret = istate.inflateEnd(this);
+			var ret = istate.inflateEnd(this);
 			istate = null;
 			return ret;
 		}
@@ -147,7 +149,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		{
 			if (dstate == null)
 				return Z_STREAM_ERROR;
-			int ret = dstate.deflateEnd();
+			var ret = dstate.deflateEnd();
 			dstate = null;
 			return ret;
 		}
@@ -170,14 +172,14 @@ namespace ComponentAce.Compression.Libs.zlib
 		// (See also read_buf()).
 		internal void  flush_pending()
 		{
-			int len = dstate.pending;
+			var len = dstate.pending;
 			
 			if (len > avail_out)
 				len = avail_out;
 			if (len == 0)
 				return ;
 			
-			if (dstate.pending_buf.Length <= dstate.pending_out || next_out.Length <= next_out_index || dstate.pending_buf.Length < (dstate.pending_out + len) || next_out.Length < (next_out_index + len))
+			if (dstate.pending_buf.Length <= dstate.pending_out || next_out.Length <= next_out_index || dstate.pending_buf.Length < dstate.pending_out + len || next_out.Length < next_out_index + len)
 			{
 				//System.Console.Out.WriteLine(dstate.pending_buf.Length + ", " + dstate.pending_out + ", " + next_out.Length + ", " + next_out_index + ", " + len);
 				//System.Console.Out.WriteLine("avail_out=" + avail_out);
@@ -203,7 +205,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		// (See also flush_pending()).
 		internal int read_buf(byte[] buf, int start, int size)
 		{
-			int len = avail_in;
+			var len = avail_in;
 			
 			if (len > size)
 				len = size;

@@ -15,8 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Windows.Forms;
 using System.Drawing;
 
 namespace VncSharp
@@ -32,33 +30,21 @@ namespace VncSharp
         {
         }
 
-        public override bool AutoScroll {
-            get {
-                return true;
-            }
-        }
+        public override bool AutoScroll => true;
 
-        public override Size AutoScrollMinSize {
-            get {
-                if (vnc != null && vnc.Framebuffer != null) {
-                    return new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height);
-                } else {
-                    return new Size(100, 100);
-                }
-            }
-        }
+	    public override Size AutoScrollMinSize => vnc?.Framebuffer != null ? new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height) : new Size(100, 100);
 
-        public override Point UpdateRemotePointer(Point current)
+	    public override Point UpdateRemotePointer(Point current)
         {
-            Point adjusted = new Point();
+            var adjusted = new Point();
 			if (remoteDesktop.ClientSize.Width > remoteDesktop.Desktop.Size.Width) {
-			    adjusted.X = current.X - ((remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2);
+			    adjusted.X = current.X - (remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2;
 			} else {
 				adjusted.X = current.X - remoteDesktop.AutoScrollPosition.X;
 			}
  
 			if (remoteDesktop.ClientSize.Height > remoteDesktop.Desktop.Size.Height ) {
-				adjusted.Y = current.Y - ((remoteDesktop.ClientRectangle.Height - remoteDesktop.Desktop.Height) / 2);
+				adjusted.Y = current.Y - (remoteDesktop.ClientRectangle.Height - remoteDesktop.Desktop.Height) / 2;
 			} else {
 				adjusted.Y = current.Y - remoteDesktop.AutoScrollPosition.Y;
 			}
@@ -108,7 +94,7 @@ namespace VncSharp
 
         public override Rectangle GetMouseMoveRectangle()
         {
-			Rectangle desktopRect = vnc.Framebuffer.Rectangle;
+			var desktopRect = vnc.Framebuffer.Rectangle;
 
 			if (remoteDesktop.ClientSize.Width > remoteDesktop.Desktop.Size.Width) {
 				desktopRect.X = (remoteDesktop.ClientRectangle.Width - remoteDesktop.Desktop.Width) / 2;

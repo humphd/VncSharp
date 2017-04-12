@@ -15,8 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Windows.Forms;
 using System.Drawing;
 
 namespace VncSharp
@@ -36,15 +34,9 @@ namespace VncSharp
             this.remoteDesktop = remoteDesktop;
         }
 
-        public virtual bool AutoScroll
-        {
-            get
-            {
-                return false;
-            }
-        }
+        public virtual bool AutoScroll => false;
 
-        public abstract Size AutoScrollMinSize { get; }
+	    public abstract Size AutoScrollMinSize { get; }
 
         public abstract Rectangle AdjustUpdateRectangle(Rectangle updateRectangle);
 

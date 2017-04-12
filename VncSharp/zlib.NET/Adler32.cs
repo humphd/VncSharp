@@ -43,11 +43,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
-	
-	sealed class Adler32
+    internal sealed class Adler32
 	{
 		
 		// largest prime smaller than 65536
@@ -62,8 +61,8 @@ namespace ComponentAce.Compression.Libs.zlib
 				return 1L;
 			}
 			
-			long s1 = adler & 0xffff;
-			long s2 = (adler >> 16) & 0xffff;
+			var s1 = adler & 0xffff;
+			var s2 = (adler >> 16) & 0xffff;
 			int k;
 			
 			while (len > 0)
@@ -72,29 +71,29 @@ namespace ComponentAce.Compression.Libs.zlib
 				len -= k;
 				while (k >= 16)
 				{
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
-					s1 += (buf[index++] & 0xff); s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
+					s1 += buf[index++] & 0xff; s2 += s1;
 					k -= 16;
 				}
 				if (k != 0)
 				{
 					do 
 					{
-						s1 += (buf[index++] & 0xff); s2 += s1;
+						s1 += buf[index++] & 0xff; s2 += s1;
 					}
 					while (--k != 0);
 				}

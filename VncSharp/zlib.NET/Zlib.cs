@@ -41,14 +41,14 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
 	
 	sealed public class zlibConst
 	{
-		private const System.String version_Renamed_Field = "1.0.2";
-		public static System.String version()
+		private const string version_Renamed_Field = "1.0.2";
+		public static string version()
 		{
 			return version_Renamed_Field;
 		}
@@ -57,7 +57,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		public const int Z_NO_COMPRESSION = 0;
 		public const int Z_BEST_SPEED = 1;
 		public const int Z_BEST_COMPRESSION = 9;
-		public const int Z_DEFAULT_COMPRESSION = (- 1);
+		public const int Z_DEFAULT_COMPRESSION = - 1;
 		
 		// compression strategy
 		public const int Z_FILTERED = 1;

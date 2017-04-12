@@ -41,11 +41,13 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+using System.IO;
+
+namespace VncSharp.zlib.NET
 {
 	
-	public class ZInputStream:System.IO.BinaryReader
+	public class ZInputStream:BinaryReader
 	{
 		internal void  InitBlock()
 		{
@@ -56,12 +58,12 @@ namespace ComponentAce.Compression.Libs.zlib
 		{
 			get
 			{
-				return (flush);
+				return flush;
 			}
 			
 			set
 			{
-				this.flush = value;
+				flush = value;
 			}
 			
 		}
@@ -90,9 +92,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		protected byte[] buf, buf1 = new byte[1];
 		protected bool compress;
 		
-		internal System.IO.Stream in_Renamed = null;
+		internal Stream in_Renamed;
 		
-		public ZInputStream(System.IO.Stream in_Renamed):base(in_Renamed)
+		public ZInputStream(Stream in_Renamed):base(in_Renamed)
 		{
 			InitBlock();
 			this.in_Renamed = in_Renamed;
@@ -103,7 +105,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			z.avail_in = 0;
 		}
 		
-		public ZInputStream(System.IO.Stream in_Renamed, int level):base(in_Renamed)
+		public ZInputStream(Stream in_Renamed, int level):base(in_Renamed)
 		{
 			InitBlock();
 			this.in_Renamed = in_Renamed;
@@ -121,23 +123,23 @@ namespace ComponentAce.Compression.Libs.zlib
 		public  override int Read()
 		{
 			if (read(buf1, 0, 1) == - 1)
-				return (- 1);
-			return (buf1[0] & 0xFF);
+				return - 1;
+			return buf1[0] & 0xFF;
 		}
 		
-		internal bool nomoreinput = false;
+		internal bool nomoreinput;
 				
 		public int read(byte[] b, int off, int len)
 		{
 			if (len == 0)
-				return (0);
+				return 0;
 			int err;
 			z.next_out = b;
 			z.next_out_index = off;
 			z.avail_out = len;
 			do 
 			{
-				if ((z.avail_in == 0) && (!nomoreinput))
+				if (z.avail_in == 0 && !nomoreinput)
 				{
 					// if buffer is empty and more input is avaiable, refill it
 					z.next_in_index = 0;
@@ -152,25 +154,25 @@ namespace ComponentAce.Compression.Libs.zlib
 					err = z.deflate(flush);
 				else
 					err = z.inflate(flush);
-				if (nomoreinput && (err == zlibConst.Z_BUF_ERROR))
-					return (- 1);
+				if (nomoreinput && err == zlibConst.Z_BUF_ERROR)
+					return - 1;
 				if (err != zlibConst.Z_OK && err != zlibConst.Z_STREAM_END)
 					throw new ZStreamException((compress?"de":"in") + "flating: " + z.msg);
-				if (nomoreinput && (z.avail_out == len))
-					return (- 1);
+				if (nomoreinput && z.avail_out == len)
+					return - 1;
 			}
 			while (z.avail_out == len && err == zlibConst.Z_OK);
 			//System.err.print("("+(len-z.avail_out)+")");
-			return (len - z.avail_out);
+			return len - z.avail_out;
 		}
 				
 		public long skip(long n)
 		{
-			int len = 512;
+			var len = 512;
 			if (n < len)
 				len = (int) n;
-			byte[] tmp = new byte[len];
-			return ((long) SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length));
+			var tmp = new byte[len];
+			return SupportClass.ReadInput(BaseStream, tmp, 0, tmp.Length);
 		}
 		
 		public override void  Close()

@@ -41,8 +41,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
 	
 	public sealed class Deflate
@@ -77,7 +79,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		private const int SLOW = 2;
 		private static Config[] config_table;
 				
-		private static readonly System.String[] z_errmsg = new System.String[]{"need dictionary", "stream end", "", "file error", "stream error", "data error", "insufficient memory", "buffer error", "incompatible version", ""};
+		private static readonly string[] z_errmsg = {"need dictionary", "stream end", "", "file error", "stream error", "data error", "insufficient memory", "buffer error", "incompatible version", ""};
 		
 		// block not completed, need more input or more output
 		private const int NeedMore = 0;
@@ -143,15 +145,15 @@ namespace ComponentAce.Compression.Libs.zlib
 		
 		private const int MIN_MATCH = 3;
 		private const int MAX_MATCH = 258;		
-		private static readonly int MIN_LOOKAHEAD = (MAX_MATCH + MIN_MATCH + 1);
+		private static readonly int MIN_LOOKAHEAD = MAX_MATCH + MIN_MATCH + 1;
 		
 		private const int MAX_BITS = 15;
 		private const int D_CODES = 30;
 		private const int BL_CODES = 19;
 		private const int LENGTH_CODES = 29;
 		private const int LITERALS = 256;		
-		private static readonly int L_CODES = (LITERALS + 1 + LENGTH_CODES);		
-		private static readonly int HEAP_SIZE = (2 * L_CODES + 1);
+		private static readonly int L_CODES = LITERALS + 1 + LENGTH_CODES;		
+		private static readonly int HEAP_SIZE = 2 * L_CODES + 1;
 		
 		private const int END_BLOCK = 256;
 		
@@ -315,16 +317,16 @@ namespace ComponentAce.Compression.Libs.zlib
 			window_size = 2 * w_size;
 			
 			head[hash_size - 1] = 0;
-			for (int i = 0; i < hash_size - 1; i++)
+			for (var i = 0; i < hash_size - 1; i++)
 			{
 				head[i] = 0;
 			}
 			
 			// Set the default configuration parameters:
-			max_lazy_match = Deflate.config_table[level].max_lazy;
-			good_match = Deflate.config_table[level].good_length;
-			nice_match = Deflate.config_table[level].nice_length;
-			max_chain_length = Deflate.config_table[level].max_chain;
+			max_lazy_match = config_table[level].max_lazy;
+			good_match = config_table[level].good_length;
+			nice_match = config_table[level].nice_length;
+			max_chain_length = config_table[level].max_chain;
 			
 			strstart = 0;
 			block_start = 0;
@@ -358,11 +360,11 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal void  init_block()
 		{
 			// Initialize the trees.
-			for (int i = 0; i < L_CODES; i++)
+			for (var i = 0; i < L_CODES; i++)
 				dyn_ltree[i * 2] = 0;
-			for (int i = 0; i < D_CODES; i++)
+			for (var i = 0; i < D_CODES; i++)
 				dyn_dtree[i * 2] = 0;
-			for (int i = 0; i < BL_CODES; i++)
+			for (var i = 0; i < BL_CODES; i++)
 				bl_tree[i * 2] = 0;
 			
 			dyn_ltree[END_BLOCK * 2] = 1;
@@ -376,8 +378,8 @@ namespace ComponentAce.Compression.Libs.zlib
 		// two sons).
 		internal void  pqdownheap(short[] tree, int k)
 		{
-			int v = heap[k];
-			int j = k << 1; // left son of k
+			var v = heap[k];
+			var j = k << 1; // left son of k
 			while (j <= heap_len)
 			{
 				// Set j to the smallest of the two sons:
@@ -399,7 +401,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		
 		internal static bool smaller(short[] tree, int n, int m, byte[] depth)
 		{
-			return (tree[n * 2] < tree[m * 2] || (tree[n * 2] == tree[m * 2] && depth[n] <= depth[m]));
+			return tree[n * 2] < tree[m * 2] || tree[n * 2] == tree[m * 2] && depth[n] <= depth[m];
 		}
 		
 		// Scan a literal or distance tree to determine the frequencies of the codes
@@ -407,12 +409,12 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal void  scan_tree(short[] tree, int max_code)
 		{
 			int n; // iterates over all tree elements
-			int prevlen = - 1; // last emitted length
+			var prevlen = - 1; // last emitted length
 			int curlen; // length of current code
 			int nextlen = tree[0 * 2 + 1]; // length of next code
-			int count = 0; // repeat count of the current code
-			int max_count = 7; // max repeat count
-			int min_count = 4; // min repeat count
+			var count = 0; // repeat count of the current code
+			var max_count = 7; // max repeat count
+			var min_count = 4; // min repeat count
 			
 			if (nextlen == 0)
 			{
@@ -427,25 +429,25 @@ namespace ComponentAce.Compression.Libs.zlib
 				{
 					continue;
 				}
-				else if (count < min_count)
-				{
-					bl_tree[curlen * 2] = (short) (bl_tree[curlen * 2] + count);
-				}
-				else if (curlen != 0)
-				{
-					if (curlen != prevlen)
-						bl_tree[curlen * 2]++;
-					bl_tree[REP_3_6 * 2]++;
-				}
-				else if (count <= 10)
-				{
-					bl_tree[REPZ_3_10 * 2]++;
-				}
-				else
-				{
-					bl_tree[REPZ_11_138 * 2]++;
-				}
-				count = 0; prevlen = curlen;
+			    if (count < min_count)
+			    {
+			        bl_tree[curlen * 2] = (short) (bl_tree[curlen * 2] + count);
+			    }
+			    else if (curlen != 0)
+			    {
+			        if (curlen != prevlen)
+			            bl_tree[curlen * 2]++;
+			        bl_tree[REP_3_6 * 2]++;
+			    }
+			    else if (count <= 10)
+			    {
+			        bl_tree[REPZ_3_10 * 2]++;
+			    }
+			    else
+			    {
+			        bl_tree[REPZ_11_138 * 2]++;
+			    }
+			    count = 0; prevlen = curlen;
 				if (nextlen == 0)
 				{
 					max_count = 138; min_count = 3;
@@ -514,12 +516,12 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal void  send_tree(short[] tree, int max_code)
 		{
 			int n; // iterates over all tree elements
-			int prevlen = - 1; // last emitted length
+			var prevlen = - 1; // last emitted length
 			int curlen; // length of current code
 			int nextlen = tree[0 * 2 + 1]; // length of next code
-			int count = 0; // repeat count of the current code
-			int max_count = 7; // max repeat count
-			int min_count = 4; // min repeat count
+			var count = 0; // repeat count of the current code
+			var max_count = 7; // max repeat count
+			var min_count = 4; // min repeat count
 			
 			if (nextlen == 0)
 			{
@@ -533,34 +535,34 @@ namespace ComponentAce.Compression.Libs.zlib
 				{
 					continue;
 				}
-				else if (count < min_count)
-				{
-					do 
-					{
-						send_code(curlen, bl_tree);
-					}
-					while (--count != 0);
-				}
-				else if (curlen != 0)
-				{
-					if (curlen != prevlen)
-					{
-						send_code(curlen, bl_tree); count--;
-					}
-					send_code(REP_3_6, bl_tree);
-					send_bits(count - 3, 2);
-				}
-				else if (count <= 10)
-				{
-					send_code(REPZ_3_10, bl_tree);
-					send_bits(count - 3, 3);
-				}
-				else
-				{
-					send_code(REPZ_11_138, bl_tree);
-					send_bits(count - 11, 7);
-				}
-				count = 0; prevlen = curlen;
+			    if (count < min_count)
+			    {
+			        do 
+			        {
+			            send_code(curlen, bl_tree);
+			        }
+			        while (--count != 0);
+			    }
+			    else if (curlen != 0)
+			    {
+			        if (curlen != prevlen)
+			        {
+			            send_code(curlen, bl_tree); count--;
+			        }
+			        send_code(REP_3_6, bl_tree);
+			        send_bits(count - 3, 2);
+			    }
+			    else if (count <= 10)
+			    {
+			        send_code(REPZ_3_10, bl_tree);
+			        send_bits(count - 3, 3);
+			    }
+			    else
+			    {
+			        send_code(REPZ_11_138, bl_tree);
+			        send_bits(count - 11, 7);
+			    }
+			    count = 0; prevlen = curlen;
 				if (nextlen == 0)
 				{
 					max_count = 138; min_count = 3;
@@ -590,36 +592,36 @@ namespace ComponentAce.Compression.Libs.zlib
 		}
 		internal void  put_short(int w)
 		{
-			put_byte((byte) (w));
-			put_byte((byte) (SupportClass.URShift(w, 8)));
+			put_byte((byte) w);
+			put_byte((byte) SupportClass.URShift(w, 8));
 		}
 		internal void  putShortMSB(int b)
 		{
 			put_byte((byte) (b >> 8));
-			put_byte((byte) (b));
+			put_byte((byte) b);
 		}
 		
 		internal void  send_code(int c, short[] tree)
 		{
-			send_bits((tree[c * 2] & 0xffff), (tree[c * 2 + 1] & 0xffff));
+			send_bits(tree[c * 2] & 0xffff, tree[c * 2 + 1] & 0xffff);
 		}
 		
 		internal void  send_bits(int value_Renamed, int length)
 		{
-			int len = length;
-			if (bi_valid > (int) Buf_size - len)
+			var len = length;
+			if (bi_valid > Buf_size - len)
 			{
-				int val = value_Renamed;
+				var val = value_Renamed;
 				//      bi_buf |= (val << bi_valid);
-				bi_buf = (short) ((ushort) bi_buf | (ushort) (((val << bi_valid) & 0xffff)));
+				bi_buf = (short) ((ushort) bi_buf | (ushort) ((val << bi_valid) & 0xffff));
 				put_short(bi_buf);
-				bi_buf = (short) (SupportClass.URShift(val, (Buf_size - bi_valid)));
+				bi_buf = (short) SupportClass.URShift(val, Buf_size - bi_valid);
 				bi_valid += len - Buf_size;
 			}
 			else
 			{
 				//      bi_buf |= (value) << bi_valid;
-				bi_buf = (short)((ushort)bi_buf | (ushort)((((value_Renamed) << bi_valid) & 0xffff)));
+				bi_buf = (short)((ushort)bi_buf | (ushort)((value_Renamed << bi_valid) & 0xffff));
 				bi_valid += len;
 			}
 		}
@@ -659,7 +661,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal bool _tr_tally(int dist, int lc)
 		{
 			
-			pending_buf[d_buf + last_lit * 2] = (byte) (SupportClass.URShift(dist, 8));
+			pending_buf[d_buf + last_lit * 2] = (byte) SupportClass.URShift(dist, 8);
 			pending_buf[d_buf + last_lit * 2 + 1] = (byte) dist;
 			
 			pending_buf[l_buf + last_lit] = (byte) lc; last_lit++;
@@ -681,19 +683,19 @@ namespace ComponentAce.Compression.Libs.zlib
 			if ((last_lit & 0x1fff) == 0 && level > 2)
 			{
 				// Compute an upper bound for the compressed length
-				int out_length = last_lit * 8;
-				int in_length = strstart - block_start;
+				var out_length = last_lit * 8;
+				var in_length = strstart - block_start;
 				int dcode;
 				for (dcode = 0; dcode < D_CODES; dcode++)
 				{
-					out_length = (int) (out_length + (int) dyn_dtree[dcode * 2] * (5L + Tree.extra_dbits[dcode]));
+					out_length = (int) (out_length + dyn_dtree[dcode * 2] * (5L + Tree.extra_dbits[dcode]));
 				}
 				out_length = SupportClass.URShift(out_length, 3);
-				if ((matches < (last_lit / 2)) && out_length < in_length / 2)
+				if (matches < last_lit / 2 && out_length < in_length / 2)
 					return true;
 			}
 			
-			return (last_lit == lit_bufsize - 1);
+			return last_lit == lit_bufsize - 1;
 			// We avoid equality with lit_bufsize because of wraparound at 64K
 			// on 16 bit machines and because stored blocks are restricted to
 			// 64K-1 bytes.
@@ -704,7 +706,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		{
 			int dist; // distance of matched string
 			int lc; // match length or unmatched char (if dist == 0)
-			int lx = 0; // running index in l_buf
+			var lx = 0; // running index in l_buf
 			int code; // the code to send
 			int extra; // number of extra bits to send
 			
@@ -713,7 +715,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				do 
 				{
 					dist = ((pending_buf[d_buf + lx * 2] << 8) & 0xff00) | (pending_buf[d_buf + lx * 2 + 1] & 0xff);
-					lc = (pending_buf[l_buf + lx]) & 0xff; lx++;
+					lc = pending_buf[l_buf + lx] & 0xff; lx++;
 					
 					if (dist == 0)
 					{
@@ -758,9 +760,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		// frequencies does not exceed 64K (to fit in an int on 16 bit machines).
 		internal void  set_data_type()
 		{
-			int n = 0;
-			int ascii_freq = 0;
-			int bin_freq = 0;
+			var n = 0;
+			var ascii_freq = 0;
+			var bin_freq = 0;
 			while (n < 7)
 			{
 				bin_freq += dyn_ltree[n * 2]; n++;
@@ -773,7 +775,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			{
 				bin_freq += dyn_ltree[n * 2]; n++;
 			}
-			data_type = (byte) (bin_freq > (SupportClass.URShift(ascii_freq, 2))?Z_BINARY:Z_ASCII);
+			data_type = (byte) (bin_freq > SupportClass.URShift(ascii_freq, 2)?Z_BINARY:Z_ASCII);
 		}
 		
 		// Flush the bit buffer, keeping at most 7 bits in it.
@@ -788,7 +790,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			else if (bi_valid >= 8)
 			{
 				put_byte((byte) bi_buf);
-				bi_buf = (short) (SupportClass.URShift(bi_buf, 8));
+				bi_buf = (short) SupportClass.URShift(bi_buf, 8);
 				bi_valid -= 8;
 			}
 		}
@@ -848,7 +850,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			// Stored blocks are limited to 0xffff bytes, pending_buf is limited
 			// to pending_buf_size, and each stored block has a 5 byte header:
 			
-			int max_block_size = 0xffff;
+			var max_block_size = 0xffff;
 			int max_start;
 			
 			if (max_block_size > pending_buf_size - 5)
@@ -877,8 +879,8 @@ namespace ComponentAce.Compression.Libs.zlib
 				if (strstart == 0 || strstart >= max_start)
 				{
 					// strstart == 0 is possible when wraparound on 16-bit machine
-					lookahead = (int) (strstart - max_start);
-					strstart = (int) max_start;
+					lookahead = strstart - max_start;
+					strstart = max_start;
 					
 					flush_block_only(false);
 					if (strm.avail_out == 0)
@@ -897,7 +899,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			
 			flush_block_only(flush == Z_FINISH);
 			if (strm.avail_out == 0)
-				return (flush == Z_FINISH)?FinishStarted:NeedMore;
+				return flush == Z_FINISH?FinishStarted:NeedMore;
 			
 			return flush == Z_FINISH?FinishDone:BlockDone;
 		}
@@ -914,7 +916,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal void  _tr_flush_block(int buf, int stored_len, bool eof)
 		{
 			int opt_lenb, static_lenb; // opt_len and static_len in bytes
-			int max_blindex = 0; // index of last bit length code of non zero freq
+			var max_blindex = 0; // index of last bit length code of non zero freq
 			
 			// Build the Huffman trees unless a stored block is forced
 			if (level > 0)
@@ -936,8 +938,8 @@ namespace ComponentAce.Compression.Libs.zlib
 				max_blindex = build_bl_tree();
 				
 				// Determine the best encoding. Compute first the block length in bytes
-				opt_lenb = SupportClass.URShift((opt_len + 3 + 7), 3);
-				static_lenb = SupportClass.URShift((static_len + 3 + 7), 3);
+				opt_lenb = SupportClass.URShift(opt_len + 3 + 7, 3);
+				static_lenb = SupportClass.URShift(static_len + 3 + 7, 3);
 				
 				if (static_lenb <= opt_lenb)
 					opt_lenb = static_lenb;
@@ -996,7 +998,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			
 			do 
 			{
-				more = (window_size - lookahead - strstart);
+				more = window_size - lookahead - strstart;
 				
 				// Deal with !@#$% 64K limit:
 				if (more == 0 && strstart == 0 && lookahead == 0)
@@ -1029,8 +1031,8 @@ namespace ComponentAce.Compression.Libs.zlib
 					p = n;
 					do 
 					{
-						m = (head[--p] & 0xffff);
-						head[p] = (short)(m >= w_size?(m - w_size):0);
+						m = head[--p] & 0xffff;
+						head[p] = (short)(m >= w_size?m - w_size:0);
 						//head[p] = (m >= w_size?(short) (m - w_size):0);
 					}
 					while (--n != 0);
@@ -1039,8 +1041,8 @@ namespace ComponentAce.Compression.Libs.zlib
 					p = n;
 					do 
 					{
-						m = (prev[--p] & 0xffff);
-						prev[p] = (short)(m >= w_size?(m - w_size):0);
+						m = prev[--p] & 0xffff;
+						prev[p] = (short)(m >= w_size?m - w_size:0);
 						//prev[p] = (m >= w_size?(short) (m - w_size):0);
 						// If n is not on any hash chain, prev[n] is garbage but
 						// its value will never be used.
@@ -1070,7 +1072,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				if (lookahead >= MIN_MATCH)
 				{
 					ins_h = window[strstart] & 0xff;
-					ins_h = (((ins_h) << hash_shift) ^ (window[strstart + 1] & 0xff)) & hash_mask;
+					ins_h = ((ins_h << hash_shift) ^ (window[strstart + 1] & 0xff)) & hash_mask;
 				}
 				// If the whole input has less than MIN_MATCH bytes, ins_h is garbage,
 				// but this is not important since only literal bytes will be emitted.
@@ -1086,7 +1088,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal int deflate_fast(int flush)
 		{
 			//    short hash_head = 0; // head of the hash chain
-			int hash_head = 0; // head of the hash chain
+			var hash_head = 0; // head of the hash chain
 			bool bflush; // set if current block must be flushed
 			
 			while (true)
@@ -1110,10 +1112,10 @@ namespace ComponentAce.Compression.Libs.zlib
 				// dictionary, and set hash_head to the head of the hash chain:
 				if (lookahead >= MIN_MATCH)
 				{
-					ins_h = (((ins_h) << hash_shift) ^ (window[(strstart) + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
+					ins_h = ((ins_h << hash_shift) ^ (window[strstart + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
 					
 					//	prev[strstart&w_mask]=hash_head=head[ins_h];
-					hash_head = (head[ins_h] & 0xffff);
+					hash_head = head[ins_h] & 0xffff;
 					prev[strstart & w_mask] = head[ins_h];
 					head[ins_h] = (short) strstart;
 				}
@@ -1149,9 +1151,9 @@ namespace ComponentAce.Compression.Libs.zlib
 						{
 							strstart++;
 							
-							ins_h = ((ins_h << hash_shift) ^ (window[(strstart) + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
+							ins_h = ((ins_h << hash_shift) ^ (window[strstart + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
 							//	    prev[strstart&w_mask]=hash_head=head[ins_h];
-							hash_head = (head[ins_h] & 0xffff);
+							hash_head = head[ins_h] & 0xffff;
 							prev[strstart & w_mask] = head[ins_h];
 							head[ins_h] = (short) strstart;
 							
@@ -1167,7 +1169,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						match_length = 0;
 						ins_h = window[strstart] & 0xff;
 						
-						ins_h = (((ins_h) << hash_shift) ^ (window[strstart + 1] & 0xff)) & hash_mask;
+						ins_h = ((ins_h << hash_shift) ^ (window[strstart + 1] & 0xff)) & hash_mask;
 						// If lookahead < MIN_MATCH, ins_h is garbage, but it does not
 						// matter since it will be recomputed at next deflate call.
 					}
@@ -1192,10 +1194,9 @@ namespace ComponentAce.Compression.Libs.zlib
 			flush_block_only(flush == Z_FINISH);
 			if (strm.avail_out == 0)
 			{
-				if (flush == Z_FINISH)
+			    if (flush == Z_FINISH)
 					return FinishStarted;
-				else
-					return NeedMore;
+			    return NeedMore;
 			}
 			return flush == Z_FINISH?FinishDone:BlockDone;
 		}
@@ -1206,7 +1207,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal int deflate_slow(int flush)
 		{
 			//    short hash_head = 0;    // head of hash chain
-			int hash_head = 0; // head of hash chain
+			var hash_head = 0; // head of hash chain
 			bool bflush; // set if current block must be flushed
 			
 			// Process the input block.
@@ -1233,9 +1234,9 @@ namespace ComponentAce.Compression.Libs.zlib
 				
 				if (lookahead >= MIN_MATCH)
 				{
-					ins_h = (((ins_h) << hash_shift) ^ (window[(strstart) + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
+					ins_h = ((ins_h << hash_shift) ^ (window[strstart + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
 					//	prev[strstart&w_mask]=hash_head=head[ins_h];
-					hash_head = (head[ins_h] & 0xffff);
+					hash_head = head[ins_h] & 0xffff;
 					prev[strstart & w_mask] = head[ins_h];
 					head[ins_h] = (short) strstart;
 				}
@@ -1256,7 +1257,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					}
 					// longest_match() sets match_start
 					
-					if (match_length <= 5 && (strategy == Z_FILTERED || (match_length == MIN_MATCH && strstart - match_start > 4096)))
+					if (match_length <= 5 && (strategy == Z_FILTERED || match_length == MIN_MATCH && strstart - match_start > 4096))
 					{
 						
 						// If prev_match is also MIN_MATCH, match_start is garbage
@@ -1269,7 +1270,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				// match is not better, output the previous match:
 				if (prev_length >= MIN_MATCH && match_length <= prev_length)
 				{
-					int max_insert = strstart + lookahead - MIN_MATCH;
+					var max_insert = strstart + lookahead - MIN_MATCH;
 					// Do not insert strings in hash table beyond this.
 					
 					//          check_match(strstart-1, prev_match, prev_length);
@@ -1280,15 +1281,15 @@ namespace ComponentAce.Compression.Libs.zlib
 					// strstart-1 and strstart are already inserted. If there is not
 					// enough lookahead, the last two strings are not inserted in
 					// the hash table.
-					lookahead -= (prev_length - 1);
+					lookahead -= prev_length - 1;
 					prev_length -= 2;
 					do 
 					{
 						if (++strstart <= max_insert)
 						{
-							ins_h = (((ins_h) << hash_shift) ^ (window[(strstart) + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
+							ins_h = ((ins_h << hash_shift) ^ (window[strstart + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
 							//prev[strstart&w_mask]=hash_head=head[ins_h];
-							hash_head = (head[ins_h] & 0xffff);
+							hash_head = head[ins_h] & 0xffff;
 							prev[strstart & w_mask] = head[ins_h];
 							head[ins_h] = (short) strstart;
 						}
@@ -1343,10 +1344,9 @@ namespace ComponentAce.Compression.Libs.zlib
 			
 			if (strm.avail_out == 0)
 			{
-				if (flush == Z_FINISH)
+			    if (flush == Z_FINISH)
 					return FinishStarted;
-				else
-					return NeedMore;
+			    return NeedMore;
 			}
 			
 			return flush == Z_FINISH?FinishDone:BlockDone;
@@ -1354,22 +1354,22 @@ namespace ComponentAce.Compression.Libs.zlib
 		
 		internal int longest_match(int cur_match)
 		{
-			int chain_length = max_chain_length; // max hash chain length
-			int scan = strstart; // current string
+			var chain_length = max_chain_length; // max hash chain length
+			var scan = strstart; // current string
 			int match; // matched string
 			int len; // length of current match
-			int best_len = prev_length; // best match length so far
-			int limit = strstart > (w_size - MIN_LOOKAHEAD)?strstart - (w_size - MIN_LOOKAHEAD):0;
-			int nice_match = this.nice_match;
+			var best_len = prev_length; // best match length so far
+			var limit = strstart > w_size - MIN_LOOKAHEAD?strstart - (w_size - MIN_LOOKAHEAD):0;
+			var nice_match = this.nice_match;
 			
 			// Stop when cur_match becomes <= limit. To simplify the code,
 			// we prevent matches with the string of window index 0.
 			
-			int wmask = w_mask;
+			var wmask = w_mask;
 			
-			int strend = strstart + MAX_MATCH;
-			byte scan_end1 = window[scan + best_len - 1];
-			byte scan_end = window[scan + best_len];
+			var strend = strstart + MAX_MATCH;
+			var scan_end1 = window[scan + best_len - 1];
+			var scan_end = window[scan + best_len];
 			
 			// The code is optimized for HASH_BITS >= 8 and MAX_MATCH-2 multiple of 16.
 			// It is easy to get rid of this optimization if necessary.
@@ -1408,7 +1408,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				}
 				while (window[++scan] == window[++match] && window[++scan] == window[++match] && window[++scan] == window[++match] && window[++scan] == window[++match] && window[++scan] == window[++match] && window[++scan] == window[++match] && window[++scan] == window[++match] && window[++scan] == window[++match] && scan < strend);
 				
-				len = MAX_MATCH - (int) (strend - scan);
+				len = MAX_MATCH - (strend - scan);
 				scan = strend - MAX_MATCH;
 				
 				if (len > best_len)
@@ -1421,7 +1421,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					scan_end = window[scan + best_len];
 				}
 			}
-			while ((cur_match = (prev[cur_match & wmask] & 0xffff)) > limit && --chain_length != 0);
+			while ((cur_match = prev[cur_match & wmask] & 0xffff) > limit && --chain_length != 0);
 			
 			if (best_len <= lookahead)
 				return best_len;
@@ -1438,7 +1438,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		}
 		internal int deflateInit2(ZStream strm, int level, int method, int windowBits, int memLevel, int strategy)
 		{
-			int noheader = 0;
+			var noheader = 0;
 			//    byte[] my_version=ZLIB_VERSION;
 			
 			//
@@ -1464,7 +1464,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				return Z_STREAM_ERROR;
 			}
 			
-			strm.dstate = (Deflate) this;
+			strm.dstate = this;
 			
 			this.noheader = noheader;
 			w_bits = windowBits;
@@ -1474,7 +1474,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			hash_bits = memLevel + 7;
 			hash_size = 1 << hash_bits;
 			hash_mask = hash_size - 1;
-			hash_shift = ((hash_bits + MIN_MATCH - 1) / MIN_MATCH);
+			hash_shift = (hash_bits + MIN_MATCH - 1) / MIN_MATCH;
 			
 			window = new byte[w_size * 2];
 			prev = new short[w_size];
@@ -1513,7 +1513,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			{
 				noheader = 0; // was set to -1 by deflate(..., Z_FINISH);
 			}
-			status = (noheader != 0)?BUSY_STATE:INIT_STATE;
+			status = noheader != 0?BUSY_STATE:INIT_STATE;
 			strm.adler = strm._adler.adler32(0, null, 0, 0);
 			
 			last_flush = Z_NO_FLUSH;
@@ -1541,7 +1541,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		
 		internal int deflateParams(ZStream strm, int _level, int _strategy)
 		{
-			int err = Z_OK;
+			var err = Z_OK;
 			
 			if (_level == Z_DEFAULT_COMPRESSION)
 			{
@@ -1572,8 +1572,8 @@ namespace ComponentAce.Compression.Libs.zlib
 		
 		internal int deflateSetDictionary(ZStream strm, byte[] dictionary, int dictLength)
 		{
-			int length = dictLength;
-			int index = 0;
+			var length = dictLength;
+			var index = 0;
 			
 			if (dictionary == null || status != INIT_STATE)
 				return Z_STREAM_ERROR;
@@ -1596,11 +1596,11 @@ namespace ComponentAce.Compression.Libs.zlib
 			// call of fill_window.
 			
 			ins_h = window[0] & 0xff;
-			ins_h = (((ins_h) << hash_shift) ^ (window[1] & 0xff)) & hash_mask;
+			ins_h = ((ins_h << hash_shift) ^ (window[1] & 0xff)) & hash_mask;
 			
-			for (int n = 0; n <= length - MIN_MATCH; n++)
+			for (var n = 0; n <= length - MIN_MATCH; n++)
 			{
-				ins_h = (((ins_h) << hash_shift) ^ (window[(n) + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
+				ins_h = ((ins_h << hash_shift) ^ (window[n + (MIN_MATCH - 1)] & 0xff)) & hash_mask;
 				prev[n & w_mask] = head[ins_h];
 				head[ins_h] = (short) n;
 			}
@@ -1616,14 +1616,14 @@ namespace ComponentAce.Compression.Libs.zlib
 				return Z_STREAM_ERROR;
 			}
 			
-			if (strm.next_out == null || (strm.next_in == null && strm.avail_in != 0) || (status == FINISH_STATE && flush != Z_FINISH))
+			if (strm.next_out == null || strm.next_in == null && strm.avail_in != 0 || status == FINISH_STATE && flush != Z_FINISH)
 			{
-				strm.msg = z_errmsg[Z_NEED_DICT - (Z_STREAM_ERROR)];
+				strm.msg = z_errmsg[Z_NEED_DICT - Z_STREAM_ERROR];
 				return Z_STREAM_ERROR;
 			}
 			if (strm.avail_out == 0)
 			{
-				strm.msg = z_errmsg[Z_NEED_DICT - (Z_BUF_ERROR)];
+				strm.msg = z_errmsg[Z_NEED_DICT - Z_BUF_ERROR];
 				return Z_BUF_ERROR;
 			}
 			
@@ -1634,15 +1634,15 @@ namespace ComponentAce.Compression.Libs.zlib
 			// Write the zlib header
 			if (status == INIT_STATE)
 			{
-				int header = (Z_DEFLATED + ((w_bits - 8) << 4)) << 8;
-				int level_flags = ((level - 1) & 0xff) >> 1;
+				var header = (Z_DEFLATED + ((w_bits - 8) << 4)) << 8;
+				var level_flags = ((level - 1) & 0xff) >> 1;
 				
 				if (level_flags > 3)
 					level_flags = 3;
-				header |= (level_flags << 6);
+				header |= level_flags << 6;
 				if (strstart != 0)
 					header |= PRESET_DICT;
-				header += 31 - (header % 31);
+				header += 31 - header % 31;
 				
 				status = BUSY_STATE;
 				putShortMSB(header);
@@ -1651,7 +1651,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				// Save the adler32 of the preset dictionary:
 				if (strstart != 0)
 				{
-					putShortMSB((int) (SupportClass.URShift(strm.adler, 16)));
+					putShortMSB((int) SupportClass.URShift(strm.adler, 16));
 					putShortMSB((int) (strm.adler & 0xffff));
 				}
 				strm.adler = strm._adler.adler32(0, null, 0, 0);
@@ -1679,21 +1679,21 @@ namespace ComponentAce.Compression.Libs.zlib
 			}
 			else if (strm.avail_in == 0 && flush <= old_flush && flush != Z_FINISH)
 			{
-				strm.msg = z_errmsg[Z_NEED_DICT - (Z_BUF_ERROR)];
+				strm.msg = z_errmsg[Z_NEED_DICT - Z_BUF_ERROR];
 				return Z_BUF_ERROR;
 			}
 			
 			// User must not provide more input after the first FINISH:
 			if (status == FINISH_STATE && strm.avail_in != 0)
 			{
-				strm.msg = z_errmsg[Z_NEED_DICT - (Z_BUF_ERROR)];
+				strm.msg = z_errmsg[Z_NEED_DICT - Z_BUF_ERROR];
 				return Z_BUF_ERROR;
 			}
 			
 			// Start a new block or continue the current one.
-			if (strm.avail_in != 0 || lookahead != 0 || (flush != Z_NO_FLUSH && status != FINISH_STATE))
+			if (strm.avail_in != 0 || lookahead != 0 || flush != Z_NO_FLUSH && status != FINISH_STATE)
 			{
-				int bstate = - 1;
+				var bstate = - 1;
 				switch (config_table[level].func)
 				{
 					
@@ -1748,7 +1748,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						if (flush == Z_FULL_FLUSH)
 						{
 							//state.head[s.hash_size-1]=0;
-							for (int i = 0; i < hash_size; i++)
+							for (var i = 0; i < hash_size; i++)
 							// forget history
 								head[i] = 0;
 						}
@@ -1768,7 +1768,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				return Z_STREAM_END;
 			
 			// Write the zlib trailer (adler32)
-			putShortMSB((int) (SupportClass.URShift(strm.adler, 16)));
+			putShortMSB((int) SupportClass.URShift(strm.adler, 16));
 			putShortMSB((int) (strm.adler & 0xffff));
 			strm.flush_pending();
 			

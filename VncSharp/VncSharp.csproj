@@ -13,12 +13,13 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>VncSharpKey.snk</AssemblyOriginatorKeyFile>
     <ApplicationIcon>vncviewer.ico</ApplicationIcon>
-    <TargetFrameworkVersion>v2.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
     </UpgradeBackupLocation>
     <OldToolsVersion>2.0</OldToolsVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -50,6 +51,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="KeyboardHook.cs" />
+    <Compile Include="NativeMethods.cs" />
     <Compile Include="VncDesignModeDesktopPolicy.cs" />
     <Compile Include="VncDesktopTransformPolicy.cs" />
     <Compile Include="VncScaledDesktopPolicy.cs" />
@@ -84,7 +86,6 @@
     <Compile Include="VncEventArgs.cs" />
     <Compile Include="VncProtocolException.cs" />
     <Compile Include="VncViewInputPolicy.cs" />
-    <Compile Include="Win32.cs" />
     <Compile Include="zlib.NET\Adler32.cs" />
     <Compile Include="zlib.NET\Deflate.cs" />
     <Compile Include="zlib.NET\InfBlocks.cs" />

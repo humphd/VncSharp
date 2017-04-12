@@ -41,17 +41,19 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+using System.IO;
+
+namespace VncSharp.zlib.NET
 {
 	
 	
-	public class ZStreamException:System.IO.IOException
+	public class ZStreamException:IOException
 	{
-		public ZStreamException():base()
+		public ZStreamException()
 		{
 		}
-		public ZStreamException(System.String s):base(s)
+		public ZStreamException(string s):base(s)
 		{
 		}
 	}

@@ -41,19 +41,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
-	
-	sealed class InfBlocks
+    internal sealed class InfBlocks
 	{
 		private const int MANY = 1440;
 		
 		// And'ing with mask[n] masks the lower n bits		
-		private static readonly int[] inflate_mask = new int[]{0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff};
+		private static readonly int[] inflate_mask = {0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff};
 		
 		// Table for deflate from PKZIP's appnote.txt.		
-		internal static readonly int[] border = new int[]{16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+		internal static readonly int[] border = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 		
 		private const int Z_OK = 0;
 		private const int Z_STREAM_END = 1;
@@ -98,10 +99,10 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal int end; // one byte after sliding window 
 		internal int read; // window read pointer 
 		internal int write; // window write pointer 
-		internal System.Object checkfn; // check function 
+		internal object checkfn; // check function 
 		internal long check; // check on output 
 		
-		internal InfBlocks(ZStream z, System.Object checkfn, int w)
+		internal InfBlocks(ZStream z, object checkfn, int w)
 		{
 			hufts = new int[MANY * 3];
 			window = new byte[w];
@@ -147,7 +148,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				p = z.next_in_index; n = z.avail_in; b = bitb; k = bitk;
 			}
 			{
-				q = write; m = (int) (q < read?read - q - 1:end - q);
+				q = write; m = q < read?read - q - 1:end - q;
 			}
 			
 			// process input based on current state
@@ -158,7 +159,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					
 					case TYPE: 
 						
-						while (k < (3))
+						while (k < 3)
 						{
 							if (n != 0)
 							{
@@ -177,7 +178,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							b |= (z.next_in[p++] & 0xff) << k;
 							k += 8;
 						}
-						t = (int) (b & 7);
+						t = b & 7;
 						last = t & 1;
 						
 						switch (SupportClass.URShift(t, 1))
@@ -185,29 +186,29 @@ namespace ComponentAce.Compression.Libs.zlib
 							
 							case 0:  // stored 
 								{
-									b = SupportClass.URShift(b, (3)); k -= (3);
+									b = SupportClass.URShift(b, 3); k -= 3;
 								}
 								t = k & 7; // go to byte boundary
 								
 								{
-									b = SupportClass.URShift(b, (t)); k -= (t);
+									b = SupportClass.URShift(b, t); k -= t;
 								}
 								mode = LENS; // get length of stored block
 								break;
 							
 							case 1:  // fixed
 								{
-									int[] bl = new int[1];
-									int[] bd = new int[1];
-									int[][] tl = new int[1][];
-									int[][] td = new int[1][];
+									var bl = new int[1];
+									var bd = new int[1];
+									var tl = new int[1][];
+									var td = new int[1][];
 									
 									InfTree.inflate_trees_fixed(bl, bd, tl, td, z);
 									codes = new InfCodes(bl[0], bd[0], tl[0], td[0], z);
 								}
 								
 								{
-									b = SupportClass.URShift(b, (3)); k -= (3);
+									b = SupportClass.URShift(b, 3); k -= 3;
 								}
 								
 								mode = CODES;
@@ -216,7 +217,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							case 2:  // dynamic
 								
 								{
-									b = SupportClass.URShift(b, (3)); k -= (3);
+									b = SupportClass.URShift(b, 3); k -= 3;
 								}
 								
 								mode = TABLE;
@@ -225,7 +226,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							case 3:  // illegal
 								
 								{
-									b = SupportClass.URShift(b, (3)); k -= (3);
+									b = SupportClass.URShift(b, 3); k -= 3;
 								}
 								mode = BAD;
 								z.msg = "invalid block type";
@@ -240,7 +241,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					
 					case LENS: 
 						
-						while (k < (32))
+						while (k < 32)
 						{
 							if (n != 0)
 							{
@@ -260,7 +261,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							k += 8;
 						}
 						
-						if (((SupportClass.URShift((~ b), 16)) & 0xffff) != (b & 0xffff))
+						if ((SupportClass.URShift(~ b, 16) & 0xffff) != (b & 0xffff))
 						{
 							mode = BAD;
 							z.msg = "invalid stored block lengths";
@@ -271,7 +272,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							write = q;
 							return inflate_flush(z, r);
 						}
-						left = (b & 0xffff);
+						left = b & 0xffff;
 						b = k = 0; // dump bits
 						mode = left != 0?STORED:(last != 0?DRY:TYPE);
 						break;
@@ -289,16 +290,16 @@ namespace ComponentAce.Compression.Libs.zlib
 						{
 							if (q == end && read != 0)
 							{
-								q = 0; m = (int) (q < read?read - q - 1:end - q);
+								q = 0; m = q < read?read - q - 1:end - q;
 							}
 							if (m == 0)
 							{
 								write = q;
 								r = inflate_flush(z, r);
-								q = write; m = (int) (q < read?read - q - 1:end - q);
+								q = write; m = q < read?read - q - 1:end - q;
 								if (q == end && read != 0)
 								{
-									q = 0; m = (int) (q < read?read - q - 1:end - q);
+									q = 0; m = q < read?read - q - 1:end - q;
 								}
 								if (m == 0)
 								{
@@ -326,7 +327,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					
 					case TABLE: 
 						
-						while (k < (14))
+						while (k < 14)
 						{
 							if (n != 0)
 							{
@@ -346,7 +347,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							k += 8;
 						}
 						
-						table = t = (b & 0x3fff);
+						table = t = b & 0x3fff;
 						if ((t & 0x1f) > 29 || ((t >> 5) & 0x1f) > 29)
 						{
 							mode = BAD;
@@ -362,7 +363,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						blens = new int[t];
 						
 						{
-							b = SupportClass.URShift(b, (14)); k -= (14);
+							b = SupportClass.URShift(b, 14); k -= 14;
 						}
 						
 						index = 0;
@@ -370,9 +371,9 @@ namespace ComponentAce.Compression.Libs.zlib
 						goto case BTREE;
 					
 					case BTREE: 
-						while (index < 4 + (SupportClass.URShift(table, 10)))
+						while (index < 4 + SupportClass.URShift(table, 10))
 						{
-							while (k < (3))
+							while (k < 3)
 							{
 								if (n != 0)
 								{
@@ -395,7 +396,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							blens[border[index++]] = b & 7;
 							
 							{
-								b = SupportClass.URShift(b, (3)); k -= (3);
+								b = SupportClass.URShift(b, 3); k -= 3;
 							}
 						}
 						
@@ -439,7 +440,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							
 							t = bb[0];
 							
-							while (k < (t))
+							while (k < t)
 							{
 								if (n != 0)
 								{
@@ -469,7 +470,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							
 							if (c < 16)
 							{
-								b = SupportClass.URShift(b, (t)); k -= (t);
+								b = SupportClass.URShift(b, t); k -= t;
 								blens[index++] = c;
 							}
 							else
@@ -478,7 +479,7 @@ namespace ComponentAce.Compression.Libs.zlib
 								i = c == 18?7:c - 14;
 								j = c == 18?11:3;
 								
-								while (k < (t + i))
+								while (k < t + i)
 								{
 									if (n != 0)
 									{
@@ -498,15 +499,15 @@ namespace ComponentAce.Compression.Libs.zlib
 									k += 8;
 								}
 								
-								b = SupportClass.URShift(b, (t)); k -= (t);
+								b = SupportClass.URShift(b, t); k -= t;
 								
-								j += (b & inflate_mask[i]);
+								j += b & inflate_mask[i];
 								
-								b = SupportClass.URShift(b, (i)); k -= (i);
+								b = SupportClass.URShift(b, i); k -= i;
 								
 								i = index;
 								t = table;
-								if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) || (c == 16 && i < 1))
+								if (i + j > 258 + (t & 0x1f) + ((t >> 5) & 0x1f) || c == 16 && i < 1)
 								{
 									blens = null;
 									mode = BAD;
@@ -531,10 +532,10 @@ namespace ComponentAce.Compression.Libs.zlib
 						
 						tb[0] = - 1;
 						{
-							int[] bl = new int[1];
-							int[] bd = new int[1];
-							int[] tl = new int[1];
-							int[] td = new int[1];
+							var bl = new int[1];
+							var bd = new int[1];
+							var tl = new int[1];
+							var td = new int[1];
 							
 							
 							bl[0] = 9; // must be <= 9 for lookahead assumptions
@@ -575,7 +576,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						codes.free(z);
 						
 						p = z.next_in_index; n = z.avail_in; b = bitb; k = bitk;
-						q = write; m = (int) (q < read?read - q - 1:end - q);
+						q = write; m = q < read?read - q - 1:end - q;
 						
 						if (last == 0)
 						{
@@ -588,7 +589,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					case DRY: 
 						write = q;
 						r = inflate_flush(z, r);
-						q = write; m = (int) (q < read?read - q - 1:end - q);
+						q = write; m = q < read?read - q - 1:end - q;
 						if (read != write)
 						{
 							bitb = b; bitk = k;
@@ -661,7 +662,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			q = read;
 			
 			// compute number of bytes to copy as far as end of window
-			n = (int) ((q <= write?write:end) - q);
+			n = (q <= write?write:end) - q;
 			if (n > z.avail_out)
 				n = z.avail_out;
 			if (n != 0 && r == Z_BUF_ERROR)

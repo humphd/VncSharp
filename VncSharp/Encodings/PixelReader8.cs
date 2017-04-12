@@ -15,7 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.IO;
 
 namespace VncSharp.Encodings
@@ -25,7 +24,7 @@ namespace VncSharp.Encodings
 	/// </summary>
 	public sealed class PixelReader8 : PixelReader
 	{
-		private RfbProtocol rfb = null;
+		private RfbProtocol rfb;
 
 		public PixelReader8(BinaryReader reader, Framebuffer framebuffer, RfbProtocol rfb) : base(reader, framebuffer)
 		{
@@ -38,7 +37,7 @@ namespace VncSharp.Encodings
 		/// <returns>Returns an Integer value representing the pixel in GDI+ format.</returns>
 		public override int ReadPixel()
 		{
-			byte idx = reader.ReadByte();
+			var idx = reader.ReadByte();
 			return ToGdiPlusOrder((byte)rfb.MapEntries[idx, 0], (byte)rfb.MapEntries[idx, 1], (byte)rfb.MapEntries[idx, 2]);
 		}
 	}
