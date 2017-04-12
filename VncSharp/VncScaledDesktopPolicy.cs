@@ -30,13 +30,9 @@ namespace VncSharp
         {
         }
 
-        public override Size AutoScrollMinSize {
-            get {
-                return new Size(100, 100);
-            }
-        }
+        public override Size AutoScrollMinSize => new Size(100, 100);
 
-        public override Rectangle AdjustUpdateRectangle(Rectangle updateRectangle)
+	    public override Rectangle AdjustUpdateRectangle(Rectangle updateRectangle)
         {
             var scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
             var adjusted = new Rectangle(AdjusteNormalToScaled(updateRectangle.X) + (remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2,
@@ -72,10 +68,7 @@ namespace VncSharp
             if (vnc == null)
                 return new Size(remoteDesktop.Width, remoteDesktop.Height);
 
-			if ((double)s.Width / vnc.Framebuffer.Width <= (double)s.Height / vnc.Framebuffer.Height) {
-				return new Size(s.Width, (int)((double)s.Width / vnc.Framebuffer.Width * vnc.Framebuffer.Height));
-			}
-		    return new Size((int)((double)s.Height / vnc.Framebuffer.Height * vnc.Framebuffer.Width), s.Height);
+			return (double)s.Width / vnc.Framebuffer.Width <= (double)s.Height / vnc.Framebuffer.Height ? new Size(s.Width, (int)((double)s.Width / vnc.Framebuffer.Width * vnc.Framebuffer.Height)) : new Size((int)((double)s.Height / vnc.Framebuffer.Height * vnc.Framebuffer.Width), s.Height);
 		}
 
         private double ScaleFactor {

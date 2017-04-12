@@ -306,10 +306,9 @@ namespace VncSharp
 			Debug.Assert(type >= 1, "Wrong Security Type", "The Security Type must be one that requires authentication.");
 			
 			// Only bother writing this byte if the version of the server is 3.7
-			if (verMinor >= 7) {
-				writer.Write(type);
-				writer.Flush();			
-			}
+		    if (verMinor < 7) return;
+		    writer.Write(type);
+		    writer.Flush();
 		}
 
 		/// <summary>
@@ -391,8 +390,9 @@ namespace VncSharp
 			WritePadding(1);
 			writer.Write((ushort)encodings.Length);
 			
-			for (var i = 0; i < encodings.Length; i++) {
-				writer.Write(encodings[i]);
+			foreach (var t in encodings)
+			{
+			    writer.Write(t);
 			}
 
 			writer.Flush();

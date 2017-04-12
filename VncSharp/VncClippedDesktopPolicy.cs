@@ -30,23 +30,11 @@ namespace VncSharp
         {
         }
 
-        public override bool AutoScroll {
-            get {
-                return true;
-            }
-        }
+        public override bool AutoScroll => true;
 
-        public override Size AutoScrollMinSize {
-            get
-            {
-                if (vnc != null && vnc.Framebuffer != null) {
-                    return new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height);
-                }
-                return new Size(100, 100);
-            }
-        }
+	    public override Size AutoScrollMinSize => vnc?.Framebuffer != null ? new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height) : new Size(100, 100);
 
-        public override Point UpdateRemotePointer(Point current)
+	    public override Point UpdateRemotePointer(Point current)
         {
             var adjusted = new Point();
 			if (remoteDesktop.ClientSize.Width > remoteDesktop.Desktop.Size.Width) {
