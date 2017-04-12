@@ -16,8 +16,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.Windows.Forms;
 using System.Drawing;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -31,17 +31,16 @@ namespace VncSharp
         {
         }
 
-        public override Size AutoScrollMinSize {
-            get {
-                return new Size(100, 100);
-            }
+        public override Size AutoScrollMinSize
+        {
+            get { return new Size(100, 100); }
         }
 
-        public override Rectangle AdjustUpdateRectangle(Rectangle updateRectangle)
+	    public override Rectangle AdjustUpdateRectangle(Rectangle updateRectangle)
         {
-            Size scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
-            Rectangle adjusted = new Rectangle(AdjusteNormalToScaled(updateRectangle.X) + ((remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2),
-                                               AdjusteNormalToScaled(updateRectangle.Y) + ((remoteDesktop.ClientRectangle.Height - scaledSize.Height) / 2),
+            var scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
+            var adjusted = new Rectangle(AdjusteNormalToScaled(updateRectangle.X) + (remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2,
+                                               AdjusteNormalToScaled(updateRectangle.Y) + (remoteDesktop.ClientRectangle.Height - scaledSize.Height) / 2,
                                                AdjusteNormalToScaled(updateRectangle.Width),
                                                AdjusteNormalToScaled(updateRectangle.Height));
 			adjusted.Inflate(1, 1);
@@ -73,35 +72,31 @@ namespace VncSharp
             if (vnc == null)
                 return new Size(remoteDesktop.Width, remoteDesktop.Height);
 
-			if (((double)s.Width / vnc.Framebuffer.Width) <= ((double)s.Height / vnc.Framebuffer.Height)) {
-				return new Size(s.Width, (int)((double)s.Width / vnc.Framebuffer.Width * vnc.Framebuffer.Height));
-			} else {
-				return new Size((int)((double)s.Height / vnc.Framebuffer.Height * vnc.Framebuffer.Width), s.Height);
-			}
+			return (double)s.Width / vnc.Framebuffer.Width <= (double)s.Height / vnc.Framebuffer.Height ? new Size(s.Width, (int)((double)s.Width / vnc.Framebuffer.Width * vnc.Framebuffer.Height)) : new Size((int)((double)s.Height / vnc.Framebuffer.Height * vnc.Framebuffer.Width), s.Height);
 		}
 
         private double ScaleFactor {
-			get {
-				if (((double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width) <= 
-                    ((double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height)) {
-					return ((double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width);
-				} else {
-					return ((double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height);
+			get
+			{
+			    if ((double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width <= 
+                    (double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height) {
+					return (double)remoteDesktop.ClientRectangle.Width / vnc.Framebuffer.Width;
 				}
+			    return (double)remoteDesktop.ClientRectangle.Height / vnc.Framebuffer.Height;
 			}
 		}
 
         private Point GetScaledMouse(Point src)
 		{
-            Size scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
-			src.X = AdjusteScaledToNormal(src.X - ((remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2));
-			src.Y = AdjusteScaledToNormal(src.Y - ((remoteDesktop.ClientRectangle.Height - scaledSize.Height) / 2));
+            var scaledSize = GetScaledSize(remoteDesktop.ClientRectangle.Size);
+			src.X = AdjusteScaledToNormal(src.X - (remoteDesktop.ClientRectangle.Width - scaledSize.Width) / 2);
+			src.Y = AdjusteScaledToNormal(src.Y - (remoteDesktop.ClientRectangle.Height - scaledSize.Height) / 2);
             return src;
         }
 
 		private Rectangle GetScaledRectangle(Rectangle rect)
 		{
-			Size scaledSize = GetScaledSize(rect.Size);
+			var scaledSize = GetScaledSize(rect.Size);
 			return new Rectangle((rect.Width - scaledSize.Width) / 2,
                                  (rect.Height - scaledSize.Height) / 2, 
                                  scaledSize.Width, 

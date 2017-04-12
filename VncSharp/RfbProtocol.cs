@@ -16,11 +16,14 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.IO;
-using System.Drawing;
-using System.Threading;
 using System.Diagnostics;
+using System.Drawing;
+using System.IO;
 using System.Net.Sockets;
+using System.Text;
+using System.Threading;
+using VncSharp.zlib.NET;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -32,7 +35,7 @@ namespace VncSharp
         #region Constants
         // ReSharper disable InconsistentNaming
         // Version Constants
-        public const string RFB_VERSION_ZERO			= "RFB 000.000\n";
+	    private const string RFB_VERSION_ZERO			= "RFB 000.000\n";
 
 		// Encoding Constants
 		public const int RAW_ENCODING 					= 0;
@@ -48,13 +51,13 @@ namespace VncSharp
 		public const int BELL 							= 2;
 		public const int SERVER_CUT_TEXT 				= 3;
 
-		// Client to Server Message-Type constants
-		protected const byte SET_PIXEL_FORMAT 			= 0;
-		protected const byte SET_ENCODINGS 				= 2;
-		protected const byte FRAMEBUFFER_UPDATE_REQUEST = 3;
-		protected const byte KEY_EVENT 					= 4;
-		protected const byte POINTER_EVENT 				= 5;
-		protected const byte CLIENT_CUT_TEXT 			= 6;
+        // Client to Server Message-Type constants
+        private const byte SET_PIXEL_FORMAT 			= 0;
+        private const byte SET_ENCODINGS 				= 2;
+        private const byte FRAMEBUFFER_UPDATE_REQUEST = 3;
+        private const byte KEY_EVENT 					= 4;
+        private const byte POINTER_EVENT 				= 5;
+        private const byte CLIENT_CUT_TEXT 			= 6;
 
         // Keyboard constants
         public const int XK_BackSpace = 0xFF08;
@@ -109,49 +112,35 @@ namespace VncSharp
         // ReSharper restore InconsistentNaming
         #endregion
 
-        protected int verMajor;	// Major version of Protocol--probably 3
-		protected int verMinor; // Minor version of Protocol--probably 3, 7, or 8
+        private int verMajor;   // Major version of Protocol--probably 3
+        private int verMinor; // Minor version of Protocol--probably 3, 7, or 8
 
-		protected TcpClient tcp;		// Network object used to communicate with host
-		protected NetworkStream stream;	// Stream object used to send/receive data
-		protected BinaryReader reader;	// Integral rather than Byte values are typically
-		protected BinaryWriter writer;	// sent and received, so these handle this.
-		protected ZRLECompressedReader zrleReader;
+        private TcpClient tcp;      // Network object used to communicate with host
+        private NetworkStream stream;   // Stream object used to send/receive data
+	    private BinaryWriter writer;    // sent and received, so these handle this.
 
 	    /// <summary>
 		/// Gets the Protocol Version of the remote VNC Host--probably 3.3, 3.7, or 3.8.
 		/// </summary>
-		public float ServerVersion {
-			get {
-				return verMajor + (verMinor * 0.1f);
-			}
-		}
+		public float ServerVersion
+	    {
+	        get { return verMajor + verMinor * 0.1f; }
+	    }
 
-		/// <summary>
+	    /// <summary>
 		/// Gets or sets the proxy identifier to be send when using UltraVNC's repeater functionality
 		/// </summary>
 		/// <value>
 		/// The proxy identifier.
 		/// </value>
-		public int ProxyID { get; set; }
+	    // ReSharper disable once UnusedAutoPropertyAccessor.Local
+		private int ProxyID { get; set; }
 
-		public BinaryReader Reader
-		{
-			get
-			{
-				return reader;
-			}
-		}
+		public BinaryReader Reader { get; private set; }
 
-		public ZRLECompressedReader ZrleReader
-		{
-			get
-			{
-				return zrleReader;
-			}
-		}
+	    public ZRLECompressedReader ZrleReader { get; private set; }
 
-		/// <summary>
+	    /// <summary>
 		/// Attempt to connect to a remote VNC Host.
 		/// </summary>
 		/// <param name="host">The IP Address or Host Name of the VNC Host.</param>
@@ -162,18 +151,17 @@ namespace VncSharp
 
 			// Try to connect, passing any exceptions up to the caller, and if successful, 
 			// wrap a big endian Binary Reader and Binary Writer around the resulting stream.
-			tcp = new TcpClient();
-			tcp.NoDelay = true;  // turn-off Nagle's Algorithm for better interactive performance with host.
-						
-			tcp.Connect(host, port);
+		    tcp = new TcpClient {NoDelay = true}; // turn-off Nagle's Algorithm for better interactive performance with host.
+
+		    tcp.Connect(host, port);
 			stream = tcp.GetStream();
 
 			// Most of the RFB protocol uses Big-Endian byte order, while
 			// .NET uses Little-Endian. These wrappers convert between the
 			// two.  See BigEndianReader and BigEndianWriter below for more details.
-			reader = new BigEndianBinaryReader(stream);
+			Reader = new BigEndianBinaryReader(stream);
 			writer = new BigEndianBinaryWriter(stream);
-			zrleReader = new ZRLECompressedReader(stream);
+			ZrleReader = new ZRLECompressedReader(stream);
 		}
 
 		/// <summary>
@@ -183,7 +171,7 @@ namespace VncSharp
 		{
 			try {
 				writer.Close();
-				reader.Close();
+				Reader.Close();
 				stream.Close();
 				tcp.Close();
 			} catch (Exception ex) {
@@ -197,10 +185,10 @@ namespace VncSharp
 		/// <exception cref="NotSupportedException">Thrown if the version of the host is not known or supported.</exception>
 		public void ReadProtocolVersion()
 		{
-			byte[] b = reader.ReadBytes(12);
+			var b = Reader.ReadBytes(12);
 
 			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
-			if (System.Text.Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
+			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
 			{
 				verMajor = 0;
 				verMinor = 0;
@@ -231,6 +219,7 @@ namespace VncSharp
 				verMajor = 3;
 
 				// Figure out which version of the protocol this is:
+			    // ReSharper disable once SwitchStatementMissingSomeCases
 				switch (b[10]) {
 					case 0x33: 
 					case 0x36:	// BUG FIX: pass 3.3 for 3.6 to allow UltraVNC to work, thanks to Steve Bostedor.
@@ -262,9 +251,9 @@ namespace VncSharp
 		{
 			// We will use which ever version the server understands, be it 3.3, 3.7, or 3.8.
 			Debug.Assert(verMinor == 3 || verMinor == 7 || verMinor == 8, "Wrong Protocol Version!",
-						 string.Format("Protocol Version should be 3.3, 3.7, or 3.8 but is {0}.{1}", verMajor.ToString(), verMinor.ToString()));
+			    $"Protocol Version should be 3.3, 3.7, or 3.8 but is {verMajor}.{verMinor}");
 
-			writer.Write(GetBytes(string.Format("RFB 003.00{0}\n", verMinor.ToString())));
+			writer.Write(GetBytes($"RFB 003.00{verMinor}\n"));
 			writer.Flush();
 		}
 
@@ -273,7 +262,7 @@ namespace VncSharp
 		/// </summary>
 		public void WriteProxyAddress()
 		{
-			byte[] proxyMessage = new byte[250];
+			var proxyMessage = new byte[250];
 			GetBytes("ID:" + ProxyID + "\n").CopyTo(proxyMessage, 0);
 			writer.Write(proxyMessage);
 			writer.Flush();
@@ -286,17 +275,17 @@ namespace VncSharp
 		public byte[] ReadSecurityTypes()
 		{
 			// Read and return the types of security supported by the server (see protocol doc 6.1.2)
-			byte[] types = null;
+			byte[] types;
 			
 			// Protocol Version 3.7 onward supports multiple security types, while 3.3 only 1
 			if (verMinor == 3) {
-				types = new byte[] { (byte) reader.ReadUInt32() };
+				types = new[] { (byte) Reader.ReadUInt32() };
 			} else {
-				byte num = reader.ReadByte();
+				var num = Reader.ReadByte();
 				types = new byte[num];
 				
-				for (int i = 0; i < num; ++i) {
-					types[i] = reader.ReadByte();
+				for (var i = 0; i < num; ++i) {
+					types[i] = Reader.ReadByte();
 				}
 			}
 			return types;
@@ -308,8 +297,8 @@ namespace VncSharp
 		/// <returns>Returns a string containing the reason for the server rejecting the connection.</returns>
 		public string ReadSecurityFailureReason()
 		{
-			int length = (int) reader.ReadUInt32();
-			return GetString(reader.ReadBytes(length));
+			var length = (int) Reader.ReadUInt32();
+			return GetString(Reader.ReadBytes(length));
 		}
 
 		/// <summary>
@@ -321,10 +310,9 @@ namespace VncSharp
 			Debug.Assert(type >= 1, "Wrong Security Type", "The Security Type must be one that requires authentication.");
 			
 			// Only bother writing this byte if the version of the server is 3.7
-			if (verMinor >= 7) {
-				writer.Write(type);
-				writer.Flush();			
-			}
+		    if (verMinor < 7) return;
+		    writer.Write(type);
+		    writer.Flush();
 		}
 
 		/// <summary>
@@ -334,7 +322,7 @@ namespace VncSharp
 		/// <returns>Returns the 16 byte Challenge sent by the server.</returns>
 		public byte[] ReadSecurityChallenge()
 		{
-			return reader.ReadBytes(16);
+			return Reader.ReadBytes(16);
 		}
 
 		/// <summary>
@@ -354,7 +342,7 @@ namespace VncSharp
 		/// <returns>An integer indicating the status of authentication: 0 = OK; 1 = Failed; 2 = Too Many (deprecated).</returns>
 		public uint ReadSecurityResult()
 		{
-			return reader.ReadUInt32();
+			return Reader.ReadUInt32();
 		}
 
 		/// <summary>
@@ -374,12 +362,12 @@ namespace VncSharp
 		/// <returns>Returns a Framebuffer object representing the geometry and properties of the remote host.</returns>
 		public Framebuffer ReadServerInit()
 		{
-			int w = reader.ReadUInt16();
-			int h = reader.ReadUInt16();
-			Framebuffer buffer = Framebuffer.FromPixelFormat(reader.ReadBytes(16), w, h);
-			int length = (int) reader.ReadUInt32();
+			int w = Reader.ReadUInt16();
+			int h = Reader.ReadUInt16();
+			var buffer = Framebuffer.FromPixelFormat(Reader.ReadBytes(16), w, h);
+			var length = (int) Reader.ReadUInt32();
 
-			buffer.DesktopName = GetString(reader.ReadBytes(length));
+			buffer.DesktopName = GetString(Reader.ReadBytes(length));
 			
 			return buffer;
 		}
@@ -406,8 +394,9 @@ namespace VncSharp
 			WritePadding(1);
 			writer.Write((ushort)encodings.Length);
 			
-			for (int i = 0; i < encodings.Length; i++) {
-				writer.Write(encodings[i]);
+			foreach (var t in encodings)
+			{
+			    writer.Write(t);
 			}
 
 			writer.Flush();
@@ -479,7 +468,7 @@ namespace VncSharp
 		/// <returns>Returns the message type as an integer.</returns>
 		public int ReadServerMessageType()
 		{
-			return reader.ReadByte();
+			return Reader.ReadByte();
 		}
 
 		/// <summary>
@@ -489,7 +478,7 @@ namespace VncSharp
 		public int ReadFramebufferUpdate()
 		{
 			ReadPadding(1);
-			return reader.ReadUInt16();
+			return Reader.ReadUInt16();
 		}
 
 		/// <summary>
@@ -499,37 +488,33 @@ namespace VncSharp
 		/// <param name="encoding">The encoding used for this rectangle.</param>
 		public void ReadFramebufferUpdateRectHeader(out Rectangle rectangle, out int encoding)
 		{
-			rectangle = new Rectangle();
-			rectangle.X = reader.ReadUInt16();
-			rectangle.Y = reader.ReadUInt16();
-			rectangle.Width = reader.ReadUInt16();
-			rectangle.Height = reader.ReadUInt16();
-			encoding = (int) reader.ReadUInt32();
+		    rectangle = new Rectangle
+		    {
+		        X = Reader.ReadUInt16(),
+		        Y = Reader.ReadUInt16(),
+		        Width = Reader.ReadUInt16(),
+		        Height = Reader.ReadUInt16()
+		    };
+		    encoding = (int) Reader.ReadUInt32();
 		}
 		
 		// TODO: this colour map code should probably go in Framebuffer.cs
-		private ushort[,] mapEntries = new ushort[256, 3];
-		public ushort[,] MapEntries
-		{
-			get {
-				return mapEntries;
-			}
-		}
+	    public ushort[,] MapEntries { get; } = new ushort[256, 3];
 
-		/// <summary>
+	    /// <summary>
 		/// Reads 8-bit RGB colour values (or updated values) into the colour map.  See RFB Doc v. 3.8 section 6.5.2.
 		/// </summary>
 		public void ReadColourMapEntry()
 		{
 			ReadPadding(1);
-			ushort firstColor = ReadUInt16();
-			ushort nbColors = ReadUInt16();
+			var firstColor = ReadUInt16();
+			var nbColors = ReadUInt16();
 
-			for (int i = 0; i < nbColors; i++, firstColor++)
+			for (var i = 0; i < nbColors; i++, firstColor++)
 			{
-				mapEntries[firstColor, 0] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// R
-				mapEntries[firstColor, 1] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// G
-				mapEntries[firstColor, 2] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// B
+				MapEntries[firstColor, 0] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// R
+				MapEntries[firstColor, 1] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// G
+				MapEntries[firstColor, 2] = (byte)(ReadUInt16() * byte.MaxValue / ushort.MaxValue);	// B
 			}
 		} 
 
@@ -540,8 +525,8 @@ namespace VncSharp
 		public string ReadServerCutText()
 		{
 			ReadPadding(3);
-			int length = (int) reader.ReadUInt32();
-			return GetString(reader.ReadBytes(length));
+			var length = (int) Reader.ReadUInt32();
+			return GetString(Reader.ReadBytes(length));
 		}
 
 		// ---------------------------------------------------------------------------------------
@@ -553,7 +538,7 @@ namespace VncSharp
 		/// <returns>Returns a UInt32 value.</returns>
 		public uint ReadUint32()
 		{
-			return reader.ReadUInt32(); 
+			return Reader.ReadUInt32(); 
 		}
 		
 		/// <summary>
@@ -562,7 +547,7 @@ namespace VncSharp
 		/// <returns>Returns a UInt16 value.</returns>
 		public ushort ReadUInt16()
 		{
-			return reader.ReadUInt16(); 
+			return Reader.ReadUInt16(); 
 		}
 		
 		/// <summary>
@@ -571,7 +556,7 @@ namespace VncSharp
 		/// <returns>Returns a Byte value.</returns>
 		public byte ReadByte()
 		{
-			return reader.ReadByte();
+			return Reader.ReadByte();
 		}
 		
 		/// <summary>
@@ -581,7 +566,7 @@ namespace VncSharp
 		/// <returns>Returns a Byte Array containing the values read.</returns>
 		public byte[] ReadBytes(int count)
 		{
-			return reader.ReadBytes(count);
+			return Reader.ReadBytes(count);
 		}
 
 		/// <summary>
@@ -626,7 +611,7 @@ namespace VncSharp
 		/// <param name="length">The number of bytes of padding to write.</param>
 		protected void WritePadding(int length)
 		{
-			byte [] padding = new byte[length];
+			var padding = new byte[length];
 			writer.Write(padding, 0, padding.Length);
 		}
 
@@ -637,7 +622,7 @@ namespace VncSharp
 		/// <returns>Returns a Byte Array containing the text as bytes.</returns>
 		protected static byte[] GetBytes(string text)
 		{
-			return System.Text.Encoding.ASCII.GetBytes(text);
+			return Encoding.ASCII.GetBytes(text);
 		}
 		
 		/// <summary>
@@ -647,7 +632,7 @@ namespace VncSharp
 		/// <returns>Returns a String representation of bytes.</returns>
 		protected static string GetString(byte[] bytes)
 		{
-			return System.Text.Encoding.UTF8.GetString(bytes, 0, bytes.Length);
+			return Encoding.UTF8.GetString(bytes, 0, bytes.Length);
 		}
 
 		/// <summary>
@@ -661,7 +646,7 @@ namespace VncSharp
 			{
 			}
 			
-			public BigEndianBinaryReader(Stream input, System.Text.Encoding encoding) : base(input, encoding)
+			public BigEndianBinaryReader(Stream input, Encoding encoding) : base(input, encoding)
 			{
 			}
 
@@ -670,7 +655,7 @@ namespace VncSharp
 			public override ushort ReadUInt16()
 			{
 				FillBuff(2);
-				return (ushort)(buff[1] | ((uint)buff[0]) << 8);
+				return (ushort)(buff[1] | (uint)buff[0] << 8);
 				
 			}
 			
@@ -683,7 +668,7 @@ namespace VncSharp
 			public override uint ReadUInt32()
 			{
 				FillBuff(4);
-				return ((uint)buff[3]) & 0xFF | ((uint)buff[2]) << 8 | ((uint)buff[1]) << 16 | ((uint)buff[0]) << 24;
+				return (uint)buff[3] & 0xFF | (uint)buff[2] << 8 | (uint)buff[1] << 16 | (uint)buff[0] << 24;
 			}
 			
 			public override int ReadInt32()
@@ -694,11 +679,10 @@ namespace VncSharp
 
 			private void FillBuff(int totalBytes)
 			{
-				int bytesRead = 0;
-				int n = 0;
+				var bytesRead = 0;
 
-				do {
-					n = BaseStream.Read(buff, bytesRead, totalBytes - bytesRead);
+			    do {
+					var n = BaseStream.Read(buff, bytesRead, totalBytes - bytesRead);
 					
 					if (n == 0)
 						throw new IOException("Unable to read next byte(s).");
@@ -718,7 +702,7 @@ namespace VncSharp
 			{
 			}
 
-			public BigEndianBinaryWriter(Stream input, System.Text.Encoding encoding) : base(input, encoding)
+			public BigEndianBinaryWriter(Stream input, Encoding encoding) : base(input, encoding)
 			{
 			}
 			
@@ -766,14 +750,14 @@ namespace VncSharp
 		/// </summary>
 		public sealed class ZRLECompressedReader : BinaryReader
 		{
-			MemoryStream zlibMemoryStream;
-			ComponentAce.Compression.Libs.zlib.ZOutputStream zlibDecompressedStream;
-			BinaryReader uncompressedReader;
+		    private MemoryStream zlibMemoryStream;
+		    private ZOutputStream zlibDecompressedStream;
+		    private BinaryReader uncompressedReader;
 
 			public ZRLECompressedReader(Stream uncompressedStream) : base(uncompressedStream)
 			{
 				zlibMemoryStream = new MemoryStream();
-				zlibDecompressedStream = new ComponentAce.Compression.Libs.zlib.ZOutputStream(zlibMemoryStream);
+				zlibDecompressedStream = new ZOutputStream(zlibMemoryStream);
 				uncompressedReader = new BinaryReader(zlibMemoryStream);
 			}
 
@@ -793,12 +777,12 @@ namespace VncSharp
 				zlibMemoryStream.Position = 0;
 
 				// Get compressed stream length to read
-				byte[] buff = new byte[4];
+				var buff = new byte[4];
 				if (BaseStream.Read(buff, 0, 4) != 4)
 					throw new Exception("ZRLE decoder: Invalid compressed stream size");
 
 				// BigEndian to LittleEndian conversion
-				int compressedBufferSize = buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24;
+				var compressedBufferSize = buff[3] | buff[2] << 8 | buff[1] << 16 | buff[0] << 24;
 				if (compressedBufferSize > 64 * 1024 * 1024)
 					throw new Exception("ZRLE decoder: Invalid compressed data size");
 
@@ -811,23 +795,22 @@ namespace VncSharp
 
 				#region Decode stream in blocks
 				// Decode stream in blocks
-				int bytesToRead;
-				int bytesNeeded = compressedBufferSize;
-				int maxBufferSize = 64 * 1024; // 64k buffer
-				byte[] receiveBuffer = new byte[maxBufferSize];
-				NetworkStream netStream = (NetworkStream)BaseStream;
+			    var bytesNeeded = compressedBufferSize;
+				const int maxBufferSize = 64 * 1024; // 64k buffer
+				var receiveBuffer = new byte[maxBufferSize];
+				var netStream = (NetworkStream)BaseStream;
 				do
 				{
 					if (netStream.DataAvailable)
 					{
-						bytesToRead = bytesNeeded;
+						var bytesToRead = bytesNeeded;
 
 						// the byteToRead should never exceed the maxBufferSize
 						if (bytesToRead > maxBufferSize)
 							bytesToRead = maxBufferSize;
 
 						// try reading bytes
-						int bytesRead = netStream.Read(receiveBuffer, 0, bytesToRead);
+						var bytesRead = netStream.Read(receiveBuffer, 0, bytesToRead);
 						// lower the bytesNeeded with the bytesRead.
 						bytesNeeded -= bytesRead;
 

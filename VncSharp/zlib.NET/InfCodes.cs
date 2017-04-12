@@ -41,14 +41,15 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
-	
-	sealed class InfCodes
+    internal sealed class InfCodes
 	{
 				
-		private static readonly int[] inflate_mask = new int[]{0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff};
+		private static readonly int[] inflate_mask = {0x00000000, 0x00000001, 0x00000003, 0x00000007, 0x0000000f, 0x0000001f, 0x0000003f, 0x0000007f, 0x000000ff, 0x000001ff, 0x000003ff, 0x000007ff, 0x00000fff, 0x00001fff, 0x00003fff, 0x00007fff, 0x0000ffff};
 		
 		private const int Z_OK = 0;
 		private const int Z_STREAM_END = 1;
@@ -80,7 +81,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal int len;
 		
 		internal int[] tree; // pointer into tree
-		internal int tree_index = 0;
+		internal int tree_index;
 		internal int need; // bits needed
 		
 		internal int lit;
@@ -124,9 +125,9 @@ namespace ComponentAce.Compression.Libs.zlib
 			 //int[] t; // temporary pointer
 			int tindex; // temporary pointer
 			int e; // extra bits or operation
-			int b = 0; // bit buffer
-			int k = 0; // bits in bit buffer
-			int p = 0; // input data pointer
+			var b = 0; // bit buffer
+			var k = 0; // bits in bit buffer
+			var p = 0; // input data pointer
 			int n; // bytes available there
 			int q; // output window write pointer
 			int m; // bytes to end of window or read pointer
@@ -171,7 +172,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					case LEN:  // i: get length/literal/eob next
 						j = need;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -190,8 +191,8 @@ namespace ComponentAce.Compression.Libs.zlib
 						
 						tindex = (tree_index + (b & inflate_mask[j])) * 3;
 						
-						b = SupportClass.URShift(b, (tree[tindex + 1]));
-						k -= (tree[tindex + 1]);
+						b = SupportClass.URShift(b, tree[tindex + 1]);
+						k -= tree[tindex + 1];
 						
 						e = tree[tindex];
 						
@@ -236,7 +237,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					case LENEXT:  // i: getting length extra (have base)
 						j = get_Renamed;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -252,7 +253,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							k += 8;
 						}
 						
-						len += (b & inflate_mask[j]);
+						len += b & inflate_mask[j];
 						
 						b >>= j;
 						k -= j;
@@ -266,7 +267,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					case DIST:  // i: get distance next
 						j = need;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -287,7 +288,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						b >>= tree[tindex + 1];
 						k -= tree[tindex + 1];
 						
-						e = (tree[tindex]);
+						e = tree[tindex];
 						if ((e & 16) != 0)
 						{
 							// distance
@@ -316,7 +317,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					case DISTEXT:  // i: getting distance extra
 						j = get_Renamed;
 						
-						while (k < (j))
+						while (k < j)
 						{
 							if (n != 0)
 								r = Z_OK;
@@ -332,7 +333,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							k += 8;
 						}
 						
-						dist += (b & inflate_mask[j]);
+						dist += b & inflate_mask[j];
 						
 						b >>= j;
 						k -= j;
@@ -510,7 +511,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			{
 				// assume called with m >= 258 && n >= 10
 				// get literal/length code
-				while (k < (20))
+				while (k < 20)
 				{
 					// max bits for literal/length code
 					n--;
@@ -522,7 +523,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				tp_index = tl_index;
 				if ((e = tp[(tp_index + t) * 3]) == 0)
 				{
-					b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+					b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 					
 					s.window[q++] = (byte) tp[(tp_index + t) * 3 + 2];
 					m--;
@@ -531,17 +532,17 @@ namespace ComponentAce.Compression.Libs.zlib
 				do 
 				{
 					
-					b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+					b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 					
 					if ((e & 16) != 0)
 					{
 						e &= 15;
-						c = tp[(tp_index + t) * 3 + 2] + ((int) b & inflate_mask[e]);
+						c = tp[(tp_index + t) * 3 + 2] + (b & inflate_mask[e]);
 						
 						b >>= e; k -= e;
 						
 						// decode distance base of block to copy
-						while (k < (15))
+						while (k < 15)
 						{
 							// max bits for distance code
 							n--;
@@ -556,13 +557,13 @@ namespace ComponentAce.Compression.Libs.zlib
 						do 
 						{
 							
-							b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+							b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 							
 							if ((e & 16) != 0)
 							{
 								// get extra bits to add to distance base
 								e &= 15;
-								while (k < (e))
+								while (k < e)
 								{
 									// get extra bits (up to 13)
 									n--;
@@ -571,7 +572,7 @@ namespace ComponentAce.Compression.Libs.zlib
 								
 								d = tp[(tp_index + t) * 3 + 2] + (b & inflate_mask[e]);
 								
-								b >>= (e); k -= (e);
+								b >>= e; k -= e;
 								
 								// do the copy
 								m -= c;
@@ -580,7 +581,7 @@ namespace ComponentAce.Compression.Libs.zlib
 									// offset before dest
 									//  just copy
 									r = q - d;
-									if (q - r > 0 && 2 > (q - r))
+									if (q - r > 0 && 2 > q - r)
 									{
 										s.window[q++] = s.window[r++]; c--; // minimum count is three,
 										s.window[q++] = s.window[r++]; c--; // so unroll loop a little
@@ -605,7 +606,7 @@ namespace ComponentAce.Compression.Libs.zlib
 									{
 										// if source crosses,
 										c -= e; // wrapped copy
-										if (q - r > 0 && e > (q - r))
+										if (q - r > 0 && e > q - r)
 										{
 											do 
 											{
@@ -623,7 +624,7 @@ namespace ComponentAce.Compression.Libs.zlib
 								}
 								
 								// copy all or what's left
-								if (q - r > 0 && c > (q - r))
+								if (q - r > 0 && c > q - r)
 								{
 									do 
 									{
@@ -638,24 +639,24 @@ namespace ComponentAce.Compression.Libs.zlib
 								}
 								break;
 							}
-							else if ((e & 64) == 0)
-							{
-								t += tp[(tp_index + t) * 3 + 2];
-								t += (b & inflate_mask[e]);
-								e = tp[(tp_index + t) * 3];
-							}
-							else
-							{
-								z.msg = "invalid distance code";
+						    if ((e & 64) == 0)
+						    {
+						        t += tp[(tp_index + t) * 3 + 2];
+						        t += b & inflate_mask[e];
+						        e = tp[(tp_index + t) * 3];
+						    }
+						    else
+						    {
+						        z.msg = "invalid distance code";
 								
-								c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+						        c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 								
-								s.bitb = b; s.bitk = k;
-								z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
-								s.write = q;
+						        s.bitb = b; s.bitk = k;
+						        z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
+						        s.write = q;
 								
-								return Z_DATA_ERROR;
-							}
+						        return Z_DATA_ERROR;
+						    }
 						}
 						while (true);
 						break;
@@ -664,11 +665,11 @@ namespace ComponentAce.Compression.Libs.zlib
 					if ((e & 64) == 0)
 					{
 						t += tp[(tp_index + t) * 3 + 2];
-						t += (b & inflate_mask[e]);
+						t += b & inflate_mask[e];
 						if ((e = tp[(tp_index + t) * 3]) == 0)
 						{
 							
-							b >>= (tp[(tp_index + t) * 3 + 1]); k -= (tp[(tp_index + t) * 3 + 1]);
+							b >>= tp[(tp_index + t) * 3 + 1]; k -= tp[(tp_index + t) * 3 + 1];
 							
 							s.window[q++] = (byte) tp[(tp_index + t) * 3 + 2];
 							m--;
@@ -678,7 +679,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					else if ((e & 32) != 0)
 					{
 						
-						c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+						c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 						
 						s.bitb = b; s.bitk = k;
 						z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
@@ -690,7 +691,7 @@ namespace ComponentAce.Compression.Libs.zlib
 					{
 						z.msg = "invalid literal/length code";
 						
-						c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+						c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 						
 						s.bitb = b; s.bitk = k;
 						z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;
@@ -704,7 +705,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			while (m >= 258 && n >= 10);
 			
 			// not enough input or output--restore pointers and return
-			c = z.avail_in - n; c = (k >> 3) < c?k >> 3:c; n += c; p -= c; k -= (c << 3);
+			c = z.avail_in - n; c = k >> 3 < c?k >> 3:c; n += c; p -= c; k -= c << 3;
 			
 			s.bitb = b; s.bitk = k;
 			z.avail_in = n; z.total_in += p - z.next_in_index; z.next_in_index = p;

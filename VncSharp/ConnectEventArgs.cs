@@ -24,48 +24,32 @@ namespace VncSharp
 	/// </summary>
 	public class ConnectEventArgs : EventArgs
 	{
-		int width;
-		int height;
-		string name;
-		
-		/// <summary>
+	    /// <summary>
 		/// Constructor for ConnectEventArgs
 		/// </summary>
 		/// <param name="width">An Integer indicating the Width of the remote framebuffer.</param>
 		/// <param name="height">An Integer indicating the Height of the remote framebuffer.</param>
 		/// <param name="name">A String containing the name of the remote Desktop.</param>
-		public ConnectEventArgs(int width, int height, string name) : base()
+		public ConnectEventArgs(int width, int height, string name)
 		{
-			this.width = width;
-			this.height = height;
-			this.name = name;
+			DesktopWidth = width;
+			DesktopHeight = height;
+			DesktopName = name;
 		}
 		
 		/// <summary>
 		/// Gets the Width of the remote Desktop.
 		/// </summary>
-		public int DesktopWidth {
-			get { 
-				return width; 
-			}
-		}
-		
-		/// <summary>
+		public int DesktopWidth { get; }
+
+	    /// <summary>
 		/// Gets the Height of the remote Desktop.
 		/// </summary>
-		public int DesktopHeight {
-			get { 
-				return height; 
-			}
-		}
-		
-		/// <summary>
+		public int DesktopHeight { get; }
+
+	    /// <summary>
 		/// Gets the name of the remote Desktop, if any.
 		/// </summary>
-		public string DesktopName {
-			get { 
-				return name; 
-			}
-		}
+		public string DesktopName { get; }
 	}
 }

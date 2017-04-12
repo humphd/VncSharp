@@ -16,8 +16,8 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System;
-using System.Windows.Forms;
 using System.Drawing;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -31,19 +31,17 @@ namespace VncSharp
         {
         }
 
-        public override bool AutoScroll {
-            get {
-                return true;
-            }
+        public override bool AutoScroll
+        {
+            get { return true; }
         }
 
-        public override Size AutoScrollMinSize {
-            get {
-                return new Size(608, 427); // just a default for Design graphic. Will get changed once connected.
-            }
-        }
+	    public override Size AutoScrollMinSize
+	    {
+	        get { return new Size(608, 427); }
+	    }
 
-        public override Point UpdateRemotePointer(Point current)
+	    public override Point UpdateRemotePointer(Point current)
         {
             throw new NotImplementedException();
         }

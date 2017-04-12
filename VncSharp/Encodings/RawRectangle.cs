@@ -15,9 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace VncSharp.Encodings
 {
@@ -34,7 +32,7 @@ namespace VncSharp.Encodings
 		public override void Decode()
 		{
 			// Each pixel from the remote server represents a pixel to be drawn
-			for (int i = 0; i < rectangle.Width * rectangle.Height; ++i) {
+			for (var i = 0; i < rectangle.Width * rectangle.Height; ++i) {
 				framebuffer[i] = preader.ReadPixel();
 			}
 		}

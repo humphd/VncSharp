@@ -15,7 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.IO;
 
 namespace VncSharp.Encodings
@@ -31,7 +30,7 @@ namespace VncSharp.Encodings
 
 		public override int ReadPixel()
 		{
-			byte[] b = reader.ReadBytes(3);
+			var b = reader.ReadBytes(3);
 			return ToGdiPlusOrder(b[2], b[1], b[0]);
 		}
 	}

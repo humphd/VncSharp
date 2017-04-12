@@ -3,56 +3,55 @@ using System.Runtime.InteropServices;
 
 namespace VncSharp
 {
-    // ReSharper disable InconsistentNaming
-    public static class Win32
+    public static class NativeMethods
     {
         #region Functions
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProcDelegate lpfn, IntPtr hMod, Int32 dwThreadId);
+        internal static extern IntPtr SetWindowsHookEx(int idHook, LowLevelKeyboardProcDelegate lpfn, IntPtr hMod, int dwThreadId);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool UnhookWindowsHookEx(IntPtr hhk);
+        internal static extern bool UnhookWindowsHookEx(IntPtr hhk);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, KBDLLHOOKSTRUCT lParam);
+        internal static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, KBDLLHOOKSTRUCT lParam);
 
-        [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr GetModuleHandle(string lpModuleName);
+        [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern IntPtr GetModuleHandle(string lpModuleName);
 
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr RegisterWindowMessage(string lpString);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool PostMessage(IntPtr hWnd, Int32 Msg, IntPtr wParam, IntPtr lParam);
+        [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
+        internal static extern uint RegisterWindowMessage(string lpString);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetGUIThreadInfo(Int32 idThread, GUITHREADINFO lpgui);
-
-        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern Int16 GetAsyncKeyState(Int32 vKey);
+        internal static extern bool PostMessage(IntPtr hWnd, int Msg, IntPtr wParam, IntPtr lParam);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
-        public static extern bool GetKeyboardState(byte[] lpKeyState);
+        internal static extern bool GetGUIThreadInfo(int idThread, GUITHREADINFO lpgui);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern Int32 MapVirtualKey(Int32 uCode, Int32 uMapType);
+        internal static extern short GetAsyncKeyState(int vKey);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern int ToAscii(Int32 uVirtKey, Int32 uScanCode, byte[] lpKeyState, byte[] lpwTransKey, Int32 fuState);
+        [return: MarshalAs(UnmanagedType.Bool)]
+        internal static extern bool GetKeyboardState(byte[] lpKeyState);
 
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr GetAncestor(IntPtr hwnd, UInt32 gaFlags);
+        internal static extern int MapVirtualKey(int uCode, int uMapType);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        internal static extern int ToAscii(int uVirtKey, int uScanCode, byte[] lpKeyState, byte[] lpwTransKey, int fuState);
+
+        [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
+        internal static extern IntPtr GetAncestor(IntPtr hwnd, uint gaFlags);
 
         #endregion
 
         #region Delegates
 
-        public delegate IntPtr LowLevelKeyboardProcDelegate(Int32 nCode, IntPtr wParam, KBDLLHOOKSTRUCT lParam);
+        public delegate IntPtr LowLevelKeyboardProcDelegate(int nCode, IntPtr wParam, KBDLLHOOKSTRUCT lParam);
 
         #endregion
 
@@ -61,20 +60,20 @@ namespace VncSharp
         [StructLayout(LayoutKind.Sequential)]
         public class KBDLLHOOKSTRUCT
         {
-            public Int32 vkCode;
-            public Int32 scanCode;
-            public Int32 flags;
-            public Int32 time;
-            public IntPtr dwExtraInfo;
-        };
+            internal int vkCode;
+            internal int scanCode;
+            internal int flags;
+            internal int time;
+            internal IntPtr dwExtraInfo;
+        }
 
         [StructLayout(LayoutKind.Sequential)]
         public struct RECT
         {
-            public int left;
-            public int top;
-            public int right;
-            public int bottom;
+            internal int left;
+            internal int top;
+            internal int right;
+            internal int bottom;
         }
 
         [StructLayout(LayoutKind.Sequential)]
@@ -85,15 +84,15 @@ namespace VncSharp
                 cbSize = Convert.ToInt32(Marshal.SizeOf(this));
             }
 
-            public Int32 cbSize;
-            public Int32 flags;
-            public IntPtr hwndActive;
-            public IntPtr hwndFocus;
-            public IntPtr hwndCapture;
-            public IntPtr hwndMenuOwner;
-            public IntPtr hwndMoveSize;
-            public IntPtr hwndCaret;
-            public RECT rcCaret;
+            internal int cbSize;
+            internal int flags;
+            internal IntPtr hwndActive;
+            internal IntPtr hwndFocus;
+            internal IntPtr hwndCapture;
+            internal IntPtr hwndMenuOwner;
+            internal IntPtr hwndMoveSize;
+            internal IntPtr hwndCaret;
+            internal RECT rcCaret;
         }
 
         #endregion

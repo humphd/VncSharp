@@ -15,7 +15,6 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
 using System.IO;
 
 namespace VncSharp.Encodings
@@ -31,13 +30,13 @@ namespace VncSharp.Encodings
 	
 		public override int ReadPixel()
 		{
-			byte[] b = reader.ReadBytes(2);
+			var b = reader.ReadBytes(2);
 
-            ushort pixel = (ushort)(((uint)b[0]) & 0xFF | ((uint)b[1]) << 8);
+            var pixel = (ushort)((uint)b[0] & 0xFF | (uint)b[1] << 8);
 
-			byte red = (byte)(((pixel >> framebuffer.RedShift) & framebuffer.RedMax) * 255 / framebuffer.RedMax);
-			byte green = (byte)(((pixel >> framebuffer.GreenShift) & framebuffer.GreenMax) * 255 / framebuffer.GreenMax);
-			byte blue = (byte)(((pixel >> framebuffer.BlueShift) & framebuffer.BlueMax) * 255 / framebuffer.BlueMax);
+			var red = (byte)(((pixel >> framebuffer.RedShift) & framebuffer.RedMax) * 255 / framebuffer.RedMax);
+			var green = (byte)(((pixel >> framebuffer.GreenShift) & framebuffer.GreenMax) * 255 / framebuffer.GreenMax);
+			var blue = (byte)(((pixel >> framebuffer.BlueShift) & framebuffer.BlueMax) * 255 / framebuffer.BlueMax);
 
 			return ToGdiPlusOrder(red, green, blue);			
 		}

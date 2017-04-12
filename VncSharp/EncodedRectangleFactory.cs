@@ -15,7 +15,7 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
+using System.Diagnostics;
 using System.Drawing;
 using VncSharp.Encodings;
 
@@ -26,8 +26,8 @@ namespace VncSharp
 	/// </summary>
 	public class EncodedRectangleFactory
 	{
-		RfbProtocol rfb;
-		Framebuffer framebuffer;
+	    private RfbProtocol rfb;
+	    private Framebuffer framebuffer;
 		
 		/// <summary>
 		/// Creates an instance of the EncodedRectangleFactory using the connected RfbProtocol object and associated Framebuffer object.
@@ -36,8 +36,8 @@ namespace VncSharp
 		/// <param name="framebuffer">A Framebuffer object which will be used by any created EncodedRectangle objects in order to decode and draw rectangles locally.</param>
 		public EncodedRectangleFactory(RfbProtocol rfb, Framebuffer framebuffer)
 		{
-			System.Diagnostics.Debug.Assert(rfb != null, "RfbProtocol object must be non-null");
-			System.Diagnostics.Debug.Assert(framebuffer != null, "Framebuffer object must be non-null");
+			Debug.Assert(rfb != null, "RfbProtocol object must be non-null");
+			Debug.Assert(framebuffer != null, "Framebuffer object must be non-null");
 			
 			this.rfb = rfb;
 			this.framebuffer = framebuffer;
@@ -51,7 +51,7 @@ namespace VncSharp
 		/// <returns></returns>
 		public EncodedRectangle Build(Rectangle rectangle, int encoding)
 		{
-			EncodedRectangle e = null;
+			EncodedRectangle e;
 
 			switch (encoding) {
 				case RfbProtocol.RAW_ENCODING:
@@ -74,7 +74,7 @@ namespace VncSharp
 					break;
 				default:
 					// Sanity check
-					throw new VncProtocolException("Unsupported Encoding Format received: " + encoding.ToString() + ".");
+					throw new VncProtocolException("Unsupported Encoding Format received: " + encoding + ".");
 			}
 			return e;
 		}

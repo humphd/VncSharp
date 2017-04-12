@@ -22,7 +22,7 @@ namespace VncSharp
 {
 	public class VncProtocolException : ApplicationException
 	{
-		public VncProtocolException() : base()
+		public VncProtocolException()
 		{
 		}
 

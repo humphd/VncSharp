@@ -14,6 +14,7 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
 using System;
 using System.Drawing;
 
@@ -39,22 +40,22 @@ namespace VncSharp.Encodings
 		{
 			rfb.ZrleReader.DecodeStream();
 
-			for (int ty = 0; ty < rectangle.Height; ty += TILE_HEIGHT) {
-				int th = Math.Min(rectangle.Height - ty, TILE_HEIGHT);
+			for (var ty = 0; ty < rectangle.Height; ty += TILE_HEIGHT) {
+				var th = Math.Min(rectangle.Height - ty, TILE_HEIGHT);
 
-				for (int tx = 0; tx < rectangle.Width; tx += TILE_WIDTH) {
-					int tw = Math.Min(rectangle.Width - tx, TILE_WIDTH);
+				for (var tx = 0; tx < rectangle.Width; tx += TILE_WIDTH) {
+					var tw = Math.Min(rectangle.Width - tx, TILE_WIDTH);
 
-					byte subencoding = rfb.ZrleReader.ReadByte();
+					var subencoding = rfb.ZrleReader.ReadByte();
 
-					if ((subencoding >= 17 && subencoding <= 127) || subencoding == 129)
+					if (subencoding >= 17 && subencoding <= 127 || subencoding == 129)
 						throw new Exception("Invalid subencoding value");
 
-					bool isRLE = (subencoding & 128) != 0;
-					int paletteSize = subencoding & 127;
+					var isRLE = (subencoding & 128) != 0;
+					var paletteSize = subencoding & 127;
 
 					// Fill palette
-					for (int i = 0; i < paletteSize; i++)
+					for (var i = 0; i < paletteSize; i++)
 						palette[i] = preader.ReadPixel();
 
 					if (paletteSize == 1) {
@@ -89,14 +90,14 @@ namespace VncSharp.Encodings
 		
 		private void ReadZrlePackedPixels(int tw, int th, int[] palette, int palSize, int[] tile)
 		{
-			int bppp = ((palSize > 16) ? 8 :
-			  ((palSize > 4) ? 4 : ((palSize > 2) ? 2 : 1)));
-			int ptr = 0;
+			var bppp = palSize > 16 ? 8 :
+			    (palSize > 4 ? 4 : (palSize > 2 ? 2 : 1));
+			var ptr = 0;
 
-			for (int i = 0; i < th; i++) {
-				int eol = ptr + tw;
-				int b = 0;
-				int nbits = 0;
+			for (var i = 0; i < th; i++) {
+				var eol = ptr + tw;
+				var b = 0;
+				var nbits = 0;
 
 				while (ptr < eol) {
 					if (nbits == 0)	{
@@ -104,7 +105,7 @@ namespace VncSharp.Encodings
 						nbits = 8;
 					}
 					nbits -= bppp;
-					int index = (b >> nbits) & ((1 << bppp) - 1) & 127;
+					var index = (b >> nbits) & ((1 << bppp) - 1) & 127;
 					tile[ptr++] = palette[index];
 				}
 			}
@@ -112,11 +113,11 @@ namespace VncSharp.Encodings
 
 		private void ReadZrlePlainRLEPixels(int tw, int th, int[] tileBuffer)
 		{
-			int ptr = 0;
-			int end = ptr + tw * th;
+			var ptr = 0;
+			var end = ptr + tw * th;
 			while (ptr < end) {
-				int pix = preader.ReadPixel();
-				int len = 1;
+				var pix = preader.ReadPixel();
+				var len = 1;
 				int b;
 				do {
 					b = rfb.ZrleReader.ReadByte();
@@ -129,11 +130,11 @@ namespace VncSharp.Encodings
 
 		private void ReadZrlePackedRLEPixels(int tx, int ty, int tw, int th, int[] palette, int[] tile)
 		{
-			int ptr = 0;
-			int end = ptr + tw * th;
+			var ptr = 0;
+			var end = ptr + tw * th;
 			while (ptr < end) {
 				int index = rfb.ZrleReader.ReadByte();
-				int len = 1;
+				var len = 1;
 				if ((index & 128) != 0) {
 					int b;
 					do {

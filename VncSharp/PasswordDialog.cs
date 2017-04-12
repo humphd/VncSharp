@@ -15,11 +15,9 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Drawing;
-using System.Collections;
 using System.ComponentModel;
 using System.Windows.Forms;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -28,11 +26,11 @@ namespace VncSharp
 	/// </summary>
 	public class PasswordDialog : Form
 	{
-		Button btnOk;
-		Button btnCancel;
-		TextBox txtPassword;
+	    private Button btnOk;
+	    private Button btnCancel;
+	    private TextBox txtPassword;
 
-		Container components = null;
+	    private Container components = null;
 
 		private PasswordDialog()
 		{
@@ -42,20 +40,16 @@ namespace VncSharp
 		/// <summary>
 		/// Gets the Password entered by the user.
 		/// </summary>
-		public string Password {
-			get {
-				return txtPassword.Text;
-			}
+		public string Password
+		{
+		    get { return txtPassword.Text; }
 		}
 
-		protected override void Dispose( bool disposing )
+	    protected override void Dispose( bool disposing )
 		{
 			if( disposing )
 			{
-				if(components != null)
-				{
-					components.Dispose();
-				}
+			    components?.Dispose();
 			}
 			base.Dispose( disposing );
 		}
@@ -127,13 +121,10 @@ namespace VncSharp
 		/// <returns>Returns the user's password as entered, or null if he/she clicked Cancel.</returns>
 		public static string GetPassword()
 		{
-			using(PasswordDialog dialog = new PasswordDialog()) {
-				if (dialog.ShowDialog() == DialogResult.OK) {
-					return dialog.Password;
-				} else {
-					// If the user clicks Cancel, return null and not the empty string.
-					return null;
-				}
+			using(var dialog = new PasswordDialog())
+			{
+                // If the user clicks Cancel, return null and not the empty string.
+                return dialog.ShowDialog() == DialogResult.OK ? dialog.Password : null;
 			}
 		}
 	}

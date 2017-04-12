@@ -14,9 +14,8 @@
 // You should have received a copy of the GNU General Public License
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-using System;
+
 using System.Drawing;
-using System.Drawing.Imaging;
 
 namespace VncSharp.Encodings
 {
@@ -43,13 +42,13 @@ namespace VncSharp.Encodings
 			int sy;
 			int sw;
 			int sh;
-			int numSubrects = 0;
+			var numSubrects = 0;
 			int xANDy;
 			int widthANDheight;
 
 			// Colour values to be used--black by default.
-			int backgroundPixelValue = 0;
-			int foregroundPixelValue = 0;
+			var backgroundPixelValue = 0;
+			var foregroundPixelValue = 0;
 			
 			// NOTE: the way that this is set-up, a Rectangle can be anywhere within the bounds
 			// of the framebuffer (i.e., its x and y may not be (0,0)).  However, I ignore this
@@ -57,20 +56,20 @@ namespace VncSharp.Encodings
 			// When the rectangle is drawn to the desktop later, its (x,y) position will become
 			// significant again.  All of this to say that in the two main loops below, ty=0 and
 			// tx=0, and all calculations are based on a (0,0) origin.
-			for (int ty = 0; ty < rectangle.Height; ty += 16) {			
+			for (var ty = 0; ty < rectangle.Height; ty += 16) {			
 				// Tiles in the last row will often be less than 16 pixels high.
 				// All others will be 16 high.
-				int th = (rectangle.Height - ty < 16) ? rectangle.Height - ty : 16;
+				var th = rectangle.Height - ty < 16 ? rectangle.Height - ty : 16;
 
-				for (int tx = 0; tx < rectangle.Width; tx += 16) {				
+				for (var tx = 0; tx < rectangle.Width; tx += 16) {				
 					// Tiles in the list column will often be less than 16 pixels wide.
 					// All others will be 16 wide.
-					int tw = (rectangle.Width - tx < 16) ? rectangle.Width - tx : 16;
+					var tw = rectangle.Width - tx < 16 ? rectangle.Width - tx : 16;
 
-					int tlStart = ty * rectangle.Width + tx;
-					int tlOffset = rectangle.Width - tw;
+					var tlStart = ty * rectangle.Width + tx;
+					var tlOffset = rectangle.Width - tw;
 
-					byte subencoding = rfb.ReadByte();
+					var subencoding = rfb.ReadByte();
 
 					// See if Raw bit is set in subencoding, and if so, ignore all other bits
 					if ((subencoding & RAW) != 0) {
@@ -91,7 +90,7 @@ namespace VncSharp.Encodings
 							// Get the number of sub-rectangles in this tile
 							numSubrects = rfb.ReadByte();
 
-							for (int i = 0; i < numSubrects; i++) {
+							for (var i = 0; i < numSubrects; i++) {
 								if ((subencoding & SUBRECTS_COLOURED) != 0) {
 									foregroundPixelValue = preader.ReadPixel();	// colour of this sub rectangle
 								}

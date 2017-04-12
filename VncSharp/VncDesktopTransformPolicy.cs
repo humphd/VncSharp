@@ -15,9 +15,8 @@
 // along with this program; if not, write to the Free Software
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-using System;
-using System.Windows.Forms;
 using System.Drawing;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -38,13 +37,10 @@ namespace VncSharp
 
         public virtual bool AutoScroll
         {
-            get
-            {
-                return false;
-            }
+            get { return false; }
         }
 
-        public abstract Size AutoScrollMinSize { get; }
+	    public abstract Size AutoScrollMinSize { get; }
 
         public abstract Rectangle AdjustUpdateRectangle(Rectangle updateRectangle);
 

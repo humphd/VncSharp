@@ -1,8 +1,7 @@
+using System.IO;
+using System.Text;
 
-using System;
-
-
-namespace ComponentAce.Compression.Libs.zlib
+namespace VncSharp.zlib.NET
 {
 	public class SupportClass
 	{
@@ -55,10 +54,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <returns>The resulting number from the shift operation</returns>
 		public static int URShift(int number, int bits)
 		{
-			if ( number >= 0)
+		    if ( number >= 0)
 				return number >> bits;
-			else
-				return (number >> bits) + (2 << ~bits);
+		    return (number >> bits) + (2 << ~bits);
 		}
 
 		/// <summary>
@@ -80,10 +78,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <returns>The resulting number from the shift operation</returns>
 		public static long URShift(long number, int bits)
 		{
-			if ( number >= 0)
+		    if ( number >= 0)
 				return number >> bits;
-			else
-				return (number >> bits) + (2L << ~bits);
+		    return (number >> bits) + (2L << ~bits);
 		}
 
 		/// <summary>
@@ -104,21 +101,21 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source Stream.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source Stream. Returns -1 if the end of the stream is reached.</returns>
-		public static System.Int32 ReadInput(System.IO.Stream sourceStream, byte[] target, int start, int count)
+		public static int ReadInput(Stream sourceStream, byte[] target, int start, int count)
 		{
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0)
 				return 0;
 
-			byte[] receiver = new byte[target.Length];
-			int bytesRead   = sourceStream.Read(receiver, start, count);
+			var receiver = new byte[target.Length];
+			var bytesRead   = sourceStream.Read(receiver, start, count);
 
 			// Returns -1 if EOF
 			if (bytesRead == 0)	
 				return -1;
                 
-			for(int i = start; i < start + bytesRead; i++)
-				target[i] = (byte)receiver[i];
+			for(var i = start; i < start + bytesRead; i++)
+				target[i] = receiver[i];
                 
 			return bytesRead;
 		}
@@ -129,18 +126,18 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <param name="start">The starting index of the target array.</param>
 		/// <param name="count">The maximum number of characters to read from the source TextReader.</param>
 		/// <returns>The number of characters read. The number will be less than or equal to count depending on the data available in the source TextReader. Returns -1 if the end of the stream is reached.</returns>
-		public static System.Int32 ReadInput(System.IO.TextReader sourceTextReader, byte[] target, int start, int count)
+		public static int ReadInput(TextReader sourceTextReader, byte[] target, int start, int count)
 		{
 			// Returns 0 bytes if not enough space in target
 			if (target.Length == 0) return 0;
 
-			char[] charArray = new char[target.Length];
-			int bytesRead = sourceTextReader.Read(charArray, start, count);
+			var charArray = new char[target.Length];
+			var bytesRead = sourceTextReader.Read(charArray, start, count);
 
 			// Returns -1 if EOF
 			if (bytesRead == 0) return -1;
 
-			for(int index=start; index<start+bytesRead; index++)
+			for(var index=start; index<start+bytesRead; index++)
 				target[index] = (byte)charArray[index];
 
 			return bytesRead;
@@ -151,9 +148,9 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// </summary>
 		/// <param name="sourceString">The string to be converted</param>
 		/// <returns>The new array of bytes</returns>
-		public static byte[] ToByteArray(System.String sourceString)
+		public static byte[] ToByteArray(string sourceString)
 		{
-			return System.Text.UTF8Encoding.UTF8.GetBytes(sourceString);
+			return Encoding.UTF8.GetBytes(sourceString);
 		}
 
 		/// <summary>
@@ -163,7 +160,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		/// <returns>The new array of chars</returns>
 		public static char[] ToCharArray(byte[] byteArray) 
 		{
-			return System.Text.UTF8Encoding.UTF8.GetChars(byteArray);
+			return Encoding.UTF8.GetChars(byteArray);
 		}
 
 

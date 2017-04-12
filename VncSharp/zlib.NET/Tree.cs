@@ -41,19 +41,20 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
+
 using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
-	
-	sealed class Tree
+    internal sealed class Tree
 	{
 		private const int MAX_BITS = 15;
 		private const int BL_CODES = 19;
 		private const int D_CODES = 30;
 		private const int LITERALS = 256;
 		private const int LENGTH_CODES = 29;		
-		private static readonly int L_CODES = (LITERALS + 1 + LENGTH_CODES);		
-		private static readonly int HEAP_SIZE = (2 * L_CODES + 1);
+		private static readonly int L_CODES = LITERALS + 1 + LENGTH_CODES;		
+		private static readonly int HEAP_SIZE = 2 * L_CODES + 1;
 		
 		// Bit length codes must not exceed MAX_BL_BITS bits
 		internal const int MAX_BL_BITS = 7;
@@ -71,15 +72,15 @@ namespace ComponentAce.Compression.Libs.zlib
 		internal const int REPZ_11_138 = 18;
 		
 		// extra bits for each length code		
-		internal static readonly int[] extra_lbits = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0};
+		internal static readonly int[] extra_lbits = {0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0};
 		
 		// extra bits for each distance code		
-		internal static readonly int[] extra_dbits = new int[]{0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
+		internal static readonly int[] extra_dbits = {0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 13, 13};
 		
 		// extra bits for each bit length code		
-		internal static readonly int[] extra_blbits = new int[]{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7};
+		internal static readonly int[] extra_blbits = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 3, 7};
 				
-		internal static readonly byte[] bl_order = new byte[]{16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
+		internal static readonly byte[] bl_order = {16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15};
 		
 		
 		// The lengths of the bit length codes are sent in order of decreasing
@@ -91,21 +92,21 @@ namespace ComponentAce.Compression.Libs.zlib
 		// see definition of array dist_code below
 		internal const int DIST_CODE_LEN = 512;
 				
-		internal static readonly byte[] _dist_code = new byte[]{0, 1, 2, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 16, 17, 18, 18, 19, 19, 20, 20, 20, 20, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 
+		internal static readonly byte[] _dist_code = {0, 1, 2, 3, 4, 4, 5, 5, 6, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8, 9, 9, 9, 9, 9, 9, 9, 9, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 11, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 12, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 13, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 14, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 15, 0, 0, 16, 17, 18, 18, 19, 19, 20, 20, 20, 20, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 28, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 29, 
 			29, 29, 29, 29, 29, 29, 29, 29, 29};
 		
-		internal static readonly byte[] _length_code = new byte[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28};
+		internal static readonly byte[] _length_code = {0, 1, 2, 3, 4, 5, 6, 7, 8, 8, 9, 9, 10, 10, 11, 11, 12, 12, 12, 12, 13, 13, 13, 13, 14, 14, 14, 14, 15, 15, 15, 15, 16, 16, 16, 16, 16, 16, 16, 16, 17, 17, 17, 17, 17, 17, 17, 17, 18, 18, 18, 18, 18, 18, 18, 18, 19, 19, 19, 19, 19, 19, 19, 19, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 22, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 23, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 24, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 25, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 26, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 28};
 		
-		internal static readonly int[] base_length = new int[]{0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 0};
+		internal static readonly int[] base_length = {0, 1, 2, 3, 4, 5, 6, 7, 8, 10, 12, 14, 16, 20, 24, 28, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 0};
 				
-		internal static readonly int[] base_dist = new int[]{0, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096, 6144, 8192, 12288, 16384, 24576};
+		internal static readonly int[] base_dist = {0, 1, 2, 3, 4, 6, 8, 12, 16, 24, 32, 48, 64, 96, 128, 192, 256, 384, 512, 768, 1024, 1536, 2048, 3072, 4096, 6144, 8192, 12288, 16384, 24576};
 		
 		// Mapping from a distance to a distance code. dist is the distance - 1 and
 		// must not have side effects. _dist_code[256] and _dist_code[257] are never
 		// used.
 		internal static int d_code(int dist)
 		{
-			return ((dist) < 256?_dist_code[dist]:_dist_code[256 + (SupportClass.URShift((dist), 7))]);
+			return dist < 256?_dist_code[dist]:_dist_code[256 + SupportClass.URShift(dist, 7)];
 		}
 		
 		internal short[] dyn_tree; // the dynamic tree
@@ -122,17 +123,17 @@ namespace ComponentAce.Compression.Libs.zlib
 		//     not null.
 		internal void  gen_bitlen(Deflate s)
 		{
-			short[] tree = dyn_tree;
-			short[] stree = stat_desc.static_tree;
-			int[] extra = stat_desc.extra_bits;
-			int base_Renamed = stat_desc.extra_base;
-			int max_length = stat_desc.max_length;
+			var tree = dyn_tree;
+			var stree = stat_desc.static_tree;
+			var extra = stat_desc.extra_bits;
+			var base_Renamed = stat_desc.extra_base;
+			var max_length = stat_desc.max_length;
 			int h; // heap index
 			int n, m; // iterate over the tree elements
 			int bits; // bit length
 			int xbits; // extra bits
 			short f; // frequency
-			int overflow = 0; // number of elements with bit length too large
+			var overflow = 0; // number of elements with bit length too large
 			
 			for (bits = 0; bits <= MAX_BITS; bits++)
 				s.bl_count[bits] = 0;
@@ -193,7 +194,7 @@ namespace ComponentAce.Compression.Libs.zlib
 						continue;
 					if (tree[m * 2 + 1] != bits)
 					{
-						s.opt_len = (int) (s.opt_len + ((long) bits - (long) tree[m * 2 + 1]) * (long) tree[m * 2]);
+						s.opt_len = (int) (s.opt_len + (bits - (long) tree[m * 2 + 1]) * tree[m * 2]);
 						tree[m * 2 + 1] = (short) bits;
 					}
 					n--;
@@ -209,11 +210,11 @@ namespace ComponentAce.Compression.Libs.zlib
 		//     also updated if stree is not null. The field max_code is set.
 		internal void  build_tree(Deflate s)
 		{
-			short[] tree = dyn_tree;
-			short[] stree = stat_desc.static_tree;
-			int elems = stat_desc.elems;
+			var tree = dyn_tree;
+			var stree = stat_desc.static_tree;
+			var elems = stat_desc.elems;
 			int n, m; // iterate over heap elements
-			int max_code = - 1; // largest code with non zero frequency
+			var max_code = - 1; // largest code with non zero frequency
 			int node; // new node being created
 			
 			// Construct the initial heap, with least frequent element in
@@ -241,7 +242,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			// two codes of non zero frequency.
 			while (s.heap_len < 2)
 			{
-				node = s.heap[++s.heap_len] = (max_code < 2?++max_code:0);
+				node = s.heap[++s.heap_len] = max_code < 2?++max_code:0;
 				tree[node * 2] = 1;
 				s.depth[node] = 0;
 				s.opt_len--;
@@ -274,7 +275,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				
 				// Create a new node father of n and m
 				tree[node * 2] = (short) (tree[n * 2] + tree[m * 2]);
-				s.depth[node] = (byte) (System.Math.Max((byte) s.depth[n], (byte) s.depth[m]) + 1);
+				s.depth[node] = (byte) (Math.Max(s.depth[n], s.depth[m]) + 1);
 				tree[n * 2 + 1] = tree[m * 2 + 1] = (short) node;
 				
 				// and insert the new node in the heap
@@ -302,7 +303,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		//     zero code length.
 		internal static void  gen_codes(short[] tree, int max_code, short[] bl_count)
 		{
-			short[] next_code = new short[MAX_BITS + 1]; // next code value for each bit length
+			var next_code = new short[MAX_BITS + 1]; // next code value for each bit length
 			short code = 0; // running code value
 			int bits; // bit index
 			int n; // code index
@@ -326,7 +327,7 @@ namespace ComponentAce.Compression.Libs.zlib
 				if (len == 0)
 					continue;
 				// Now reverse the bits
-				tree[n * 2] = (short) (bi_reverse(next_code[len]++, len));
+				tree[n * 2] = (short) bi_reverse(next_code[len]++, len);
 			}
 		}
 		
@@ -335,7 +336,7 @@ namespace ComponentAce.Compression.Libs.zlib
 		// IN assertion: 1 <= len <= 15
 		internal static int bi_reverse(int code, int len)
 		{
-			int res = 0;
+			var res = 0;
 			do 
 			{
 				res |= code & 1;

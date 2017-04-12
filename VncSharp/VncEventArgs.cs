@@ -21,20 +21,14 @@ namespace VncSharp
 {
 	public class VncEventArgs : EventArgs
 	{
-		IDesktopUpdater updater;
-		
-		public VncEventArgs(IDesktopUpdater updater) : base()
+	    public VncEventArgs(IDesktopUpdater updater)
 		{
-			this.updater = updater;
+			DesktopUpdater = updater;
 		}
 		
 		/// <summary>
 		/// Gets the IDesktopUpdater object that will handling re-drawing the desktop.
 		/// </summary>
-		public IDesktopUpdater DesktopUpdater {
-			get { 
-				return updater; 
-			}
-		}
+		public IDesktopUpdater DesktopUpdater { get; }
 	}
 }

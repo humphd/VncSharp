@@ -41,11 +41,10 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 * Jean-loup Gailly(jloup@gzip.org) and Mark Adler(madler@alumni.caltech.edu)
 * and contributors of zlib.
 */
-using System;
-namespace ComponentAce.Compression.Libs.zlib
+
+namespace VncSharp.zlib.NET
 {
-	
-	sealed class Inflate
+    internal sealed class Inflate
 	{
 		
 		private const int MAX_WBITS = 15; // 32K LZ77 window
@@ -197,9 +196,9 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						b = (z.next_in[z.next_in_index++]) & 0xff;
+						b = z.next_in[z.next_in_index++] & 0xff;
 						
-						if ((((z.istate.method << 8) + b) % 31) != 0)
+						if (((z.istate.method << 8) + b) % 31 != 0)
 						{
 							z.istate.mode = BAD;
 							z.msg = "incorrect header check";
@@ -231,7 +230,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L;
 						z.istate.mode = DICT2;
 						goto case DICT2;
 					
@@ -241,7 +240,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L;
 						z.istate.mode = DICT1;
 						goto case DICT1;
 					
@@ -251,7 +250,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (z.next_in[z.next_in_index++] & 0xffL);
+						z.istate.need += z.next_in[z.next_in_index++] & 0xffL;
 						z.adler = z.istate.need;
 						z.istate.mode = DICT0;
 						return Z_NEED_DICT;
@@ -305,7 +304,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 16) & 0xff0000L;
 						z.istate.mode = CHECK2;
 						goto case CHECK2;
 					
@@ -315,7 +314,7 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L);
+						z.istate.need += ((z.next_in[z.next_in_index++] & 0xff) << 8) & 0xff00L;
 						z.istate.mode = CHECK1;
 						goto case CHECK1;
 					
@@ -325,9 +324,9 @@ namespace ComponentAce.Compression.Libs.zlib
 							return r; r = f;
 						
 						z.avail_in--; z.total_in++;
-						z.istate.need += (z.next_in[z.next_in_index++] & 0xffL);
+						z.istate.need += z.next_in[z.next_in_index++] & 0xffL;
 						
-						if (((int) (z.istate.was[0])) != ((int) (z.istate.need)))
+						if ((int) z.istate.was[0] != (int) z.istate.need)
 						{
 							z.istate.mode = BAD;
 							z.msg = "incorrect data check";
@@ -354,8 +353,8 @@ namespace ComponentAce.Compression.Libs.zlib
 		
 		internal int inflateSetDictionary(ZStream z, byte[] dictionary, int dictLength)
 		{
-			int index = 0;
-			int length = dictLength;
+			var index = 0;
+			var length = dictLength;
 			if (z == null || z.istate == null || z.istate.mode != DICT0)
 				return Z_STREAM_ERROR;
 			
@@ -366,7 +365,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			
 			z.adler = z._adler.adler32(0, null, 0, 0);
 			
-			if (length >= (1 << z.istate.wbits))
+			if (length >= 1 << z.istate.wbits)
 			{
 				length = (1 << z.istate.wbits) - 1;
 				index = dictLength - length;
@@ -376,7 +375,7 @@ namespace ComponentAce.Compression.Libs.zlib
 			return Z_OK;
 		}
 		
-		private static byte[] mark = new byte[]{(byte) 0, (byte) 0, (byte) SupportClass.Identity(0xff), (byte) SupportClass.Identity(0xff)};
+		private static byte[] mark = {0, 0, (byte) SupportClass.Identity(0xff), (byte) SupportClass.Identity(0xff)};
 		
 		internal int inflateSync(ZStream z)
 		{
