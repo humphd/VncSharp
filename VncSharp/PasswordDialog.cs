@@ -39,13 +39,9 @@ namespace VncSharp
 		/// <summary>
 		/// Gets the Password entered by the user.
 		/// </summary>
-		public string Password {
-			get {
-				return txtPassword.Text;
-			}
-		}
+		public string Password => txtPassword.Text;
 
-		protected override void Dispose( bool disposing )
+	    protected override void Dispose( bool disposing )
 		{
 			if( disposing )
 			{
