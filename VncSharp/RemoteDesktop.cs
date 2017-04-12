@@ -141,11 +141,14 @@ namespace VncSharp
         // ReSharper disable once MemberCanBePrivate.Global
         public int VncPort
         {
-            get { return port; }
+            get => port;
             set
             {
                 // Ignore attempts to use invalid port numbers
-                // TODO: This set is currently not used. However, I believe that this should be "||" not "|"
+                /* TODO: This set is currently not used in VncSharp itself.
+                 * It may or may not be used in consuming applications...
+                 * However, I believe that this should be "||" not "|"
+                 * */
                 if ((value < 1) | (value > 65535)) value = 5900;
                 port = value;
             }
@@ -416,8 +419,8 @@ namespace VncSharp
         /// </summary>
         public bool ViewOnly
         {
-            get { return vnc.IsViewOnly; }
-            set { SetInputMode(value); }
+            get => vnc.IsViewOnly;
+            set => SetInputMode(value);
         }
 
         /// <summary>
@@ -444,8 +447,8 @@ namespace VncSharp
         /// </summary>
         public bool Scaled
         {
-            get { return desktopPolicy is VncScaledDesktopPolicy; }
-            set { SetScalingMode(value); }
+            get => desktopPolicy is VncScaledDesktopPolicy;
+            set => SetScalingMode(value);
         }
 
         /// <summary>
