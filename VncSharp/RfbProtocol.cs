@@ -23,6 +23,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading;
 using VncSharp.zlib.NET;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -121,7 +122,10 @@ namespace VncSharp
 	    /// <summary>
 		/// Gets the Protocol Version of the remote VNC Host--probably 3.3, 3.7, or 3.8.
 		/// </summary>
-		public float ServerVersion => verMajor + verMinor * 0.1f;
+		public float ServerVersion
+	    {
+	        get { return verMajor + verMinor * 0.1f; }
+	    }
 
 	    /// <summary>
 		/// Gets or sets the proxy identifier to be send when using UltraVNC's repeater functionality

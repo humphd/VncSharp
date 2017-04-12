@@ -24,6 +24,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 // ReSharper disable CompareOfFloatsByEqualityOperator
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -59,12 +60,18 @@ namespace VncSharp
 	    /// <summary>
         /// Gets the hostname of the remote desktop
         /// </summary>
-        public string HostName => Framebuffer.DesktopName;
+        public string HostName
+	    {
+	        get { return Framebuffer.DesktopName; }
+	    }
 
 	    /// <summary>
 		/// Returns True if the VncClient object is View-Only, meaning no mouse/keyboard events are being sent.
 		/// </summary>
-		public bool IsViewOnly => inputPolicy is VncViewInputPolicy;
+		public bool IsViewOnly
+	    {
+	        get { return inputPolicy is VncViewInputPolicy; }
+	    }
 
 	    // Just for API compat, since I've added viewOnly
 		public bool Connect(string host, int display, int port)

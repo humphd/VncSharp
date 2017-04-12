@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System.Drawing;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -30,9 +31,20 @@ namespace VncSharp
         {
         }
 
-        public override bool AutoScroll => true;
+        public override bool AutoScroll
+        {
+            get { return true; }
+        }
 
-	    public override Size AutoScrollMinSize => vnc?.Framebuffer != null ? new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height) : new Size(100, 100);
+	    public override Size AutoScrollMinSize
+	    {
+	        get
+	        {
+	            return vnc?.Framebuffer != null
+	                ? new Size(vnc.Framebuffer.Width, vnc.Framebuffer.Height)
+	                : new Size(100, 100);
+	        }
+	    }
 
 	    public override Point UpdateRemotePointer(Point current)
         {

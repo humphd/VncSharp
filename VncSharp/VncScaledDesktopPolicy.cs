@@ -17,6 +17,7 @@
 
 using System;
 using System.Drawing;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -30,7 +31,10 @@ namespace VncSharp
         {
         }
 
-        public override Size AutoScrollMinSize => new Size(100, 100);
+        public override Size AutoScrollMinSize
+        {
+            get { return new Size(100, 100); }
+        }
 
 	    public override Rectangle AdjustUpdateRectangle(Rectangle updateRectangle)
         {

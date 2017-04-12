@@ -16,6 +16,7 @@
 // Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 using System.Drawing;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -34,7 +35,10 @@ namespace VncSharp
             this.remoteDesktop = remoteDesktop;
         }
 
-        public virtual bool AutoScroll => false;
+        public virtual bool AutoScroll
+        {
+            get { return false; }
+        }
 
 	    public abstract Size AutoScrollMinSize { get; }
 

@@ -17,6 +17,7 @@
 
 using System.ComponentModel;
 using System.Windows.Forms;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 namespace VncSharp
 {
@@ -39,7 +40,10 @@ namespace VncSharp
 		/// <summary>
 		/// Gets the Password entered by the user.
 		/// </summary>
-		public string Password => txtPassword.Text;
+		public string Password
+		{
+		    get { return txtPassword.Text; }
+		}
 
 	    protected override void Dispose( bool disposing )
 		{

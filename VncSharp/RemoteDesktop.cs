@@ -28,6 +28,7 @@ using System.Security.Permissions;
 using System.Windows.Forms;
 using static System.Diagnostics.Debug;
 using static System.Reflection.Assembly;
+// ReSharper disable ArrangeAccessorOwnerBody
 
 // ReSharper disable PossibleLossOfFraction
 #pragma warning disable 1587, 1584, 1711, 1572, 1581, 1580
@@ -141,7 +142,7 @@ namespace VncSharp
         // ReSharper disable once MemberCanBePrivate.Global
         public int VncPort
         {
-            get => port;
+            get { return port; }
             set
             {
                 // Ignore attempts to use invalid port numbers
@@ -154,7 +155,10 @@ namespace VncSharp
         /// True if the RemoteDesktop is connected and authenticated (if necessary) with a remote VNC Host; otherwise False.
         /// </summary>
         // ReSharper disable once MemberCanBePrivate.Global
-        public bool IsConnected => state == RuntimeState.Connected;
+        public bool IsConnected
+        {
+            get { return state == RuntimeState.Connected; }
+        }
 
         // This is a hack to get around the issue of DesignMode returning
         // false when the control is being removed from a form at design time.
@@ -184,18 +188,27 @@ namespace VncSharp
         /// <summary>
         /// Returns a more appropriate default size for initial drawing of the control at design time
         /// </summary>
-        protected override Size DefaultSize => new Size(400, 200);
+        protected override Size DefaultSize
+        {
+            get { return new Size(400, 200); }
+        }
 
         [Description("The name of the remote desktop.")]
         /// <summary>
         /// The name of the remote desktop, or "Disconnected" if not connected.
         /// </summary>
-        public string Hostname => vnc == null ? "Disconnected" : vnc.HostName;
+        public string Hostname
+        {
+            get { return vnc == null ? "Disconnected" : vnc.HostName; }
+        }
 
         /// <summary>
         /// The image of the remote desktop.
         /// </summary>
-        public Image Desktop => desktop;
+        public Image Desktop
+        {
+            get { return desktop; }
+        }
 
         /// <summary>
         /// Get a complete update of the entire screen from the remote host.
@@ -415,8 +428,8 @@ namespace VncSharp
         /// </summary>
         public bool ViewOnly
         {
-            get => vnc.IsViewOnly;
-            set => SetInputMode(value);
+            get { return vnc.IsViewOnly; }
+            set { SetInputMode(value); }
         }
 
         /// <summary>
@@ -443,8 +456,8 @@ namespace VncSharp
         /// </summary>
         public bool Scaled
         {
-            get => desktopPolicy is VncScaledDesktopPolicy;
-            set => SetScalingMode(value);
+            get { return desktopPolicy is VncScaledDesktopPolicy; }
+            set { SetScalingMode(value); }
         }
 
         /// <summary>
