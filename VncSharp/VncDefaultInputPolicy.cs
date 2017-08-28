@@ -21,7 +21,7 @@ using System.Drawing;
 namespace VncSharp
 {
 	/// <summary>
-	/// A view-only version of IVncInputPolicy.
+	/// An interaction enabled version of IVncInputPolicy.
 	/// </summary>
 	public sealed class VncDefaultInputPolicy : IVncInputPolicy
 	{
