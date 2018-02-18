@@ -658,7 +658,6 @@ namespace VncSharp
                 switch (state)
                 {
                     case RuntimeState.Connected:
-                        // Assert(desktop != null);
                         if (desktop != null)
                             DrawDesktopImage(desktop, pe.Graphics);
                         break;
@@ -676,7 +675,6 @@ namespace VncSharp
             else
             {
                 // Draw a static screenshot of a Windows desktop to simulate the control in action
-                // Assert(designModeDesktop != null);
                 if (designModeDesktop != null)
                     DrawDesktopImage(designModeDesktop, pe.Graphics);
             }

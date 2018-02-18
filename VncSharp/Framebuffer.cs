@@ -263,9 +263,10 @@ namespace VncSharp
                 buffer.GreenShift       = b[11];
                 buffer.BlueShift        = b[12];
             }
-            // Last 3 bytes are padding, ignore									
 
-            return buffer;
-        }
+		    // Last 3 bytes are padding, ignore									
+
+			return buffer;
+		}
 	}
 }

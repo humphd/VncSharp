@@ -193,30 +193,30 @@ namespace VncSharp
             for (int x = 0; x < 12; x++)
                 s += $"{Convert.ToChar(b[x])} ";
 
-            // As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
-            if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
+			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
+			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
 			{
 				verMajor = 0;
 				verMinor = 0;
 			}
 			// Added support for RealVNC 4.001 (Linux VNC Server) - Supports 3.8 Protocol
-            else if (b[0] == 82 &&   // R
-                     b[1] == 70 &&   // F
-                     b[2] == 66 &&   // B
-                     b[3] == 32 &&   // (space)
-                     b[4] == 48 &&   // 0
-                     b[5] == 48 &&   // 0
-                     b[6] == 52 &&   // 4
-                     b[7] == 46 &&   // .
-                     b[8] == 48 &&   // 0
-                     b[9] == 48 &&   // 0
-                     b[10] == 49 &&  // 1
-                     b[11] == 10)    // \n
-            {
-                verMajor = 3;
-                verMinor = 8;
-            }
-            else if ( 
+			else if (b[0] == 82 &&   // R
+					 b[1] == 70 &&   // F
+					 b[2] == 66 &&   // B
+					 b[3] == 32 &&   // (space)
+					 b[4] == 48 &&   // 0
+					 b[5] == 48 &&   // 0
+					 b[6] == 52 &&   // 4
+					 b[7] == 46 &&   // .
+					 b[8] == 48 &&   // 0
+					 b[9] == 48 &&   // 0
+					 b[10] == 49 &&  // 1
+					 b[11] == 10)    // \n
+			{
+				verMajor = 3;
+				verMinor = 8;
+			}
+			else if ( 
 				b[0]  == 0x52 &&					 // R
 				b[1]  == 0x46 &&					 // F
 				b[2]  == 0x42 &&					 // B
@@ -263,8 +263,8 @@ namespace VncSharp
 						break;
 				}
 			} else {
-                throw new NotSupportedException($"Only versions 3.3, 3.7, and 3.8 of the RFB Protocol are supported.\r\n{a}\r\n{s}");
-            }
+				throw new NotSupportedException($"Only versions 3.3, 3.7, and 3.8 of the RFB Protocol are supported.\r\n{a}\r\n{s}");
+			}
 		}
 
 		/// <summary>
