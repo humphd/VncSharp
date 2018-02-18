@@ -199,18 +199,19 @@ namespace VncSharp
 				verMajor = 0;
 				verMinor = 0;
 			}
-            else if (b[0] == 82 &&
-                     b[1] == 70 &&
-                     b[2] == 66 &&
-                     b[3] == 32 &&
-                     b[4] == 48 &&
-                     b[5] == 48 &&
-                     b[6] == 52 &&
-                     b[7] == 46 &&
-                     b[8] == 48 &&
-                     b[9] == 48 &&
-                     b[10] == 49 &&
-                     b[11] == 10)
+			// Added support for RealVNC 4.001 (Linux VNC Server) - Supports 3.8 Protocol
+            else if (b[0] == 82 &&   // R
+                     b[1] == 70 &&   // F
+                     b[2] == 66 &&   // B
+                     b[3] == 32 &&   // (space)
+                     b[4] == 48 &&   // 0
+                     b[5] == 48 &&   // 0
+                     b[6] == 52 &&   // 4
+                     b[7] == 46 &&   // .
+                     b[8] == 48 &&   // 0
+                     b[9] == 48 &&   // 0
+                     b[10] == 49 &&  // 1
+                     b[11] == 10)    // \n
             {
                 verMajor = 3;
                 verMinor = 8;
