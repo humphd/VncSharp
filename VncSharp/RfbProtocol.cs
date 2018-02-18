@@ -186,14 +186,36 @@ namespace VncSharp
 		public void ReadProtocolVersion()
 		{
 			var b = Reader.ReadBytes(12);
+            string a = "";
+            string s = "";
+            for (int x = 0; x < 12; x++)
+                a += $"{b[x]} ";
+            for (int x = 0; x < 12; x++)
+                s += $"{Convert.ToChar(b[x])} ";
 
-			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
-			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
+            // As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
+            if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
 			{
 				verMajor = 0;
 				verMinor = 0;
 			}
-			else if ( 
+            else if (b[0] == 82 &&
+                     b[1] == 70 &&
+                     b[2] == 66 &&
+                     b[3] == 32 &&
+                     b[4] == 48 &&
+                     b[5] == 48 &&
+                     b[6] == 52 &&
+                     b[7] == 46 &&
+                     b[8] == 48 &&
+                     b[9] == 48 &&
+                     b[10] == 49 &&
+                     b[11] == 10)
+            {
+                verMajor = 3;
+                verMinor = 8;
+            }
+            else if ( 
 				b[0]  == 0x52 &&					 // R
 				b[1]  == 0x46 &&					 // F
 				b[2]  == 0x42 &&					 // B
@@ -240,8 +262,8 @@ namespace VncSharp
 						break;
 				}
 			} else {
-				throw new NotSupportedException("Only versions 3.3, 3.7, and 3.8 of the RFB Protocol are supported.");
-			}
+                throw new NotSupportedException($"Only versions 3.3, 3.7, and 3.8 of the RFB Protocol are supported.\r\n{a}\r\n{s}");
+            }
 		}
 
 		/// <summary>
@@ -360,11 +382,11 @@ namespace VncSharp
 		/// Reads the server's Initialization message, specifically the remote Framebuffer's properties. See RFB Doc v. 3.8 section 6.1.5.
 		/// </summary>
 		/// <returns>Returns a Framebuffer object representing the geometry and properties of the remote host.</returns>
-		public Framebuffer ReadServerInit()
+		public Framebuffer ReadServerInit(int bitsPerPixel, int depth)
 		{
 			int w = Reader.ReadUInt16();
 			int h = Reader.ReadUInt16();
-			var buffer = Framebuffer.FromPixelFormat(Reader.ReadBytes(16), w, h);
+			var buffer = Framebuffer.FromPixelFormat(Reader.ReadBytes(16), w, h, bitsPerPixel, depth);
 			var length = (int) Reader.ReadUInt32();
 
 			buffer.DesktopName = GetString(Reader.ReadBytes(length));
