@@ -137,7 +137,7 @@ namespace VncSharp
 			        throw new VncProtocolException("Connection Failed. The server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
 			    }
 			    securityType = GetSupportedSecurityType(types);
-			    Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
+				Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
 						
 			    rfb.WriteSecurityType(securityType);
 						
@@ -283,10 +283,8 @@ namespace VncSharp
 		public void Initialize(int bitsPerPixel, int depth)
 		{
 			// Finish initializing protocol with host
-			rfb.WriteClientInitialisation(false);
+			rfb.WriteClientInitialisation(true);  // Allow the desktop to be shared
 			Framebuffer = rfb.ReadServerInit(bitsPerPixel, depth);
-
-			rfb.WriteSetPixelFormat(Framebuffer);	// just use the server's framebuffer format
 
 			rfb.WriteSetEncodings(new uint[] {	RfbProtocol.ZRLE_ENCODING,
 			                                    RfbProtocol.HEXTILE_ENCODING, 
@@ -294,7 +292,9 @@ namespace VncSharp
 												RfbProtocol.RRE_ENCODING,
 												RfbProtocol.COPYRECT_ENCODING,
 												RfbProtocol.RAW_ENCODING });
-			
+
+			rfb.WriteSetPixelFormat(Framebuffer);	// set the required ramebuffer format
+            
 			// Create an EncodedRectangleFactory so that EncodedRectangles can be built according to set pixel layout
 			factory = new EncodedRectangleFactory(rfb, Framebuffer);
 		}
@@ -407,6 +407,10 @@ namespace VncSharp
 							rfb.ReadColourMapEntry();
                             break;
                     }
+					// Moved screen update request here to prevent it being called multiple times
+					// This was the case when multiple rectangles were returned by the host
+					RequestScreenUpdate(false);
+					
                 } catch {
                     OnConnectionLost();
                 }
