@@ -40,7 +40,7 @@ namespace VncSharp
 
 		// Timeout Constants
 		public const int RECEIVE_TIMEOUT				= 15000;
-		public const int SENT_TIMEOUT					= 15000;
+		public const int SEND_TIMEOUT					= 15000;
 		
 		// Encoding Constants
 		public const int RAW_ENCODING 					= 0;
