@@ -38,6 +38,10 @@ namespace VncSharp
 		// Version Constants
 		private const string RFB_VERSION_ZERO			= "RFB 000.000\n";
 
+		// Timeout Constants
+		public const int RECEIVE_TIMEOUT				= 15000;
+		public const int SENT_TIMEOUT					= 15000;
+		
 		// Encoding Constants
 		public const int RAW_ENCODING 					= 0;
 		public const int COPYRECT_ENCODING 				= 1;
@@ -154,13 +158,13 @@ namespace VncSharp
 			// wrap a big endian Binary Reader and Binary Writer around the resulting stream.
 			tcp = new TcpClient {NoDelay = true}; // turn-off Nagle's Algorithm for better interactive performance with host.
 
-			tcp.ReceiveTimeout = 15000; // set receive timeout to 15s
-			tcp.SendTimeout = 15000;    // set send timeout to 15s
+			tcp.ReceiveTimeout = RECEIVE_TIMEOUT; // set receive timeout (15s default)
+			tcp.SendTimeout = SEND_TIMEOUT;    // set send timeout to (15s default)
 			tcp.Connect(host, port);
 			stream = tcp.GetStream();
 
-			stream.ReadTimeout = 15000; // set read timeout to 15s
-			stream.WriteTimeout = 15000;// set write timeout to 15s
+			stream.ReadTimeout = RECEIVE_TIMEOUT; // set read timeout to (15s default)
+			stream.WriteTimeout = SEND_TIMEOUT;// set write timeout to (15s default)
 
 			// Most of the RFB protocol uses Big-Endian byte order, while
 			// .NET uses Little-Endian. These wrappers convert between the
@@ -432,7 +436,8 @@ namespace VncSharp
 			BitConverter.GetBytes((ushort)encodings.Length).Reverse().ToArray().CopyTo(buff, 2);
 			
 			foreach (var t in encodings)
-			{	BitConverter.GetBytes(t).Reverse().ToArray().CopyTo(buff, 4+x);
+			{	
+				BitConverter.GetBytes(t).Reverse().ToArray().CopyTo(buff, 4+x);
 				x+=4;
 			}
 			writer.Write(buff);
@@ -862,7 +867,8 @@ namespace VncSharp
 						int toRead = (bytesToRead > 1024) ? 1024 : bytesToRead;
 						int bytesRead = 0;
 						try
-						{	bytesRead = netStream.Read(receiveBuffer, bytesRead, toRead);
+						{	
+							bytesRead = netStream.Read(receiveBuffer, bytesRead, toRead);
 						}
 						catch { }
 						

@@ -273,10 +273,6 @@ namespace VncSharp
             Invalidate(desktopPolicy.AdjustUpdateRectangle(e.DesktopUpdater.UpdateRectangle));
 
             if (state != RuntimeState.Connected) return;
-            // Do not request an update here, as this can be called for multiple time
-            // for one server response (multiple rectangles returned from the host)
-            // Moved to the GetRfbUpdates function (21-02-2018)
-            //vnc.RequestScreenUpdate(fullScreenRefresh);
 
             // Make sure the next screen update is incremental
             fullScreenRefresh = false;
