@@ -79,7 +79,7 @@ namespace VncSharp
 	    }
 
 	    /// <summary>
-		/// The number of Bits Per Pixel for the Framebuffer--one of 8, 24, or 32.
+		/// The number of Bits Per Pixel for the Framebuffer--one of 8, 16, or 32.
 		/// </summary>
 		public int BitsPerPixel { get; private set; }
 
@@ -168,32 +168,101 @@ namespace VncSharp
 			
 			return b;
 		}
-		
-		/// <summary>
-		/// Given the dimensions and 16-byte PIXEL_FORMAT record from the VNC Host, deserialize this into a Framebuffer object.
-		/// </summary>
-		/// <param name="b">The 16-byte PIXEL_FORMAT record.</param>
-		/// <param name="width">The width in pixels of the remote desktop.</param>
-		/// <param name="height">The height in pixles of the remote desktop.</param>
-		/// <returns>Returns a Framebuffer object matching the specification of b[].</returns>
-		public static Framebuffer FromPixelFormat(byte[] b, int width, int height)
-		{
-			if (b.Length != 16)
-				throw new ArgumentException("Length of b must be 16 bytes.");
 
-		    var buffer = new Framebuffer(width, height)
-		    {
-		        BitsPerPixel = b[0],
-		        Depth = b[1],
-		        BigEndian = b[2] != 0,
-		        TrueColour = b[3] != 0,
-		        RedMax = b[5] | b[4] << 8,
-		        GreenMax = b[7] | b[6] << 8,
-		        BlueMax = b[9] | b[8] << 8,
-		        RedShift = b[10],
-		        GreenShift = b[11],
-		        BlueShift = b[12]
-		    };
+        /// <summary>
+        /// Given the dimensions and 16-byte PIXEL_FORMAT record from the VNC Host, deserialize this into a Framebuffer object.
+        /// </summary>
+        /// <param name="b">The 16-byte PIXEL_FORMAT record.</param>
+        /// <param name="width">The width in pixels of the remote desktop.</param>
+        /// <param name="height">The height in pixles of the remote desktop.</param>
+		/// <param name="bitsPerPixel">The number of Bits Per Pixel for the Framebuffer--one of 8, 16, or 32.</param>
+		/// <param name="depth">The Colour Depth of the Framebuffer--one of 3, 6, 8 or 16.</param>
+        /// <returns>Returns a Framebuffer object matching the specification of b[].</returns>
+        public static Framebuffer FromPixelFormat(byte[] b, int width, int height, int bitsPerPixel, int depth)
+        {
+            if (b.Length != 16)
+                throw new ArgumentException("Length of b must be 16 bytes.");
+
+            var buffer = new Framebuffer(width, height);
+
+            if ((bitsPerPixel == 16) && (depth == 16))
+            {
+                buffer.BitsPerPixel     = 16;
+                buffer.Depth            = 16;
+                buffer.BigEndian        = b[2] != 0;
+                buffer.TrueColour       = false;
+                buffer.RedMax           = 31;
+                buffer.GreenMax         = 63;
+                buffer.BlueMax          = 31;
+                buffer.RedShift         = 11;
+                buffer.GreenShift       = 5;
+                buffer.BlueShift        = 0;
+            }
+            else if ((bitsPerPixel) == 16 && (depth == 8))
+            {
+                buffer.BitsPerPixel     = 16;
+                buffer.Depth            = 8;
+                buffer.BigEndian        = b[2] != 0;
+                buffer.TrueColour       = false;
+                buffer.RedMax           = 31;
+                buffer.GreenMax         = 63;
+                buffer.BlueMax          = 31;
+                buffer.RedShift         = 11;
+                buffer.GreenShift       = 5;
+                buffer.BlueShift        = 0;
+            }
+            else if ((bitsPerPixel) == 8 && (depth == 8))
+            {
+                buffer.BitsPerPixel     = 8;
+                buffer.BigEndian        = b[2] != 0;
+                buffer.TrueColour       = false;
+                buffer.Depth            = 8;
+                buffer.RedMax           = 7;
+                buffer.GreenMax         = 7;
+                buffer.BlueMax          = 3;
+                buffer.RedShift         = 0;
+                buffer.GreenShift       = 3;
+                buffer.BlueShift        = 6;
+            }
+            else if ((bitsPerPixel) == 8 && (depth == 6))
+            {
+                buffer.BitsPerPixel     = 8;
+                buffer.Depth            = 6;
+                buffer.BigEndian        = b[2] != 0;
+                buffer.TrueColour       = false;
+                buffer.RedMax           = 3;
+                buffer.GreenMax         = 3;
+                buffer.BlueMax          = 3;
+                buffer.RedShift         = 4;
+                buffer.GreenShift       = 2;
+                buffer.BlueShift        = 0;
+            }
+            else if ((bitsPerPixel == 8) && (depth == 3))
+            {
+                buffer.BitsPerPixel     = 8;
+                buffer.Depth            = 3;
+                buffer.BigEndian        = b[2] != 0;
+                buffer.TrueColour       = false;
+                buffer.RedMax           = 1;
+                buffer.GreenMax         = 1;
+                buffer.BlueMax          = 1;
+                buffer.RedShift         = 2;
+                buffer.GreenShift       = 1;
+                buffer.BlueShift        = 0;
+            }
+            else
+            {
+                buffer.BitsPerPixel     = b[0];
+                buffer.Depth            = b[1];
+                buffer.BigEndian        = b[2] != 0;
+                buffer.TrueColour       = b[3] != 0;
+                buffer.RedMax           = b[5] | b[4] << 8;
+                buffer.GreenMax         = b[7] | b[6] << 8;
+                buffer.BlueMax          = b[9] | b[8] << 8;
+                buffer.RedShift         = b[10];
+                buffer.GreenShift       = b[11];
+                buffer.BlueShift        = b[12];
+            }
 
 		    // Last 3 bytes are padding, ignore									
 

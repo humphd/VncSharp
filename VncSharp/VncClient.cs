@@ -137,7 +137,7 @@ namespace VncSharp
 			        throw new VncProtocolException("Connection Failed. The server rejected the connection for the following reason: " + rfb.ReadSecurityFailureReason());
 			    }
 			    securityType = GetSupportedSecurityType(types);
-			    Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
+				Debug.Assert(securityType > 0, "Unknown Security Type(s)", "The server sent one or more unknown Security Types.");
 						
 			    rfb.WriteSecurityType(securityType);
 						
@@ -280,12 +280,11 @@ namespace VncSharp
 		/// <summary>
 		/// Finish setting-up protocol with VNC Host.  Should be called after Connect and Authenticate (if password required).
 		/// </summary>
-		public void Initialize()
+		public void Initialize(int bitsPerPixel, int depth)
 		{
 			// Finish initializing protocol with host
-			rfb.WriteClientInitialisation(false);
-			Framebuffer = rfb.ReadServerInit();
-			rfb.WriteSetPixelFormat(Framebuffer);	// just use the server's framebuffer format
+			rfb.WriteClientInitialisation(true);  // Allow the desktop to be shared
+			Framebuffer = rfb.ReadServerInit(bitsPerPixel, depth);
 
 			rfb.WriteSetEncodings(new uint[] {	RfbProtocol.ZRLE_ENCODING,
 			                                    RfbProtocol.HEXTILE_ENCODING, 
@@ -293,7 +292,9 @@ namespace VncSharp
 												RfbProtocol.RRE_ENCODING,
 												RfbProtocol.COPYRECT_ENCODING,
 												RfbProtocol.RAW_ENCODING });
-			
+
+			rfb.WriteSetPixelFormat(Framebuffer);	// set the required ramebuffer format
+            
 			// Create an EncodedRectangleFactory so that EncodedRectangles can be built according to set pixel layout
 			factory = new EncodedRectangleFactory(rfb, Framebuffer);
 		}
@@ -318,7 +319,8 @@ namespace VncSharp
 		public void Disconnect()
 		{
 			// Stop the worker thread.
-			done.Set();
+			if (done != null)
+				done.Set();
 
 			// BUG FIX: Simon.Phillips@warwick.ac.uk for UltraVNC disconnect issue
 			// Request a tiny screen update to flush the blocking read
@@ -328,8 +330,8 @@ namespace VncSharp
 				// this may not work, as Disconnect can get called in response to the
 				// VncClient raising a ConnectionLost event (e.g., the remote host died).
 			}
-
-			worker.Join(3000);	// this number is arbitrary, just so that it doesn't block forever....
+			if (worker != null)
+				worker.Join(3000);	// this number is arbitrary, just so that it doesn't block forever....
 
 			rfb.Close();	
 			rfb = null;
@@ -405,6 +407,10 @@ namespace VncSharp
 							rfb.ReadColourMapEntry();
                             break;
                     }
+					// Moved screen update request here to prevent it being called multiple times
+					// This was the case when multiple rectangles were returned by the host
+					RequestScreenUpdate(false);
+					
                 } catch {
                     OnConnectionLost();
                 }

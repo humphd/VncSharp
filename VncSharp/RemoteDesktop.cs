@@ -97,6 +97,8 @@ namespace VncSharp
         private bool fullScreenRefresh; // Whether or not to request the entire remote screen be sent.
         private VncDesktopTransformPolicy desktopPolicy;
         private RuntimeState state = RuntimeState.Disconnected;
+        private int bitsPerPixel = 0;
+        private int depth = 0;
 
         //private KeyboardHook _keyboardHook = new KeyboardHook();
 
@@ -271,7 +273,6 @@ namespace VncSharp
             Invalidate(desktopPolicy.AdjustUpdateRectangle(e.DesktopUpdater.UpdateRectangle));
 
             if (state != RuntimeState.Connected) return;
-            vnc.RequestScreenUpdate(fullScreenRefresh);
 
             // Make sure the next screen update is incremental
             fullScreenRefresh = false;
@@ -460,6 +461,28 @@ namespace VncSharp
             set { SetScalingMode(value); }
         }
 
+        [DefaultValue(0)]
+        [Description("Sets the number of Bits Per Pixel for the Framebuffer--one of 8, 16, or 32")]
+        /// <summary>
+        /// Sets the number of Bits Per Pixel for the Framebuffer--one of 8, 16, or 32
+        /// </summary>
+        public int BitsPerPixel
+        {
+            get { return bitsPerPixel; }
+            set { bitsPerPixel = value; }
+        }
+
+        [DefaultValue(0)]
+        [Description("Sets the Colour Depth of the Framebuffer--one of 3, 6, 8, or 16")]
+        /// <summary>
+        /// Sets the Colour Depth of the Framebuffer--one of 3, 6, 8, or 16
+        /// </summary>
+        public int Depth
+        {
+            get { return depth; }
+            set { depth = value; }
+        }
+
         /// <summary>
         /// After protocol-level initialization and connecting is complete, the local GUI objects have to be set-up, and requests for updates to the remote host begun.
         /// </summary>
@@ -468,7 +491,7 @@ namespace VncSharp
         {
             // Finish protocol handshake with host now that authentication is done.
             InsureConnection(false);
-            vnc.Initialize();
+            vnc.Initialize(bitsPerPixel, depth);
             SetState(RuntimeState.Connected);
 
             // Create a buffer on which updated rectangles will be drawn and draw a "please wait..." 
@@ -634,8 +657,8 @@ namespace VncSharp
                 switch (state)
                 {
                     case RuntimeState.Connected:
-                        Assert(desktop != null);
-                        DrawDesktopImage(desktop, pe.Graphics);
+                        if (desktop != null)
+                            DrawDesktopImage(desktop, pe.Graphics);
                         break;
                     case RuntimeState.Disconnected:
                     case RuntimeState.Disconnecting:
@@ -651,8 +674,8 @@ namespace VncSharp
             else
             {
                 // Draw a static screenshot of a Windows desktop to simulate the control in action
-                Assert(designModeDesktop != null);
-                DrawDesktopImage(designModeDesktop, pe.Graphics);
+                if (designModeDesktop != null)
+                    DrawDesktopImage(designModeDesktop, pe.Graphics);
             }
             base.OnPaint(pe);
         }

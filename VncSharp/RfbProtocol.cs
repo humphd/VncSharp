@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
@@ -32,11 +33,15 @@ namespace VncSharp
 	/// </summary>
 	public class RfbProtocol
 	{
-        #region Constants
-        // ReSharper disable InconsistentNaming
-        // Version Constants
-	    private const string RFB_VERSION_ZERO			= "RFB 000.000\n";
+		#region Constants
+		// ReSharper disable InconsistentNaming
+		// Version Constants
+		private const string RFB_VERSION_ZERO			= "RFB 000.000\n";
 
+		// Timeout Constants
+		public const int RECEIVE_TIMEOUT				= 15000;
+		public const int SEND_TIMEOUT					= 15000;
+		
 		// Encoding Constants
 		public const int RAW_ENCODING 					= 0;
 		public const int COPYRECT_ENCODING 				= 1;
@@ -51,94 +56,94 @@ namespace VncSharp
 		public const int BELL 							= 2;
 		public const int SERVER_CUT_TEXT 				= 3;
 
-        // Client to Server Message-Type constants
-        private const byte SET_PIXEL_FORMAT 			= 0;
-        private const byte SET_ENCODINGS 				= 2;
-        private const byte FRAMEBUFFER_UPDATE_REQUEST = 3;
-        private const byte KEY_EVENT 					= 4;
-        private const byte POINTER_EVENT 				= 5;
-        private const byte CLIENT_CUT_TEXT 			= 6;
+		// Client to Server Message-Type constants
+		private const byte SET_PIXEL_FORMAT 			= 0;
+		private const byte SET_ENCODINGS 				= 2;
+		private const byte FRAMEBUFFER_UPDATE_REQUEST 	= 3;
+		private const byte KEY_EVENT 					= 4;
+		private const byte POINTER_EVENT 				= 5;
+		private const byte CLIENT_CUT_TEXT 				= 6;
 
         // Keyboard constants
-        public const int XK_BackSpace = 0xFF08;
-        public const int XK_Tab = 0xFF09;
-        public const int XK_Clear = 0xFF0B;
-        public const int XK_Return = 0xFF0D;
-        public const int XK_Pause = 0xFF13;
-        public const int XK_Sys_Req = 0xFF15;
-        public const int XK_Escape = 0xFF1B;
-        public const int XK_Home = 0xFF50;
-        public const int XK_Left = 0xFF51;
-        public const int XK_Up = 0xFF52;
-        public const int XK_Right = 0xFF53;
-        public const int XK_Down = 0xFF54;
-        public const int XK_Prior = 0xFF55;
-        public const int XK_Next = 0xFF56;
-        public const int XK_End = 0xFF57;
-        public const int XK_Select = 0xFF60;
-        public const int XK_Print = 0xFF61;
-        public const int XK_Execute = 0xFF62;
-        public const int XK_Insert = 0xFF63;
-        public const int XK_Menu = 0xFF67;
-        public const int XK_Cancel = 0xFF69;
-        public const int XK_Help = 0xFF6A;
-        public const int XK_Break = 0xFF6B;
-        public const int XK_F1 = 0xFFBE;
-        public const int XK_F2 = 0xFFBF;
-        public const int XK_F3 = 0xFFC0;
-        public const int XK_F4 = 0xFFC1;
-        public const int XK_F5 = 0xFFC2;
-        public const int XK_F6 = 0xFFC3;
-        public const int XK_F7 = 0xFFC4;
-        public const int XK_F8 = 0xFFC5;
-        public const int XK_F9 = 0xFFC6;
-        public const int XK_F10 = 0xFFC7;
-        public const int XK_F11 = 0xFFC8;
-        public const int XK_F12 = 0xFFC9;
-        public const int XK_Shift_L = 0xFFE1;
-        public const int XK_Shift_R = 0xFFE2;
-        public const int XK_Control_L = 0xFFE3;
-        public const int XK_Control_R = 0xFFE4;
-        public const int XK_Meta_L = 0xFFE7;
-        public const int XK_Meta_R = 0xFFE8;
-        public const int XK_Alt_L = 0xFFE9;
-        public const int XK_Alt_R = 0xFFEA;
-        public const int XK_Super_L = 0xFFEB;
-        public const int XK_Super_R = 0xFFEC;
-        public const int XK_Hyper_L = 0xFFED;
-        public const int XK_Hyper_R = 0xFFEE;
-        public const int XK_Delete = 0xFFFF;
+		public const int XK_BackSpace 	= 0xFF08;
+		public const int XK_Tab 		= 0xFF09;
+		public const int XK_Clear 		= 0xFF0B;
+		public const int XK_Return 		= 0xFF0D;
+		public const int XK_Pause 		= 0xFF13;
+		public const int XK_Sys_Req 	= 0xFF15;
+		public const int XK_Escape 		= 0xFF1B;
+		public const int XK_Home 		= 0xFF50;
+		public const int XK_Left 		= 0xFF51;
+		public const int XK_Up 			= 0xFF52;
+		public const int XK_Right 		= 0xFF53;
+		public const int XK_Down 		= 0xFF54;
+		public const int XK_Prior 		= 0xFF55;
+		public const int XK_Next 		= 0xFF56;
+		public const int XK_End 		= 0xFF57;
+		public const int XK_Select 		= 0xFF60;
+		public const int XK_Print 		= 0xFF61;
+		public const int XK_Execute 	= 0xFF62;
+		public const int XK_Insert 		= 0xFF63;
+		public const int XK_Menu 		= 0xFF67;
+		public const int XK_Cancel 		= 0xFF69;
+		public const int XK_Help 		= 0xFF6A;
+		public const int XK_Break 		= 0xFF6B;
+		public const int XK_F1 			= 0xFFBE;
+		public const int XK_F2 			= 0xFFBF;
+		public const int XK_F3 			= 0xFFC0;
+		public const int XK_F4 			= 0xFFC1;
+		public const int XK_F5 			= 0xFFC2;
+		public const int XK_F6 			= 0xFFC3;
+		public const int XK_F7 			= 0xFFC4;
+		public const int XK_F8 			= 0xFFC5;
+		public const int XK_F9 			= 0xFFC6;
+		public const int XK_F10 		= 0xFFC7;
+		public const int XK_F11 		= 0xFFC8;
+		public const int XK_F12 		= 0xFFC9;
+		public const int XK_Shift_L 	= 0xFFE1;
+		public const int XK_Shift_R 	= 0xFFE2;
+		public const int XK_Control_L 	= 0xFFE3;
+		public const int XK_Control_R 	= 0xFFE4;
+		public const int XK_Meta_L 		= 0xFFE7;
+		public const int XK_Meta_R 		= 0xFFE8;
+		public const int XK_Alt_L 		= 0xFFE9;
+		public const int XK_Alt_R 		= 0xFFEA;
+		public const int XK_Super_L 	= 0xFFEB;
+		public const int XK_Super_R 	= 0xFFEC;
+		public const int XK_Hyper_L 	= 0xFFED;
+		public const int XK_Hyper_R 	= 0xFFEE;
+		public const int XK_Delete 		= 0xFFFF;
 
-        // ReSharper restore InconsistentNaming
-        #endregion
+		// ReSharper restore InconsistentNaming
+		#endregion
 
-        private int verMajor;   // Major version of Protocol--probably 3
-        private int verMinor; // Minor version of Protocol--probably 3, 7, or 8
+		private int verMajor;	// Major version of Protocol--probably 3
+		private int verMinor;	// Minor version of Protocol--probably 3, 7, or 8
 
-        private TcpClient tcp;      // Network object used to communicate with host
-        private NetworkStream stream;   // Stream object used to send/receive data
-	    private BinaryWriter writer;    // sent and received, so these handle this.
+		private TcpClient tcp;			// Network object used to communicate with host
+		private NetworkStream stream;	// Stream object used to send/receive data
+		private BinaryWriter writer;	// sent and received, so these handle this.
 
-	    /// <summary>
+		/// <summary>
 		/// Gets the Protocol Version of the remote VNC Host--probably 3.3, 3.7, or 3.8.
 		/// </summary>
 		public float ServerVersion
-	    {
-	        get { return verMajor + verMinor * 0.1f; }
-	    }
+		{
+			get { return verMajor + verMinor * 0.1f; }
+		}
 
-	    /// <summary>
+		/// <summary>
 		/// Gets or sets the proxy identifier to be send when using UltraVNC's repeater functionality
 		/// </summary>
 		/// <value>
 		/// The proxy identifier.
 		/// </value>
-	    // ReSharper disable once UnusedAutoPropertyAccessor.Local
+		// ReSharper disable once UnusedAutoPropertyAccessor.Local
 		private int ProxyID { get; set; }
 
 		public BinaryReader Reader { get; private set; }
 
-	    public ZRLECompressedReader ZrleReader { get; private set; }
+		public ZRLECompressedReader ZrleReader { get; private set; }
 
 	    /// <summary>
 		/// Attempt to connect to a remote VNC Host.
@@ -151,10 +156,15 @@ namespace VncSharp
 
 			// Try to connect, passing any exceptions up to the caller, and if successful, 
 			// wrap a big endian Binary Reader and Binary Writer around the resulting stream.
-		    tcp = new TcpClient {NoDelay = true}; // turn-off Nagle's Algorithm for better interactive performance with host.
+			tcp = new TcpClient {NoDelay = true}; // turn-off Nagle's Algorithm for better interactive performance with host.
 
-		    tcp.Connect(host, port);
+			tcp.ReceiveTimeout = RECEIVE_TIMEOUT; // set receive timeout (15s default)
+			tcp.SendTimeout = SEND_TIMEOUT;    // set send timeout to (15s default)
+			tcp.Connect(host, port);
 			stream = tcp.GetStream();
+
+			stream.ReadTimeout = RECEIVE_TIMEOUT; // set read timeout to (15s default)
+			stream.WriteTimeout = SEND_TIMEOUT;// set write timeout to (15s default)
 
 			// Most of the RFB protocol uses Big-Endian byte order, while
 			// .NET uses Little-Endian. These wrappers convert between the
@@ -186,6 +196,12 @@ namespace VncSharp
 		public void ReadProtocolVersion()
 		{
 			var b = Reader.ReadBytes(12);
+			string a = "";
+			string s = "";
+			for (int x = 0; x < 12; x++)
+				a += $"{b[x]} ";
+			for (int x = 0; x < 12; x++)
+				s += $"{Convert.ToChar(b[x])} ";
 
 			// As of the time of writing, the only supported versions are 3.3, 3.7, and 3.8.
 			if (Encoding.ASCII.GetString(b) == RFB_VERSION_ZERO) // Repeater functionality
@@ -193,25 +209,42 @@ namespace VncSharp
 				verMajor = 0;
 				verMinor = 0;
 			}
+			// Added support for RealVNC 4.001 (Linux VNC Server) - Supports 3.8 Protocol
+			else if (b[0] == 82 &&		// R
+					 b[1] == 70 &&		// F
+					 b[2] == 66 &&		// B
+					 b[3] == 32 &&		// (space)
+					 b[4] == 48 &&		// 0
+					 b[5] == 48 &&		// 0
+					 b[6] == 52 &&		// 4
+					 b[7] == 46 &&		// .
+					 b[8] == 48 &&		// 0
+					 b[9] == 48 &&		// 0
+					 b[10] == 49 &&		// 1
+					 b[11] == 10)		// \n
+			{
+				verMajor = 3;
+				verMinor = 8;
+			}
 			else if ( 
-				b[0]  == 0x52 &&					 // R
-				b[1]  == 0x46 &&					 // F
-				b[2]  == 0x42 &&					 // B
-				b[3]  == 0x20 &&					 // (space)
-				b[4]  == 0x30 &&					 // 0
-				b[5]  == 0x30 &&					 // 0
-				b[6]  == 0x33 &&					 // 3
-				b[7]  == 0x2e &&					 // .
-				(b[8]  == 0x30 ||					 // 0
-				 b[8]  == 0x38) &&					 // BUG FIX: Apple reports 8 
-				(b[9] == 0x30 ||					  // 0
-				 b[9] == 0x38) &&					 // BUG FIX: Apple reports 8 
-				(b[10] == 0x33 ||					 // 3, 7, OR 8 are all valid and possible
-				 b[10] == 0x36 ||					 // BUG FIX: UltraVNC reports protocol version 3.6!
+				b[0]  == 0x52 &&					// R
+				b[1]  == 0x46 &&					// F
+				b[2]  == 0x42 &&					// B
+				b[3]  == 0x20 &&					// (space)
+				b[4]  == 0x30 &&					// 0
+				b[5]  == 0x30 &&					// 0
+				b[6]  == 0x33 &&					// 3
+				b[7]  == 0x2e &&					// .
+				(b[8]  == 0x30 ||					// 0
+				 b[8]  == 0x38) &&					// BUG FIX: Apple reports 8 
+				(b[9] == 0x30 ||					// 0
+				 b[9] == 0x38) &&					// BUG FIX: Apple reports 8 
+				(b[10] == 0x33 ||					// 3, 7, OR 8 are all valid and possible
+				 b[10] == 0x36 ||				 	// BUG FIX: UltraVNC reports protocol version 3.6!
 				 b[10] == 0x37 ||					 
 				 b[10] == 0x38 ||					 
 				 b[10] == 0x39) &&					// BUG FIX: Apple reports 9					
-				b[11] == 0x0a)						 // \n
+				b[11] == 0x0a)						// \n
 			{
 				// Since we only currently support the 3.x protocols, this can be assumed here.
 				// If and when 4.x comes out, this will need to be fixed--however, the entire 
@@ -219,7 +252,7 @@ namespace VncSharp
 				verMajor = 3;
 
 				// Figure out which version of the protocol this is:
-			    // ReSharper disable once SwitchStatementMissingSomeCases
+				// ReSharper disable once SwitchStatementMissingSomeCases
 				switch (b[10]) {
 					case 0x33: 
 					case 0x36:	// BUG FIX: pass 3.3 for 3.6 to allow UltraVNC to work, thanks to Steve Bostedor.
@@ -240,7 +273,7 @@ namespace VncSharp
 						break;
 				}
 			} else {
-				throw new NotSupportedException("Only versions 3.3, 3.7, and 3.8 of the RFB Protocol are supported.");
+				throw new NotSupportedException($"Only versions 3.3, 3.7, and 3.8 of the RFB Protocol are supported.\r\n{a}\r\n{s}");
 			}
 		}
 
@@ -251,7 +284,7 @@ namespace VncSharp
 		{
 			// We will use which ever version the server understands, be it 3.3, 3.7, or 3.8.
 			Debug.Assert(verMinor == 3 || verMinor == 7 || verMinor == 8, "Wrong Protocol Version!",
-			    $"Protocol Version should be 3.3, 3.7, or 3.8 but is {verMajor}.{verMinor}");
+				$"Protocol Version should be 3.3, 3.7, or 3.8 but is {verMajor}.{verMinor}");
 
 			writer.Write(GetBytes($"RFB 003.00{verMinor}\n"));
 			writer.Flush();
@@ -310,9 +343,9 @@ namespace VncSharp
 			Debug.Assert(type >= 1, "Wrong Security Type", "The Security Type must be one that requires authentication.");
 			
 			// Only bother writing this byte if the version of the server is 3.7
-		    if (verMinor < 7) return;
-		    writer.Write(type);
-		    writer.Flush();
+			if (verMinor < 7) return;
+			writer.Write(type);
+			writer.Flush();
 		}
 
 		/// <summary>
@@ -360,11 +393,11 @@ namespace VncSharp
 		/// Reads the server's Initialization message, specifically the remote Framebuffer's properties. See RFB Doc v. 3.8 section 6.1.5.
 		/// </summary>
 		/// <returns>Returns a Framebuffer object representing the geometry and properties of the remote host.</returns>
-		public Framebuffer ReadServerInit()
+		public Framebuffer ReadServerInit(int bitsPerPixel, int depth)
 		{
 			int w = Reader.ReadUInt16();
 			int h = Reader.ReadUInt16();
-			var buffer = Framebuffer.FromPixelFormat(Reader.ReadBytes(16), w, h);
+			var buffer = Framebuffer.FromPixelFormat(Reader.ReadBytes(16), w, h, bitsPerPixel, depth);
 			var length = (int) Reader.ReadUInt32();
 
 			buffer.DesktopName = GetString(Reader.ReadBytes(length));
@@ -378,9 +411,15 @@ namespace VncSharp
 		/// <param name="buffer">A Framebuffer telling the server how to encode pixel data. Typically this will be the same one sent by the server during initialization.</param>
 		public void WriteSetPixelFormat(Framebuffer buffer)
 		{
-			writer.Write(SET_PIXEL_FORMAT);
-			WritePadding(3);
-			writer.Write(buffer.ToPixelFormat());		// 16-byte Pixel Format
+			byte[] buff = new byte[20];
+
+			// Build up the packet
+			buff[0] = SET_PIXEL_FORMAT;
+			buff[1] = 0x00;
+			buff[2] = 0x00;
+			buff[3] = 0x00;
+			buffer.ToPixelFormat().CopyTo(buff, 4);		// 16-byte Pixel Format
+			writer.Write(buff);
 			writer.Flush();
 		}
 
@@ -390,15 +429,18 @@ namespace VncSharp
 		/// <param name="encodings">An array of integers indicating the encoding types supported.  The order indicates preference, where the first item is the first preferred.</param>
 		public void WriteSetEncodings(uint[] encodings)
 		{
-			writer.Write(SET_ENCODINGS);
-			WritePadding(1);
-			writer.Write((ushort)encodings.Length);
+			byte[] buff = new byte[(encodings.Length*4) + 4];
+			int x = 0;
+			buff[0] = SET_ENCODINGS;
+			buff[1] = 0x00;
+			BitConverter.GetBytes((ushort)encodings.Length).Reverse().ToArray().CopyTo(buff, 2);
 			
 			foreach (var t in encodings)
-			{
-			    writer.Write(t);
+			{	
+				BitConverter.GetBytes(t).Reverse().ToArray().CopyTo(buff, 4+x);
+				x+=4;
 			}
-
+			writer.Write(buff);
 			writer.Flush();
 		}
 
@@ -412,12 +454,14 @@ namespace VncSharp
 		/// <param name="incremental">Indicates whether only changes to the client's data should be sent or the entire desktop.</param>
 		public void WriteFramebufferUpdateRequest(ushort x, ushort y, ushort width, ushort height, bool incremental)
 		{
-			writer.Write(FRAMEBUFFER_UPDATE_REQUEST);
-			writer.Write((byte)(incremental ? 1 : 0));
-			writer.Write(x);
-			writer.Write(y);
-			writer.Write(width);
-			writer.Write(height);
+			byte[] buff = new byte[10];
+			buff[0] = FRAMEBUFFER_UPDATE_REQUEST;
+			buff[1] = (byte)(incremental ? 1 : 0);
+			BitConverter.GetBytes((ushort)x).Reverse().ToArray().CopyTo(buff, 2);
+			BitConverter.GetBytes((ushort)y).Reverse().ToArray().CopyTo(buff, 4);
+			BitConverter.GetBytes((ushort)width).Reverse().ToArray().CopyTo(buff, 6);
+			BitConverter.GetBytes((ushort)height).Reverse().ToArray().CopyTo(buff, 8);
+			writer.Write(buff);
 			writer.Flush();
 		}
 
@@ -428,10 +472,13 @@ namespace VncSharp
 		/// <param name="pressed"></param>
 		public void WriteKeyEvent(uint keysym, bool pressed)
 		{
-			writer.Write(KEY_EVENT);
-			writer.Write( (byte) (pressed ? 1 : 0));
-			WritePadding(2);
-			writer.Write(keysym);
+			byte[] buff = new byte[8];
+			buff[0] = KEY_EVENT;
+			buff[1] = (byte)(pressed ? 1 : 0);
+			buff[2] = 0x00;
+			buff[3] = 0x00;
+			BitConverter.GetBytes(keysym).Reverse().ToArray().CopyTo(buff, 4);
+			writer.Write(buff);
 			writer.Flush();
 		}
 
@@ -442,10 +489,12 @@ namespace VncSharp
 		/// <param name="point">The location of the mouse cursor.</param>
 		public void WritePointerEvent(byte buttonMask, Point point)
 		{
-			writer.Write(POINTER_EVENT);
-			writer.Write(buttonMask);
-			writer.Write( (ushort) point.X);
-			writer.Write( (ushort) point.Y);
+			byte[] buff = new byte[6];
+			buff[0] = POINTER_EVENT;
+			buff[1] = buttonMask;
+			BitConverter.GetBytes((ushort)point.X).Reverse().ToArray().CopyTo(buff, 2);
+			BitConverter.GetBytes((ushort)point.Y).Reverse().ToArray().CopyTo(buff, 4);
+			writer.Write(buff);
 			writer.Flush();
 		}
 
@@ -455,10 +504,14 @@ namespace VncSharp
 		/// <param name="text">The text to be sent to the server.</param>
 		public void WriteClientCutText(string text)
 		{
-			writer.Write(CLIENT_CUT_TEXT);
-			WritePadding(3);
-			writer.Write( (uint) text.Length);
-			writer.Write(GetBytes(text));
+			byte[] buff = new byte[text.Length + 8];
+			buff[0] = CLIENT_CUT_TEXT;
+			buff[1] = 0x00;
+			buff[2] = 0x00;
+			buff[3] = 0x00;
+			BitConverter.GetBytes((uint)text.Length).Reverse().ToArray().CopyTo(buff, 4);
+			GetBytes(text).CopyTo(buff, 8);
+			writer.Write(buff);
 			writer.Flush();
 		}
 
@@ -488,20 +541,20 @@ namespace VncSharp
 		/// <param name="encoding">The encoding used for this rectangle.</param>
 		public void ReadFramebufferUpdateRectHeader(out Rectangle rectangle, out int encoding)
 		{
-		    rectangle = new Rectangle
-		    {
-		        X = Reader.ReadUInt16(),
-		        Y = Reader.ReadUInt16(),
-		        Width = Reader.ReadUInt16(),
-		        Height = Reader.ReadUInt16()
-		    };
-		    encoding = (int) Reader.ReadUInt32();
+			rectangle = new Rectangle
+			{
+				X = Reader.ReadUInt16(),
+				Y = Reader.ReadUInt16(),
+				Width = Reader.ReadUInt16(),
+				Height = Reader.ReadUInt16()
+			};
+			encoding = (int) Reader.ReadUInt32();
 		}
 		
 		// TODO: this colour map code should probably go in Framebuffer.cs
-	    public ushort[,] MapEntries { get; } = new ushort[256, 3];
+		public ushort[,] MapEntries { get; } = new ushort[256, 3];
 
-	    /// <summary>
+		/// <summary>
 		/// Reads 8-bit RGB colour values (or updated values) into the colour map.  See RFB Doc v. 3.8 section 6.5.2.
 		/// </summary>
 		public void ReadColourMapEntry()
@@ -681,7 +734,7 @@ namespace VncSharp
 			{
 				var bytesRead = 0;
 
-			    do {
+				do {
 					var n = BaseStream.Read(buff, bytesRead, totalBytes - bytesRead);
 					
 					if (n == 0)
@@ -795,10 +848,11 @@ namespace VncSharp
 
 				#region Decode stream in blocks
 				// Decode stream in blocks
-			    var bytesNeeded = compressedBufferSize;
+				var bytesNeeded = compressedBufferSize;
 				const int maxBufferSize = 64 * 1024; // 64k buffer
 				var receiveBuffer = new byte[maxBufferSize];
 				var netStream = (NetworkStream)BaseStream;
+				netStream.ReadTimeout = 15000; // Set timeout to 15s
 				do
 				{
 					if (netStream.DataAvailable)
@@ -808,9 +862,16 @@ namespace VncSharp
 						// the byteToRead should never exceed the maxBufferSize
 						if (bytesToRead > maxBufferSize)
 							bytesToRead = maxBufferSize;
-
-						// try reading bytes
-						var bytesRead = netStream.Read(receiveBuffer, 0, bytesToRead);
+						
+						// try reading bytes (read in 1024 byte chunks) - improvement for slow connections
+						int toRead = (bytesToRead > 1024) ? 1024 : bytesToRead;
+						int bytesRead = 0;
+						try
+						{	
+							bytesRead = netStream.Read(receiveBuffer, bytesRead, toRead);
+						}
+						catch { }
+						
 						// lower the bytesNeeded with the bytesRead.
 						bytesNeeded -= bytesRead;
 
@@ -819,7 +880,7 @@ namespace VncSharp
 					}
 					else
 						// there isn't any data atm. let's give the processor some time.
-						Thread.Sleep(1);
+						Thread.Sleep(100); // increased to 100ms for slow connections
 
 				} while (bytesNeeded > 0);
 				#endregion
