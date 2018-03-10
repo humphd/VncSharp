@@ -48,7 +48,6 @@ namespace VncSharp
 		/// </summary>
 		public event EventHandler ConnectionLost;
 
-        /// <summary>
 		/// <summary>
 		/// Raised when the server caused the local clipboard to be filled.
 		/// </summary>
