@@ -88,15 +88,15 @@ namespace VncSharp
         // ReSharper disable once MemberCanBePrivate.Global
         // ReSharper disable once FieldCanBeMadeReadOnly.Global
         public AuthenticateDelegate GetPassword;
-
+        
         private Bitmap desktop; // Internal representation of remote image.
         private readonly Image designModeDesktop; // Used when painting control in VS.NET designer
         private VncClient vnc; // The Client object handling all protocol-level interaction
         private int port = 5900; // The port to connect to on remote host (5900 is default)
         private bool passwordPending; // After Connect() is called, a password might be required.
-        private bool fullScreenRefresh; // Whether or not to request the entire remote screen be sent.
         private VncDesktopTransformPolicy desktopPolicy;
         private RuntimeState state = RuntimeState.Disconnected;
+        private bool viewOnlyMode = false;
         private int bitsPerPixel = 0;
         private int depth = 0;
 
@@ -224,7 +224,7 @@ namespace VncSharp
         public void FullScreenUpdate()
         {
             InsureConnection(true);
-            fullScreenRefresh = true;
+            vnc.FullScreenRefresh = true;
         }
 
         /// <summary>
@@ -275,7 +275,7 @@ namespace VncSharp
             if (state != RuntimeState.Connected) return;
 
             // Make sure the next screen update is incremental
-            fullScreenRefresh = false;
+            vnc.FullScreenRefresh = false;
         }
 
         /// <summary>
@@ -330,7 +330,7 @@ namespace VncSharp
         /// <exception cref="System.InvalidOperationException">Thrown if the RemoteDesktop control is already Connected.  See <see cref="VncSharp.RemoteDesktop.IsConnected" />.</exception>
         public void Connect(string host, int display)
         {
-            Connect(host, display, false);
+            Connect(host, display, viewOnlyMode);
         }
 
         /// <summary>
@@ -372,6 +372,7 @@ namespace VncSharp
             vnc = new VncClient();
             vnc.ConnectionLost += VncClientConnectionLost;
             vnc.ServerCutText += VncServerCutText;
+            vnc.ViewOnly = viewOnly;
 
             passwordPending = vnc.Connect(host, display, VncPort, viewOnly);
 
@@ -413,24 +414,15 @@ namespace VncSharp
                 OnConnectionLost();
         }
 
-        /// <summary>
-        /// Changes the input mode to view-only or interactive.
-        /// </summary>
-        /// <param name="viewOnly">True if view-only mode is desired (no mouse/keyboard events will be sent).</param>
-        public void SetInputMode(bool viewOnly)
-        {
-            vnc.SetInputMode(viewOnly);
-        }
-
-        [DefaultValue(false)]
-        [Description("True if view-only mode is desired (no mouse/keyboard events will be sent)")]
-        /// <summary>
-        /// True if view-only mode is desired (no mouse/keyboard events will be sent).
-        /// </summary>
+        //[DefaultValue(false)]
+        //[Description("True if view-only mode is desired (no mouse/keyboard events will be sent)")]
+        ///// <summary>
+        ///// True if view-only mode is desired (no mouse/keyboard events will be sent).
+        ///// </summary>
         public bool ViewOnly
         {
-            get { return vnc.IsViewOnly; }
-            set { SetInputMode(value); }
+            get { return viewOnlyMode; }
+            set { viewOnlyMode = value; }
         }
 
         /// <summary>

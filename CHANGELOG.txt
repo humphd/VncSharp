@@ -1,6 +1,15 @@
 Change Log
 ----------
 
+* Version 1.1.1
+
+- Add support for differing BitsPerPixel and Depth settings, improved low bandwidth support (Len Meakin)
+- Modified network protocol writes to allow for better network capturing (Len Meakin)
+- Added Read / Write socket time out values (15s) (Len Meakin)
+- Corrected ViewOnly property (VS2017 .NET 4.5.2) (Len Meakin)
+- Changed default behaviour to allow remote desktop view to be shared between clients (Len Meakin)
+- Improved support for RealVNC Server (advertising version 4.001, set as 3.8 protocol) 
+
 * Version 1.1
 
 - Rewrite of keyboard handling code (Will now support keyboard combinations such as Ctrl + C)
